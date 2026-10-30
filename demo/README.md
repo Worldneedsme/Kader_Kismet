@@ -21,8 +21,8 @@ tüm görseller kodla çizilmiş geçici şekiller.
 5. **Gala:**
    - Önce gün içinde oluşan match'ler açıklanır.
    - Herkes karşı takımdan birini eleme için seçer. Yarışmacılar en düşük uyumlu olduklarını seçer, kendi match'lerini seçmez.
-   - Match olanların aleyhine verilen oylardan biri silinir (+1 avantaj).
-   - En çok net oyu alan villadan ayrılır. Eşitlikte uyumu en düşük olan gider. Oyuncu da elenebilir.
+   - Match'ler birbirine oy vermez; match'in avantajı budur, ayrıca kalkan yok.
+   - En çok oyu alan villadan ayrılır. Eşitlikte karşı takımla uyumu en düşük olan gider. Oyuncu da elenebilir.
 6. **Yeni gün:** Elenenin cinsinden yeni bir yarışmacı girer, konuşmalar sıfırlanır, uyumlar ve match'ler korunur.
 
 ## Diğer

@@ -216,7 +216,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
 .couple svg { width: 18px; height: 18px; color: var(--pembe); }
 .group-title { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gri); font-weight: 800; margin-top: 4px; }
 .num { font-variant-numeric: tabular-nums; }
-.tally { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px 12px; font-size: 13px; align-items: center; }
+.tally { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 13px; align-items: center; }
 .tally .h { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--gri); font-weight: 800; }
 .tally .out { color: var(--mercan); font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
@@ -994,7 +994,7 @@ function startGala() {
     <p>Gün boyunca oluşan eşleşmeler ilk kez herkesin önünde.</p>
     <div class="list">${couples.length ? couples.map(([a, b]) => `<div class="couple">${nm(a)} ${HEART_SVG} ${nm(b)}</div>`).join("") : `<p>Bu gece match olan yok.</p>`}</div>
     ${single.length ? `<p>Match'i olmayanlar: ${esc(single.join(", "))}</p>` : ""}
-    <p>Match olanların aleyhine verilen oylardan biri silinir.</p>
+    <p>Match'ler galada birbirine oy vermez.</p>
     <button class="btn" type="button" id="g-next">Oylamaya geç</button>`);
   $("g-next").addEventListener("click", galaVote);
 }
@@ -1047,17 +1047,17 @@ function galaTally(votes) {
   const count = new Map();
   for (const [, t] of votes) count.set(t, (count.get(t) || 0) + 1);
   const rows = [...count.entries()].map(([c, n]) => {
-    const shield = state.matchOf[c.id] ? 1 : 0;
     const chemSum = votes.filter(([v]) => v.def.g !== c.def.g).reduce((s, [v]) => s + getChem(v, c), 0);
-    return { c, n, shield, net: Math.max(0, n - shield), chemSum, r: Math.random() };
-  }).sort((a, b) => b.net - a.net || b.n - a.n || a.chemSum - b.chemSum || a.r - b.r);
+    return { c, n, chemSum, r: Math.random() };
+  }).sort((a, b) => b.n - a.n || a.chemSum - b.chemSum || a.r - b.r);
   const out = rows[0].c;
   const nm = c => esc(c === player ? c.def.name + " (sen)" : c.def.name);
   $("g-tally").innerHTML = `
     <div class="tally">
-      <span class="h">Yarışmacı</span><span class="h">Oy</span><span class="h">Kalkan</span><span class="h">Net</span>
-      ${rows.map(r => `<span class="${r.c === out ? "out" : ""}">${nm(r.c)}</span><span class="num">${r.n}</span><span class="num">${r.shield ? "−1" : "–"}</span><span class="num ${r.c === out ? "out" : ""}">${r.net}</span>`).join("")}
-    </div>`;
+      <span class="h">Yarışmacı</span><span class="h">Oy</span>
+      ${rows.map(r => `<span class="${r.c === out ? "out" : ""}">${nm(r.c)}</span><span class="num ${r.c === out ? "out" : ""}">${r.n}</span>`).join("")}
+    </div>
+    ${rows[1] && rows[1].n === rows[0].n ? `<p>Oylar eşit; karşı takımla uyumu en düşük olan ayrılıyor.</p>` : ""}`;
   const b = document.createElement("button");
   b.className = "btn"; b.type = "button"; b.textContent = "Sonucu açıkla";
   b.addEventListener("click", () => galaResult(out));
@@ -1115,7 +1115,7 @@ const RULES = `
   <ul>
     <li>Birine dokun, yanına gidip konuşursun. Verdiğin cevaplar uyumunuzu belirler.</li>
     <li>Galaya gidebilmek için evdeki her kız her erkekle konuşmuş olmalı; sen de dahil. Diğerleri kendi aralarında konuşur.</li>
-    <li>Uyum yüksek çıkarsa match olabilirsiniz. Match, galada aleyhine verilen oylardan birini siler.</li>
+    <li>Uyum yüksek çıkarsa match olabilirsiniz. Match'in galada sana oy vermez; bu da villada kalma şansını artırır.</li>
     <li>Galada match'ler açıklanır, sonra herkes karşı takımdan birini eleme için seçer. En çok oyu alan villadan ayrılır.</li>
     <li>Elenen gider, ertesi sabah yerine yeni bir yarışmacı gelir.</li>
   </ul>`;
