@@ -3,7 +3,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Manrope:wght@500;600;700;800&display=swap">
 <style>
 /* Layout: tek dikey oyun sütunu; üstte HUD, ortada izometrik dünya, altta sohbet ve aksiyonlar */
 :root {
@@ -16,6 +16,7 @@
   --deniz: #2BB3A3;
   --mercan: #E4572E;
   --pembe: #FF6B8B;
+  --altin: #E9C46A;
   --gri: #9AA7BC;
   --f-baslik: "Fraunces", Georgia, "Times New Roman", serif;
   --f-arayuz: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -56,6 +57,7 @@ body {
 .me-name { font-weight: 800; font-size: 14px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .me-sub { font-size: 12px; color: var(--gri); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .me-sub b { color: var(--pembe); font-weight: 800; }
+.me-sub em { color: var(--altin); font-style: normal; font-weight: 800; }
 .gala-btn {
   flex: none;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px;
@@ -94,30 +96,81 @@ body {
 .toasts {
   position: absolute; left: 12px; right: 12px; top: 48px;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
-  pointer-events: none;
+  pointer-events: none; z-index: 3;
 }
 .toast {
   max-width: 100%; box-sizing: border-box;
   background: rgba(17, 28, 46, .94); border: 1px solid var(--panel-acik);
   border-radius: 12px; padding: 8px 12px;
-  font-size: 13px; font-weight: 700; text-align: center;
+  font-size: 13px; font-weight: 700; text-align: center; line-height: 1.35;
   animation: toast-in .25s ease;
 }
 .toast.good { border-color: var(--deniz); }
 .toast.bad { border-color: var(--mercan); }
 .toast.love { border-color: var(--pembe); }
+.toast.news { border-color: var(--altin); }
+.toast.news b { color: var(--altin); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-6px); } }
-.fade { position: absolute; inset: 0; background: var(--gece-derin); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.fade { position: absolute; inset: 0; background: #05080F; opacity: 0; pointer-events: none; transition: opacity .35s ease; z-index: 4; }
 .fade.on { opacity: 1; }
+
+/* Gala sineması */
+.title-card {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: radial-gradient(ellipse at 50% 40%, #2A2350 0%, #0B0E1D 70%);
+  opacity: 0; transition: opacity .6s ease; pointer-events: none;
+}
+.title-card.on { opacity: 1; }
+.title-card .eyebrow { color: var(--altin); letter-spacing: .4em; }
+.title-card h1 {
+  margin: 0; font-family: var(--f-baslik); font-weight: 800; font-size: 46px; line-height: 1;
+  background: linear-gradient(100deg, #B8892E 0%, #F7E3A3 35%, #FFF6D6 50%, #E9C46A 65%, #A8792A 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shimmer 2.4s ease-in-out infinite;
+}
+.title-card .rule { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, var(--altin), transparent); }
+.title-card p { margin: 0; color: var(--gri); font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -20% 0; } }
+.caption {
+  position: absolute; left: 12px; right: 12px; top: 46px; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+  pointer-events: none;
+}
+.cap-main {
+  font-family: var(--f-baslik); font-weight: 700; font-size: 22px; line-height: 1.15;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .7); text-wrap: balance;
+}
+.cap-sub { font-size: 13px; font-weight: 700; color: #D7DCE6; text-shadow: 0 1px 8px rgba(0, 0, 0, .8); text-wrap: balance; }
+.cap-in { animation: cap-in .45s ease; }
+@keyframes cap-in { from { opacity: 0; transform: translateY(6px); } }
+.speed-btn {
+  position: absolute; right: 10px; top: 10px; z-index: 3;
+  border: 1px solid var(--panel-acik); border-radius: 999px; padding: 6px 12px;
+  background: rgba(17, 28, 46, .85); color: var(--kum); font: 800 12px var(--f-arayuz); cursor: pointer;
+}
+.tally-live {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 2;
+  background: rgba(10, 14, 28, .88); border: 1px solid rgba(233, 196, 106, .4);
+  border-radius: 14px; padding: 10px 12px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center;
+  font-size: 13px; font-weight: 700;
+}
+.tally-live .bar { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.tally-live .bar i { display: block; height: 100%; width: 0; background: var(--altin); transition: width .4s ease; }
+.tally-live .n { font-variant-numeric: tabular-nums; min-width: 1.2em; text-align: right; }
+.tally-live .hot { color: var(--mercan); }
+.tally-live .hot + .bar i { background: var(--mercan); }
 
 /* Konuşma paneli */
 .dialog {
   position: absolute; left: 10px; right: 10px; bottom: 10px;
-  max-height: 72%; overflow: auto; box-sizing: border-box;
+  max-height: 74%; overflow: auto; box-sizing: border-box;
   background: rgba(17, 28, 46, .97); border: 1px solid var(--panel-acik);
   border-radius: 16px; padding: 14px;
   display: flex; flex-direction: column; gap: 10px;
-  animation: toast-in .2s ease;
+  animation: toast-in .2s ease; z-index: 2;
 }
 .dlg-head { display: flex; align-items: center; gap: 10px; }
 .dlg-avatar { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: var(--gece); border: 2px solid var(--kum); }
@@ -126,6 +179,7 @@ body {
 .dlg-chem { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--gri); }
 .dlg-chem .bar { width: 80px; height: 5px; border-radius: 3px; background: var(--panel-acik); overflow: hidden; }
 .dlg-chem .bar i { display: block; height: 100%; background: var(--pembe); transition: width .3s ease; }
+.dlg-chem.trust .bar i { background: var(--deniz); }
 .dlg-leave { border: 0; background: none; color: var(--gri); font: 700 12px var(--f-arayuz); cursor: pointer; padding: 6px; }
 .dlg-react { margin: 0; font-size: 13px; font-style: italic; color: var(--gri); }
 .dlg-text { margin: 0; font-size: 15px; line-height: 1.45; font-weight: 600; }
@@ -160,7 +214,7 @@ body {
   cursor: pointer;
 }
 .act svg { width: 20px; height: 20px; }
-.act:active, .send:active, .choice:active { transform: translateY(1px); }
+.act:active, .send:active, .choice:active, .btn:active { transform: translateY(1px); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); outline-offset: 2px; }
 
 .modal-back {
@@ -171,22 +225,26 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
+.modal-back.soft { background: rgba(8, 13, 24, .35); }
 .modal {
   width: 100%; max-width: 400px; max-height: 100%; overflow: auto; box-sizing: border-box;
   background: var(--panel); border: 1px solid var(--panel-acik);
   border-radius: 18px; padding: 20px;
   display: flex; flex-direction: column; gap: 12px;
 }
+.modal.gold { border-color: rgba(233, 196, 106, .55); background: #1A2240; }
 .modal h2 { margin: 0; font-family: var(--f-baslik); font-weight: 700; font-size: 24px; line-height: 1.15; text-wrap: balance; }
 .modal p { margin: 0; color: var(--gri); font-size: 14px; line-height: 1.5; }
 .modal ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; }
 .eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--turunc); font-weight: 800; }
+.modal.gold .eyebrow { color: var(--altin); }
 .btn {
   border: 0; border-radius: 12px; padding: 12px 14px;
   background: var(--turunc); color: var(--gece);
   font: 800 14px var(--f-arayuz); cursor: pointer;
 }
 .btn.ghost { background: var(--gece); color: var(--kum); border: 1px solid var(--panel-acik); }
+.btn.gold { background: linear-gradient(180deg, #F3D98B, #D9A93F); color: #2A1E05; }
 .btn:disabled { opacity: .5; cursor: default; }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: var(--gri); }
 .field input {
@@ -201,7 +259,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
   display: flex; align-items: center; gap: 10px;
   padding: 10px 12px; border-radius: 12px;
   background: var(--gece); border: 1px solid var(--panel-acik);
-  font-size: 14px; font-weight: 700;
+  font-size: 14px; font-weight: 700; color: var(--kum);
 }
 .row .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; border: 1.5px solid var(--kum); }
 .row .grow { flex: 1; min-width: 0; }
@@ -209,19 +267,33 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
 .row .tag { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: var(--panel); color: var(--gri); white-space: nowrap; }
 .row .tag.ok { background: rgba(43, 179, 163, .18); color: var(--deniz); }
 .row .tag.love { background: rgba(255, 107, 139, .18); color: var(--pembe); }
-.row.pick { cursor: pointer; color: var(--kum); font-family: inherit; text-align: left; }
+.row .tag.gold { background: rgba(233, 196, 106, .18); color: var(--altin); }
+.row.pick { cursor: pointer; font-family: inherit; text-align: left; }
 .row.pick:hover { border-color: var(--mercan); }
-.row.out { border-color: var(--mercan); background: rgba(228, 87, 46, .12); }
-.couple { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: 14px; background: var(--gece); border: 1px solid var(--pembe); font-weight: 800; }
-.couple svg { width: 18px; height: 18px; color: var(--pembe); }
+.row.pick:disabled { opacity: .45; cursor: default; }
+.row.win { border-color: var(--altin); background: rgba(233, 196, 106, .1); }
+.row .score { min-width: 90px; display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; font-size: 12px; }
+.row .score .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--panel); overflow: hidden; }
+.row .score .bar i { display: block; height: 100%; width: 0; background: var(--deniz); transition: width .8s ease; }
+.row.win .score .bar i { background: var(--altin); }
 .group-title { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gri); font-weight: 800; margin-top: 4px; }
-.num { font-variant-numeric: tabular-nums; }
-.tally { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 13px; align-items: center; }
-.tally .h { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--gri); font-weight: 800; }
-.tally .out { color: var(--mercan); font-weight: 800; }
+.gchip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--gece); border: 1px solid var(--panel-acik); font-size: 12px; font-weight: 800; }
+.gchip i { width: 9px; height: 9px; border-radius: 50%; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Mini oyunlar */
+.track { position: relative; height: 34px; border-radius: 10px; background: var(--gece); border: 1px solid var(--panel-acik); overflow: hidden; }
+.track .zone { position: absolute; top: 0; bottom: 0; background: rgba(43, 179, 163, .35); border-left: 2px solid var(--deniz); border-right: 2px solid var(--deniz); }
+.track .marker { position: absolute; top: 3px; bottom: 3px; width: 6px; margin-left: -3px; border-radius: 3px; background: var(--turunc); box-shadow: 0 0 10px var(--turunc); }
+.rounds { display: flex; gap: 6px; }
+.rounds span { flex: 1; text-align: center; padding: 6px; border-radius: 10px; background: var(--gece); border: 1px solid var(--panel-acik); font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rope { position: relative; height: 18px; border-radius: 9px; background: linear-gradient(90deg, rgba(228, 87, 46, .35), rgba(43, 179, 163, .35)); overflow: hidden; }
+.rope i { position: absolute; top: -4px; bottom: -4px; width: 4px; margin-left: -2px; background: var(--kum); left: 50%; transition: left .12s linear; }
+.tap-big { font-size: 22px; padding: 22px; font-family: var(--f-baslik); }
+.big-num { font-family: var(--f-baslik); font-size: 34px; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) {
-  .toast, .dialog, .gala-btn.ready { animation: none; }
-  .fade, .gala-bar i, .dlg-chem .bar i { transition: none; }
+  .toast, .dialog, .gala-btn.ready, .cap-in, .title-card h1 { animation: none; }
+  .fade, .gala-bar i, .dlg-chem .bar i, .title-card, .tally-live .bar i, .row .score .bar i { transition: none; }
 }
 </style>
 
@@ -231,7 +303,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
       <div class="portrait" id="portrait" aria-hidden="true">D</div>
       <div class="me-info">
         <span class="me-name" id="me-name">Deniz</span>
-        <span class="me-sub"><span id="day-label">Gün 1</span> · <span id="match-label">Match yok</span></span>
+        <span class="me-sub" id="me-sub">Gün 1 · Match yok</span>
       </div>
     </div>
     <button class="gala-btn" id="gala-btn" type="button" aria-disabled="true">
@@ -242,20 +314,29 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
 
   <main class="stage" id="stage">
     <canvas id="game" aria-label="Villa oyun alanı. Zemine dokunarak yürü, birine dokunarak konuş."></canvas>
-    <div class="chip"><i></i><span id="room-name">Havuz Başı</span></div>
+    <div class="chip" id="room-chip"><i></i><span id="room-name">Havuz Başı</span></div>
+    <div class="caption" id="caption" hidden><div class="cap-main" id="cap-main"></div><div class="cap-sub" id="cap-sub"></div></div>
+    <button class="speed-btn" id="speed-btn" type="button" hidden>Hızlandır ×3</button>
+    <div class="tally-live" id="tally-live" hidden></div>
     <div class="toasts" id="toasts" aria-live="polite"></div>
     <div class="dialog" id="dialog" hidden>
       <div class="dlg-head">
         <div class="dlg-avatar" id="dlg-avatar">N</div>
         <div class="dlg-who">
           <span class="dlg-name" id="dlg-name">Nehir</span>
-          <span class="dlg-chem" id="dlg-chem">Uyum <span class="bar"><i id="dlg-chem-fill"></i></span> <span class="num" id="dlg-chem-val">3/10</span></span>
+          <span class="dlg-chem" id="dlg-chem"><span id="dlg-chem-label">Uyum</span> <span class="bar"><i id="dlg-chem-fill"></i></span> <span id="dlg-chem-val">3/10</span></span>
         </div>
         <button class="dlg-leave" id="dlg-leave" type="button">Ayrıl</button>
       </div>
       <p class="dlg-react" id="dlg-react" hidden></p>
       <p class="dlg-text" id="dlg-text"></p>
       <div class="dlg-choices" id="dlg-choices"></div>
+    </div>
+    <div class="title-card" id="title-card" hidden>
+      <span class="eyebrow" id="tc-eyebrow">Gün 1</span>
+      <h1>Gala Gecesi</h1>
+      <span class="rule"></span>
+      <p id="tc-sub">Alanya · yaz villası</p>
     </div>
     <div class="fade" id="fade"></div>
   </main>
@@ -296,14 +377,14 @@ document.documentElement.lang = "tr";
 
 /* ---------- Sabitler ---------- */
 const TW = 64, TH = 32, WALL_H = 96;
-const HEART_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- Haritalar ----------
-   .  zemin   D kapı    ~ havuz   L şezlong   U şemsiye
-   T  turunç ağacı   P saksı   K masa   C sandalye   B bar tezgâhı */
+   .  zemin   D kapı    ~ havuz   L şezlong   U şemsiye   T turunç ağacı   P saksı
+   K  masa    C sandalye   B bar tezgâhı   H gala koltuğu   S oy sandığı            */
 const ROOMS = {
   havuz: {
-    name: "Havuz Başı", floor: "stone",
+    name: "Havuz Başı", floor: "stone", public: true,
     map: [
       "P..........P",
       ".........T..",
@@ -323,9 +404,10 @@ const ROOMS = {
     doors: { "0,2": { to: "teras", at: [1, 4], label: "Teras" } },
     windows: { y: [2, 5, 10], x: [6, 9, 12] },
     loungerBack: { "7,7": 1 },
+    floats: [{ x: 3.6, y: 7.2, c: "#FF6B8B" }, { x: 5.3, y: 5.6, c: "#F2C14E" }],
   },
   teras: {
-    name: "Teras", floor: "wood",
+    name: "Teras", floor: "wood", public: true,
     map: [
       "P.BBB....P",
       "..........",
@@ -340,9 +422,29 @@ const ROOMS = {
     ],
     doors: { "0,4": { to: "havuz", at: [1, 2], label: "Havuz Başı" } },
     windows: { y: [6, 8], x: [1, 7] },
-    railing: true,
-    lights: true,
+    railing: true, lights: true, loungerBack: {},
+  },
+  gala: {
+    name: "Gala Salonu", floor: "gala", night: true,
+    map: [
+      "............",
+      "..HHHHHHH...",
+      ".H..........",
+      ".H..........",
+      ".H..........",
+      ".H..........",
+      ".H....S.....",
+      ".H..........",
+      ".H..........",
+      "............",
+      "D...........",
+      "............",
+    ],
+    doors: { "0,10": { to: null, at: [0, 0], label: "Çıkış" } },
+    windows: { y: [], x: [] },
     loungerBack: {},
+    seatFace: (x, y) => (y === 1 ? [0, 1] : [1, 0]),
+    walls: { a: "#2B2F55", b: "#232747", base: "#1B1E38", trim: "#C9A24A", trim2: "#9C7A2E" },
   },
 };
 for (const id in ROOMS) {
@@ -351,14 +453,16 @@ for (const id in ROOMS) {
   r.objects = [];
   for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
     const ch = r.map[y][x];
-    if ("LUTPKCB".includes(ch)) r.objects.push({ x, y, k: ch });
+    if ("LUTPKCBHS".includes(ch)) r.objects.push({ x, y, k: ch });
   }
 }
 const WALK = new Set([".", "D"]);
-const SIT = new Set(["L", "C"]);
+const SIT = new Set(["L", "C", "H"]);
 const tileAt = (r, x, y) => (x < 0 || y < 0 || x >= r.w || y >= r.h) ? null : r.map[y][x];
+const GALA_SEATS = { F: [[2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1]], M: [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8]] };
+const SANDIK = { x: 6, y: 6, stand: [6, 7] };
 
-/* ---------- Konuşma içeriği ---------- */
+/* ---------- İçerik ---------- */
 const QUESTIONS = [
   { q: "Villaya alışabildin mi?", a: [["Alıştım, özellikle seni görünce.", "flort"], ["Açıkçası biraz gerginim, herkes çok net.", "durust"], ["Havuz, güneş, müzik... Tatil gibi!", "eglence"]] },
   { q: "Burada ne arıyorsun sence?", a: [["Gerçekten birini tanımak istiyorum.", "derin"], ["Sonuna kadar kalmak. Bir planım var.", "strateji"], ["Akışına bırakıyorum, bakalım.", "eglence"]] },
@@ -367,6 +471,20 @@ const QUESTIONS = [
   { q: "Evde kime güveniyorsun?", a: [["Şu an sadece kendime.", "strateji"], ["Sana güvenmek isterim.", "flort"], ["Tam olarak kimseye, ama herkese şans veriyorum.", "durust"]] },
   { q: "Bu akşam ne yapalım?", a: [["Terasta oturup sadece konuşalım.", "derin"], ["Havuza atlayalım, kim önce!", "eglence"], ["Biraz sen, biraz ben. Gün batımı bizim.", "flort"]] },
   { q: "Sence burada kim oyun oynuyor?", a: [["Herkes biraz oynuyor, ben de.", "strateji"], ["Bilmiyorum, dedikoduya girmem.", "durust"], ["Sen mi yoksa? Gözlerinden belli.", "flort"]] },
+  { q: "İlk buluşmada nereye giderdin?", a: [["Sahilde yürüyüş, sadece ikimiz.", "flort"], ["Kalabalık bir konsere!", "eglence"], ["Sakin bir yerde uzun bir yemek.", "derin"]] },
+  { q: "Kıskanç biri misin?", a: [["Biraz, saklamayacağım.", "durust"], ["Hayır, ama gözüm açıktır.", "strateji"], ["Sen yanımdaysan neden kıskanayım?", "flort"]] },
+  { q: "Burada en çok neyi özledin?", a: [["Ailemi.", "derin"], ["Telefonumu, haha!", "eglence"], ["Kendime ait bir köşeyi.", "durust"]] },
+  { q: "Galadan sonra ne olacak sence?", a: [["Ne olursa olsun, seni tanımaya devam etmek istiyorum.", "flort"], ["Kimse emin olamaz, plan önemli.", "strateji"], ["Birileri ağlayacak, orası kesin.", "eglence"]] },
+  { q: "Sana yalan söylesem anlar mısın?", a: [["Anlarım ve affetmem.", "durust"], ["Gözlerinden anlarım.", "flort"], ["Belki anlarım, belki anlamam. Oyun bu.", "strateji"]] },
+];
+const TRUST_QUESTIONS = [
+  { q: "Bu evde sırtını kime dayıyorsun?", a: [["Kimseye, ama sana şans vermeye hazırım.", "durust"], ["Güçlü olanın yanında dururum.", "strateji"], ["Bilmem, eğlenceli kim varsa!", "eglence"]] },
+  { q: "Galada oyları birlikte mi verelim?", a: [["Olur, plan yapalım.", "strateji"], ["Önce birbirimizi tanıyalım.", "derin"], ["Oy kalpten verilir, plandan değil.", "flort"]] },
+  { q: "Sence karşı takımda kim tehlikeli?", a: [["Fazla planlı olanlar.", "durust"], ["Söylemem... tamam, söylerim, ama aramızda.", "eglence"], ["Herkes. Kartlarımızı iyi oynamalıyız.", "strateji"]] },
+  { q: "Bir sırrını benimle paylaşır mısın?", a: [["Bazen burada çok yalnız hissediyorum.", "derin"], ["Sırrım yok, açık kitabım.", "durust"], ["Sırlarımı galadan sonra anlatırım.", "strateji"]] },
+  { q: "Biri seni arkadan vursa ne yaparsın?", a: [["Yüzüne söylerim.", "durust"], ["Unutmam. Zamanı gelince öderim.", "strateji"], ["Gülüp geçerim, hayat kısa.", "eglence"]] },
+  { q: "Akşam ekip olarak ne yapalım?", a: [["Havuz başında müzik, dans!", "eglence"], ["Terasta uzun bir sohbet.", "derin"], ["Kimin kime oy vereceğini konuşalım.", "strateji"]] },
+  { q: "Match'in olsa bile bize sadık kalır mısın?", a: [["Arkadaşlık her şeyden önce gelir.", "durust"], ["Kalbim nereye derse...", "flort"], ["Duruma göre, oyun bu.", "strateji"]] },
 ];
 const SMALLTALK = [
   ["Nasıl gidiyor, alışabildin mi?", "Yavaş yavaş. Sen?", "Ben seni tanımak için buradayım."],
@@ -375,46 +493,50 @@ const SMALLTALK = [
   ["Bana karşı dürüst ol, tamam mı?", "Her zaman.", "Göreceğiz."],
   ["Galada kimin yanında olacaksın?", "Henüz bilmiyorum.", "Bence biliyorsun."],
   ["Havuzda seni izledim, iyi yüzüyorsun.", "Sen de iyi izliyorsun.", "Haha, yakalandım."],
+  ["Dün gece neden erken kalktın masadan?", "Yoruldum sadece.", "Emin misin?"],
+  ["Sabah kahveni ben yapayım mı?", "Şekersiz, unutma.", "Unutmam, not aldım."],
+  ["Oyunda iyiydin bugün.", "Sen de fena değildin.", "Bir dahaki sefere aynı takım?"],
+  ["Bazen seni anlamıyorum.", "Sormak yeter.", "Peki, soruyorum: ne düşünüyorsun?"],
 ];
 
 /* ---------- Karakterler ---------- */
 const BASE = {
-  nehir: { name: "Nehir", g: "F", skin: "#C99A76", hair: "#3B2418", hs: "wavy", top: "#F3E9DC", bottom: "#2BB3A3", legs: "shorts", blush: true,
+  nehir: { name: "Nehir", g: "F", skin: "#C99A76", hair: "#3B2418", hs: "wavy", top: "#F3E9DC", bottom: "#2BB3A3", legs: "shorts", shoe: "#C46A3D", blush: true,
     likes: ["durust", "derin"], dislikes: ["strateji"],
     open: "Selam! Seninle konuşmayı bekliyordum.",
     like: ["Bunu duymak güzel.", "Tam da böyle birini arıyordum."], neutral: ["Hmm, anladım.", "Olabilir."], dislike: ["Bu biraz hesaplı geldi bana.", "Emin değilim..."],
-    talk: ["Burada herkes bir şey saklıyor gibi.", "Bora'yı tanıyor musun? Ben de tam emin değilim."], bye: "Kısa ama güzeldi. Hepinizi özleyeceğim." },
-  selin: { name: "Selin", g: "F", skin: "#E0B48F", hair: "#17120F", hs: "long", top: "#4A3A5E", bottom: "#4A3A5E", legs: "dress",
+    talk: ["Burada herkes bir şey saklıyor gibi.", "Seramik atölyemi özledim."], bye: "Kısa ama güzeldi. Hepinizi özleyeceğim." },
+  selin: { name: "Selin", g: "F", skin: "#E0B48F", hair: "#17120F", hs: "long", top: "#4A3A5E", bottom: "#4A3A5E", legs: "dress", shoe: "#17120F",
     likes: ["strateji", "durust"], dislikes: ["flort"],
     open: "Konuşalım. Ama kısa ve net.",
     like: ["Net. Sevdim.", "Bunu aklımda tutacağım."], neutral: ["Peki.", "Anladım."], dislike: ["Bu replikleri başkasına sakla.", "Ciddi misin?"],
     talk: ["Ben beklemem.", "Burada kimseye borcum yok."], bye: "Oyunu oynadım, kaybettim. Saygı duyuyorum." },
-  defne: { name: "Defne", g: "F", skin: "#EBC3A0", hair: "#B5562B", hs: "bun", top: "#F2C14E", bottom: "#2B4C7E", legs: "shorts", blush: true,
+  defne: { name: "Defne", g: "F", skin: "#EBC3A0", hair: "#B5562B", hs: "bun", top: "#F2C14E", bottom: "#2B4C7E", legs: "shorts", shoe: "#FFFFFF", blush: true,
     likes: ["eglence", "flort"], dislikes: ["derin"],
     open: "Durun durun, sonunda sen! Anlat bakalım!",
     like: ["Aaa bayıldım!", "Bunu herkese anlatacağım!"], neutral: ["Hmm, tamam.", "Peki peki."], dislike: ["Ay çok ciddisin...", "Biraz eğlen ya!"],
     talk: ["Durun durun, size bir şey anlatmam lazım!", "Ben bir şey demedim ama... herkes biliyor."], bye: "Podcast'te hepinizi anlatacağım, haberiniz olsun!" },
-  ece: { name: "Ece", g: "F", skin: "#D8A784", hair: "#5A3A24", hs: "pony", top: "#E4572E", bottom: "#F3E9DC", legs: "pants",
+  ece: { name: "Ece", g: "F", skin: "#D8A784", hair: "#5A3A24", hs: "pony", top: "#E4572E", bottom: "#F3E9DC", legs: "pants", shoe: "#2A2420",
     likes: ["durust"], dislikes: ["flort", "strateji"],
     open: "Merhaba. Lafı dolandırmadan konuşalım.",
     like: ["Dürüstlüğün için teşekkürler.", "İşte bu, açık konuş."], neutral: ["Tamam.", "Anladım."], dislike: ["Yüzüme karşı oynama.", "Bu bana göre değil."],
     talk: ["Yüzüme söyle, arkamdan değil.", "Dedikoduyla insan harcanmaz."], bye: "En azından kimseye yalan söylemedim." },
-  bora: { name: "Bora", g: "M", skin: "#B98463", hair: "#2A1D14", hs: "short", top: "#2D5D7B", bottom: "#E8DCC6", legs: "shorts",
+  bora: { name: "Bora", g: "M", skin: "#B98463", hair: "#2A1D14", hs: "short", top: "#2D5D7B", bottom: "#E8DCC6", legs: "shorts", shoe: "#F3E9DC",
     likes: ["eglence", "flort"], dislikes: ["derin"],
     open: "Hey! Gel, otur biraz.",
     like: ["Haha, işte bu!", "Seninle iyi anlaşacağız."], neutral: ["Bakarız.", "Olabilir."], dislike: ["Çok ağır oldu bu...", "Biraz rahatla bence."],
     talk: ["Aramızda yelken bilen var mı?", "Acele etmeyelim, daha yeni başladık."], bye: "Rüzgâr bu sefer ters esti. Görüşürüz!" },
-  kaan: { name: "Kaan", g: "M", skin: "#A8724F", hair: "#1A1410", hs: "buzz", top: "#7A8B5A", bottom: "#2B2F3A", legs: "pants", beard: true,
+  kaan: { name: "Kaan", g: "M", skin: "#A8724F", hair: "#1A1410", hs: "buzz", top: "#7A8B5A", bottom: "#2B2F3A", legs: "pants", shoe: "#2A2420", beard: true,
     likes: ["derin", "durust"], dislikes: ["eglence"],
     open: "Gel bakalım. Nasılsın, gerçekten?",
     like: ["İşte böyle konuşmayı severim.", "Sende bir derinlik var."], neutral: ["Hı hı.", "Olabilir."], dislike: ["Her şeyi şakaya vurma.", "Biraz ciddi ol."],
     talk: ["Herkesin bir hikâyesi var.", "Sakin ol, her şey yoluna girer."], bye: "Herkesin bir hikâyesi var. Benimki burada bitti." },
-  tolga: { name: "Tolga", g: "M", skin: "#D2A07D", hair: "#3A2A20", hs: "short", top: "#FFFFFF", bottom: "#5B6B8A", legs: "pants",
+  tolga: { name: "Tolga", g: "M", skin: "#D2A07D", hair: "#3A2A20", hs: "short", top: "#FFFFFF", bottom: "#5B6B8A", legs: "pants", shoe: "#6B412A",
     likes: ["strateji", "eglence"], dislikes: ["derin"],
     open: "Selam! Planını merak ediyorum.",
     like: ["Sen bu işi biliyorsun.", "Haha, sevdim seni."], neutral: ["Mantıklı.", "Olabilir."], dislike: ["Felsefeye gerek yok.", "Çok ağır oldu bu."],
     talk: ["Oyun değil bu, ama kurallarını bilmek lazım.", "Herkesin bir planı var."], bye: "Bu sefer yarım bıraktığım için değil, oyun böyle." },
-  arda: { name: "Arda", g: "M", skin: "#B07A55", hair: "#2A1C12", hs: "curly", top: "#2BB3A3", bottom: "#3B3B3B", legs: "pants",
+  arda: { name: "Arda", g: "M", skin: "#B07A55", hair: "#2A1C12", hs: "curly", top: "#2BB3A3", bottom: "#3B3B3B", legs: "pants", shoe: "#F3E9DC",
     likes: ["derin", "flort"], dislikes: ["eglence"],
     open: "Ah... selam. Konuşmak ister misin?",
     like: ["Bunu söylemen... çok güzel.", "Ben de aynı şeyi düşünüyordum."], neutral: ["Belki.", "Hmm."], dislike: ["Pek bana göre değil.", "Anladım..."],
@@ -437,22 +559,25 @@ const GENERIC = {
   talk: ["Yeni geldim, herkesi tanımaya çalışıyorum.", "Villa göründüğünden daha hareketli."],
   bye: "Kısa sürdü ama değdi. Hoşça kalın!",
   greet: ["Selam!", "Hey, merhaba."], replies: ["Haha, olabilir.", "Anlıyorum.", "Bunu aklımda tutacağım."],
+  shoe: "#2A2420",
 };
 const withDefaults = d => Object.assign({}, GENERIC, d);
 const PLAYER_LOOK = {
-  F: { skin: "#CFA07E", hair: "#3A2418", hs: "long", top: "#F28C28", bottom: "#24364F", legs: "shorts", blush: true },
-  M: { skin: "#C7976F", hair: "#4A2F1F", hs: "short", top: "#F28C28", bottom: "#24364F", legs: "pants" },
+  F: { skin: "#CFA07E", hair: "#3A2418", hs: "long", top: "#F28C28", bottom: "#24364F", legs: "shorts", shoe: "#F3E9DC", blush: true },
+  M: { skin: "#C7976F", hair: "#4A2F1F", hs: "short", top: "#F28C28", bottom: "#24364F", legs: "pants", shoe: "#F3E9DC" },
 };
 const START_POS = {
   nehir: ["havuz", 7, 6, true, [0, 1]], bora: ["havuz", 9, 8, false, [-1, 0]], selin: ["havuz", 10, 2, false, [1, 1]],
   kaan: ["havuz", 4, 2, false, [1, 1]], defne: ["havuz", 3, 11, false, [1, 0]],
   tolga: ["teras", 2, 2, true, [1, 0]], ece: ["teras", 4, 2, true, [-1, 0]], arda: ["teras", 8, 7, false, [1, 1]],
 };
+const GROUP_NAMES = { F: ["Havuz Kızları", "Gün Batımı", "Kum Saati"], M: ["Teras Ekibi", "İskele Çetesi", "Rüzgâr Ekibi"] };
+const GROUP_COLORS = { F: ["#FF6B8B", "#B48CFF", "#F2C14E"], M: ["#4FA3FF", "#E9C46A", "#7AD3A0"] };
 
 function mkChar(id, def, room, x, y, o = {}) {
   const c = { id, def, room, x, y, path: [], speed: o.speed || 2.2, right: true, front: true, sit: !!o.sit, walkT: 0, moving: false,
     bubble: null, mode: "idle", task: null, chat: null, after: null, hold: 0, nextWander: 3000 + Math.random() * 4000,
-    nextAmbient: 12000 + Math.random() * 12000, talkI: 0, arrivedDay: o.arrivedDay || 0 };
+    nextAmbient: 12000 + Math.random() * 12000, talkI: 0, arrivedDay: o.arrivedDay || 0, seed: Math.random() * 10, alpha: 1, onArrive: null };
   if (o.face) setFace(c, o.face[0], o.face[1]);
   return c;
 }
@@ -468,8 +593,10 @@ let player, npcs = [], byId = {};
 const state = {
   room: "havuz", day: 1, phase: "start",
   talked: new Set(), chem: new Map(), matchOf: {}, revealed: new Set(), metPlayer: new Set(),
-  cam: { x: 0, y: 0, follow: true }, hover: null, target: null,
+  groups: [], immune: new Set(), gameDone: false, eventDone: false,
+  cam: { x: 0, y: 0, follow: true }, camFocus: null, hover: null, target: null,
   pool: { F: [], M: [] }, nextSchedule: 0, galaReadyShown: false,
+  spots: [], hearts: [], flyCards: [],
 };
 const room = () => ROOMS[state.room];
 const house = () => npcs.concat(player);
@@ -479,6 +606,7 @@ const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const later = (ms, fn) => setTimeout(fn, ms);
+const nm = c => (c === player ? c.def.name + " (sen)" : c.def.name);
 
 function getChem(a, b) {
   const k = pairKey(a.id, b.id);
@@ -493,12 +621,8 @@ function getChem(a, b) {
   }
   return state.chem.get(k);
 }
-function setChem(a, b, v) { state.chem.set(pairKey(a.id, b.id), Math.max(0, Math.min(10, v))); }
-function unmatch(id) {
-  const m = state.matchOf[id];
-  if (!m) return;
-  delete state.matchOf[id]; delete state.matchOf[m];
-}
+function setChem(a, b, v) { state.chem.set(pairKey(a.id, b.id), Math.max(0, Math.min(10, Math.round(v)))); }
+function unmatch(id) { const m = state.matchOf[id]; if (!m) return; delete state.matchOf[id]; delete state.matchOf[m]; }
 function makeMatch(a, b) {
   for (const c of [a, b]) {
     const old = state.matchOf[c.id];
@@ -508,11 +632,8 @@ function makeMatch(a, b) {
     }
   }
   state.matchOf[a.id] = b.id; state.matchOf[b.id] = a.id;
-  if (a === player || b === player) {
-    const other = a === player ? b : a;
-    toast(other.def.name + " ile match oldun!", "love");
-  }
-  updateHud();
+  if (a === player || b === player) toast((a === player ? b : a).def.name + " ile match oldun!", "love");
+  updateHud(true);
 }
 function shownMatch(c) {
   const m = state.matchOf[c.id];
@@ -529,6 +650,24 @@ function talkProgress() {
   const p = housePairs();
   return { done: p.filter(([a, b]) => talked(a, b)).length, total: p.length };
 }
+
+/* ---------- Gruplar ---------- */
+const groupOf = id => state.groups.find(g => g.members.includes(id)) || null;
+function newGroup(g, members) {
+  const used = state.groups.filter(x => x.g === g).map(x => x.name);
+  const i = GROUP_NAMES[g].findIndex(n => !used.includes(n));
+  const idx = i < 0 ? used.length : i;
+  const gr = { g, name: GROUP_NAMES[g][idx] || ("Grup " + (idx + 1)), color: GROUP_COLORS[g][idx % 3], members: members.slice(), target: null };
+  state.groups.push(gr);
+  return gr;
+}
+function leaveGroup(id) {
+  const gr = groupOf(id);
+  if (!gr) return;
+  gr.members = gr.members.filter(m => m !== id);
+  if (gr.members.length < 2) state.groups = state.groups.filter(x => x !== gr);
+}
+function joinGroup(id, gr) { leaveGroup(id); if (!state.groups.includes(gr)) state.groups.push(gr); if (!gr.members.includes(id)) gr.members.push(id); }
 
 /* ---------- Canvas ---------- */
 const stage = document.getElementById("stage");
@@ -555,10 +694,10 @@ function screenToWorld(px, py) {
 /* ---------- Yol bulma (Dijkstra, 8 yön, köşe kesmeden) ---------- */
 function findPath(r, sx, sy, isGoal) {
   const W = r.w, H = r.h, N = W * H;
+  if (sx < 0 || sy < 0 || sx >= W || sy >= H) return null;
   const walk = (x, y) => WALK.has(tileAt(r, x, y));
   const dist = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), done = new Uint8Array(N);
   const s = sy * W + sx;
-  if (sx < 0 || sy < 0 || sx >= W || sy >= H) return null;
   dist[s] = 0;
   for (;;) {
     let u = -1, best = Infinity;
@@ -588,34 +727,32 @@ function seatTaken(roomId, x, y, except) {
   return house().some(c => c !== except && c.room === roomId && ((c.sit && Math.round(c.x) === x && Math.round(c.y) === y) || (c.after && c.after.x === x && c.after.y === y)));
 }
 
-/* ---------- Balonlar ---------- */
-function say(c, text, ms = 3200, alert = false) { c.bubble = { text, until: NOW + ms, alert }; }
-
-/* ---------- UI yardımcıları ---------- */
+/* ---------- Balonlar, UI yardımcıları ---------- */
+function say(c, text, ms = 3200, alert = false) { c.bubble = { text, until: NOW + ms / (state.phase === "gala" ? speed : 1), alert }; }
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[m]));
-function toast(text, kind = "") {
+function toast(text, kind = "", ms = 3600, html = false) {
   const el = document.createElement("div");
-  el.className = "toast " + kind; el.textContent = text;
+  el.className = "toast " + kind;
+  if (html) el.innerHTML = text; else el.textContent = text;
   $("toasts").appendChild(el);
-  setTimeout(() => el.remove(), 3600);
+  setTimeout(() => el.remove(), ms);
   const all = $("toasts").children;
   if (all.length > 3) all[0].remove();
 }
 let lastHud = "";
-function updateHud() {
+function updateHud(force) {
   const { done, total } = talkProgress();
-  const m = state.matchOf[player.id];
-  const sig = [done, total, m, state.day, state.phase, player.def.name].join(",");
-  if (sig === lastHud) return;
+  const m = state.matchOf[player.id], gr = groupOf(player.id), imm = state.immune.has(player.id);
+  const sig = [done, total, m, state.day, state.phase, player.def.name, gr && gr.name, imm, state.gameDone].join(",");
+  if (sig === lastHud && !force) return;
   lastHud = sig;
   $("me-name").textContent = player.def.name;
   $("portrait").textContent = player.def.name.slice(0, 1).toLocaleUpperCase("tr");
-  $("day-label").textContent = "Gün " + state.day;
-  $("match-label").innerHTML = m ? "Match: <b>" + esc(byId[m].def.name) + "</b>" : "Match yok";
+  $("me-sub").innerHTML = "Gün " + state.day + " · " + (m && byId[m] ? "Match: <b>" + esc(byId[m].def.name) + "</b>" : "Match yok") + (imm ? " · <em>Dokunulmaz</em>" : "");
   $("gala-count").textContent = done + "/" + total;
   $("gala-fill").style.width = (total ? done / total * 100 : 0) + "%";
-  const ready = done === total && total > 0 && state.phase === "day";
+  const ready = done === total && total > 0 && state.phase === "day" && state.gameDone;
   $("gala-btn").classList.toggle("ready", ready);
   $("gala-btn").setAttribute("aria-disabled", String(!ready));
   if (ready && !state.galaReadyShown) { state.galaReadyShown = true; toast("Herkes konuştu. Gala hazır!", "good"); }
@@ -655,11 +792,13 @@ function playerArrive() {
 }
 function sitDown(c, x, y) {
   const r = ROOMS[c.room], k = tileAt(r, x, y);
-  c.x = x; c.y = y; c.sit = true;
+  c.x = x; c.y = y; c.sit = true; c.path = [];
   if (k === "L") { const back = r.loungerBack[x + "," + y] || -1; setFace(c, 0, -back); }
+  else if (k === "H") { const [fx, fy] = r.seatFace(x, y); setFace(c, fx, fy); }
   else for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { setFace(c, dx, dy); break; }
 }
 function changeRoom(to, at) {
+  if (!to) return;
   const f = $("fade");
   f.classList.add("on");
   setTimeout(() => {
@@ -669,7 +808,7 @@ function changeRoom(to, at) {
     snapCamera();
     $("room-name").textContent = ROOMS[to].name;
     f.classList.remove("on");
-  }, 260);
+  }, 300);
 }
 function nearestTalker(maxD) {
   let best = null, bd = maxD;
@@ -710,13 +849,11 @@ function showDlg(react, text, choices) {
 }
 function refreshChem() {
   if (!dlg) return;
-  const show = dlg.opposite;
-  $("dlg-chem").hidden = !show;
-  if (show) {
-    const v = getChem(player, dlg.n);
-    $("dlg-chem-fill").style.width = v * 10 + "%";
-    $("dlg-chem-val").textContent = v + "/10";
-  }
+  const v = getChem(player, dlg.n);
+  $("dlg-chem").classList.toggle("trust", !dlg.opposite);
+  $("dlg-chem-label").textContent = dlg.opposite ? "Uyum" : "Güven";
+  $("dlg-chem-fill").style.width = v * 10 + "%";
+  $("dlg-chem-val").textContent = v + "/10";
 }
 const okBtn = () => [{ label: "Görüşürüz", fn: closeDialog, main: true }];
 function openDialog(n) {
@@ -725,26 +862,21 @@ function openDialog(n) {
   n.mode = "player"; n.path = []; n.after = null; n.hold = 0;
   n.x = Math.round(n.x); n.y = Math.round(n.y);
   setFace(n, player.x - n.x, player.y - n.y);
-  dlg = { n, opposite, qs: shuffle(QUESTIONS).slice(0, 3), i: 0, first: !state.metPlayer.has(n.id) };
-  $("dlg-name").textContent = n.def.name;
+  dlg = { n, opposite, qs: shuffle(opposite ? QUESTIONS : TRUST_QUESTIONS).slice(0, 3), i: 0, first: !state.metPlayer.has(n.id) };
+  $("dlg-name").textContent = n.def.name + (groupOf(n.id) ? " · " + groupOf(n.id).name : "");
   $("dlg-avatar").textContent = n.def.name.slice(0, 1);
   $("dlg-avatar").style.background = n.def.top;
   $("dialog").hidden = false;
-  if (!opposite) {
-    const line = n.def.talk[n.talkI++ % n.def.talk.length];
-    say(n, line, 3500);
-    showDlg("Takım arkadaşın", line, okBtn());
-    return;
-  }
   if (talked(player, n)) {
-    const line = "Bugün konuştuk zaten. Galada görüşürüz.";
+    const line = opposite ? "Bugün konuştuk zaten. Galada görüşürüz." : "Bugün konuştuk. Akşam yine bakarız.";
     say(n, line, 3000);
     showDlg(null, line, okBtn());
     return;
   }
   const q = dlg.qs[0];
   say(n, q.q, 4200);
-  showDlg(null, n.def.open + " " + q.q, choicesFor(q));
+  const open = opposite ? n.def.open : (groupOf(n.id) && groupOf(n.id) === groupOf(player.id) ? "Ekibimden biri! Gel." : "Biraz kafa dinleyelim mi?");
+  showDlg(opposite ? null : "Takım arkadaşı sohbeti · güven", open + " " + q.q, choicesFor(q));
 }
 function choicesFor(q) { return shuffle(q.a).map(([label, tag]) => ({ label, fn: () => choose(label, tag) })); }
 function choose(label, tag) {
@@ -760,17 +892,18 @@ function choose(label, tag) {
     const q = dlg.qs[dlg.i];
     later(2300, () => { if (dlg && dlg.n === n) say(n, q.q, 3800); });
     showDlg(react, q.q, choicesFor(q));
-  } else finishTalk(react);
+  } else if (dlg.opposite) finishTalk(react);
+  else finishTrust(react);
 }
 function finishTalk(react) {
   const n = dlg.n;
   state.talked.add(pairKey(player.id, n.id));
   state.metPlayer.add(n.id);
-  updateHud();
+  updateHud(true);
   const c = getChem(player, n), theirs = state.matchOf[n.id];
   let line, choices = okBtn();
   if (theirs === player.id) {
-    if (c < 4) { unmatch(n.id); updateHud(); line = "Bence biz olmadık. Match'imizi bitirelim."; toast(n.def.name + " match'inizi bitirdi.", "bad"); }
+    if (c < 4) { unmatch(n.id); updateHud(true); line = "Bence biz olmadık. Match'imizi bitirelim."; toast(n.def.name + " match'inizi bitirdi.", "bad"); }
     else line = "Match'imiz devam ediyor. Galada yanındayım.";
   } else if (c >= 7) {
     if (theirs) line = "Seninle konuşmak güzeldi ama kalbim başka yerde. Galada görürsün.";
@@ -782,6 +915,39 @@ function finishTalk(react) {
       ];
     }
   } else line = c <= 3 ? "Pek anlaşamadık galiba. Galada görüşürüz." : "Güzel sohbetti. Galada görüşürüz.";
+  later(2300, () => { if (dlg && dlg.n === n) say(n, line, 3600); });
+  showDlg(react, line, choices);
+}
+function finishTrust(react) {
+  const n = dlg.n;
+  state.talked.add(pairKey(player.id, n.id));
+  state.metPlayer.add(n.id);
+  const t = getChem(player, n), myG = groupOf(player.id), theirG = groupOf(n.id);
+  let line, choices = okBtn();
+  if (myG && myG === theirG) {
+    if (t < 3) { leaveGroup(player.id); line = "Sana güvenemiyorum. Bence gruptan ayrılmalısın."; toast(myG.name + " grubundan çıkarıldın.", "bad"); }
+    else line = "Grubumuz sağlam. Galada aynı yerdeyiz.";
+  } else if (t >= 7) {
+    if (theirG) {
+      line = theirG.name + " grubuna katılmak ister misin? " + theirG.members.map(id => byId[id].def.name).join(", ") + " seni bekliyor.";
+      choices = [
+        { label: "Katılıyorum", main: true, fn: () => { joinGroup(player.id, theirG); toast(theirG.name + " grubuna katıldın.", "good"); updateHud(true); showDlg(null, "Hoş geldin. Galada birlikte oy vereceğiz.", okBtn()); } },
+        { label: "Şimdilik bağımsız kalayım", fn: () => showDlg(null, "Peki, kapımız açık.", okBtn()) },
+      ];
+    } else if (myG) {
+      line = "Senin grubuna katılabilirim, istersen.";
+      choices = [
+        { label: "Gel, bize katıl", main: true, fn: () => { joinGroup(n.id, myG); toast(n.def.name + " grubunuza katıldı.", "good"); showDlg(null, "Anlaştık. Galada birlikteyiz.", okBtn()); } },
+        { label: "Şimdilik değil", fn: () => showDlg(null, "Anladım.", okBtn()) },
+      ];
+    } else {
+      line = "Birlikte hareket edelim mi? Kendi grubumuzu kuralım.";
+      choices = [
+        { label: "Kuralım", main: true, fn: () => { const gr = newGroup(player.def.g, [player.id, n.id]); toast("Yeni grup kuruldu: " + gr.name, "good"); updateHud(true); showDlg(null, gr.name + " artık resmî. Galada aynı oyu vereceğiz.", okBtn()); } },
+        { label: "Şimdilik değil", fn: () => showDlg(null, "Peki, düşün bakalım.", okBtn()) },
+      ];
+    }
+  } else line = t <= 3 ? "Sana henüz güvenemiyorum." : "Seni biraz daha tanımam lazım.";
   later(2300, () => { if (dlg && dlg.n === n) say(n, line, 3600); });
   showDlg(react, line, choices);
 }
@@ -806,8 +972,8 @@ canvas.addEventListener("pointermove", e => {
   if (down) {
     const dx = e.clientX - down.x, dy = e.clientY - down.y;
     if (!down.drag && Math.hypot(dx, dy) > 8) down.drag = true;
-    if (down.drag) { state.cam.follow = false; state.cam.x = down.cx - dx / z; state.cam.y = down.cy - dy / z; clampCamera(); }
-  } else if (e.pointerType === "mouse") {
+    if (down.drag && state.phase === "day") { state.cam.follow = false; state.cam.x = down.cx - dx / z; state.cam.y = down.cy - dy / z; clampCamera(); }
+  } else if (e.pointerType === "mouse" && state.phase === "day") {
     const w = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     const tx = Math.round(w.wx), ty = Math.round(w.wy);
     state.hover = tileAt(room(), tx, ty) ? { x: tx, y: ty } : null;
@@ -832,7 +998,7 @@ function charHit(bx, by) {
   return null;
 }
 function handleTap(px, py) {
-  if (dlg || state.phase !== "day") return;
+  if (dlg || state.phase !== "day" || !$("modal").hidden) return;
   const r = room();
   const w = screenToWorld(px, py);
   const n = charHit(w.bx, w.by);
@@ -860,9 +1026,7 @@ function handleTap(px, py) {
     goTo((x, y) => x === tx && y === ty, door ? { type: "door", door } : null);
   } else if (SIT.has(k) && !seatTaken(r.id, tx, ty, player)) {
     goTo((x, y) => x === tx && y === ty, { type: "sit", x: tx, y: ty });
-  } else {
-    goTo(nearGoal(r, tx, ty), null);
-  }
+  } else goTo(nearGoal(r, tx, ty), null);
 }
 
 /* ---------- Yarışmacıların kendi arasındaki konuşmaları ---------- */
@@ -874,8 +1038,7 @@ function doorTo(from, to) {
 function scheduleTalks() {
   if (state.phase !== "day" || NOW < state.nextSchedule) return;
   state.nextSchedule = NOW + 1200;
-  const active = npcs.filter(n => n.mode === "meet").length;
-  if (active >= 3) return;
+  if (npcs.filter(n => n.mode === "meet").length >= 3) return;
   const free = shuffle(npcs.filter(n => n.mode === "idle" && NOW > n.hold && NOW > (n.arrivedAt || 0) + 6000));
   for (const a of free) for (const b of free) {
     if (a === b || a.def.g === b.def.g || talked(a, b)) continue;
@@ -892,6 +1055,7 @@ function npcArrive(n) {
 }
 function updateNPC(n, dt) {
   step(n, dt);
+  if (state.phase === "gala") return;
   if (n.mode === "idle") {
     if (state.phase !== "day" || n.path.length || NOW < n.nextWander || NOW < n.hold) return;
     n.nextWander = NOW + 4500 + Math.random() * 6000;
@@ -921,6 +1085,7 @@ function updateNPC(n, dt) {
     const r = ROOMS[n.room];
     if (n.room !== p.room) {
       const d = doorTo(n.room, p.room);
+      if (!d) { abortMeet(n); return; }
       if (Math.round(n.x) === d.x && Math.round(n.y) === d.y) { n.room = p.room; n.x = d.door.at[0]; n.y = d.door.at[1]; }
       else { const pth = findPath(r, Math.round(n.x), Math.round(n.y), (x, y) => x === d.x && y === d.y); if (pth) n.path = pth; else abortMeet(n); }
       return;
@@ -938,11 +1103,7 @@ function updateNPC(n, dt) {
   } else if (n.mode === "chat" && n.chat && n.chat.lines) {
     const c = n.chat;
     if (NOW < c.next) return;
-    if (c.i < c.lines.length) {
-      say(c.i % 2 ? c.partner : n, c.lines[c.i], 2400);
-      c.i++; c.next = NOW + 2600;
-      return;
-    }
+    if (c.i < c.lines.length) { say(c.i % 2 ? c.partner : n, c.lines[c.i], 2400); c.i++; c.next = NOW + 2600; return; }
     endNpcTalk(n, c.partner);
   }
 }
@@ -956,168 +1117,486 @@ function endNpcTalk(a, b) {
   a.nextWander = b.nextWander = NOW + 2500 + Math.random() * 2000;
   state.talked.add(pairKey(a.id, b.id));
   const overlap = a.def.likes.filter(t => b.def.likes.includes(t)).length;
-  const v = getChem(a, b) + Math.floor(Math.random() * 3) - 1 + (overlap ? 1 : 0);
-  setChem(a, b, v);
+  setChem(a, b, getChem(a, b) + Math.floor(Math.random() * 3) - 1 + (overlap ? 1 : 0));
   const nv = getChem(a, b);
   if (nv >= 7 && !state.matchOf[a.id] && !state.matchOf[b.id]) makeMatch(a, b);
   else if (nv < 4 && state.matchOf[a.id] === b.id) unmatch(a.id);
-  updateHud();
+  updateHud(true);
 }
 
-/* ---------- Gala ---------- */
-let galaLock = false;
-function startGala() {
+/* ---------- Günün olayı ---------- */
+const EVENTS = [
+  (a, b, g) => ({ text: `<b>${esc(g.def.name)}</b> dedikodu yaydı: ${esc(a.def.name)} ile ${esc(b.def.name)} gece terasta uzun uzun konuşmuş.`, fx: () => { setChem(a, b, getChem(a, b) + 1); const m = state.matchOf[a.id]; if (m && m !== b.id && byId[m]) setChem(a, byId[m], getChem(a, byId[m]) - 2); } }),
+  (a, b) => ({ text: `${esc(a.def.name)} ile ${esc(b.def.name)} sabah kahvaltıyı birlikte hazırladı.`, fx: () => setChem(a, b, getChem(a, b) + 1) }),
+  (a, b) => ({ text: `Havuz başında ${esc(a.def.name)} ile ${esc(b.def.name)} arasında tartışma çıktı.`, fx: () => setChem(a, b, getChem(a, b) - 2) }),
+  (a, b) => ({ text: `${esc(a.def.name)}, gece mutfakta ${esc(b.def.name)} için bir not bıraktı.`, fx: () => setChem(a, b, getChem(a, b) + 2) }),
+  (a, b) => ({ text: `${esc(a.def.name)}, ${esc(b.def.name)} için "bana göre değil" derken duyuldu.`, fx: () => setChem(a, b, getChem(a, b) - 1) }),
+  (a) => ({ text: `Villaya mektup geldi. ${esc(a.def.name)} ailesini özlediğini söyledi, herkes moral verdi.`, fx: () => { for (const c of house()) if (c !== a && c.def.g === a.def.g) setChem(a, c, getChem(a, c) + 1); } }),
+];
+function dayEvent() {
+  state.eventDone = true;
+  const cands = npcs.slice();
+  if (cands.length < 3) return;
+  const a = pick(cands), opp = cands.filter(c => c.def.g !== a.def.g), b = pick(opp.length ? opp : cands.filter(c => c !== a));
+  const g = pick(cands.filter(c => c !== a && c !== b));
+  const ev = pick(EVENTS)(a, b, g);
+  ev.fx();
+  toast("<b>Villa haberi</b> · " + ev.text, "news", 6500, true);
+}
+
+/* ---------- Toplu oyunlar ---------- */
+function startGame() {
+  state.gameDone = true;
+  closeDialog();
+  state.phase = "game";
+  for (const n of npcs) if (n.mode === "wait" || n.mode === "meet") { n.mode = "idle"; n.task = null; }
+  if (state.day % 2 === 1) pairGame(); else groupGame();
+}
+function pairTeams() {
+  const teams = [], used = new Set();
+  for (const c of house()) {
+    const m = state.matchOf[c.id];
+    if (m && !used.has(c.id) && byId[m]) { used.add(c.id); used.add(m); teams.push({ members: [c, byId[m]], match: true }); }
+  }
+  const free = house().filter(c => !used.has(c.id));
+  const girls = free.filter(c => c.def.g === "F"), boys = free.filter(c => c.def.g === "M");
+  const sorted = [];
+  for (const g of girls) for (const b of boys) sorted.push([getChem(g, b) + Math.random() * 0.5, g, b]);
+  sorted.sort((a, b) => b[0] - a[0]);
+  for (const [, g, b] of sorted) if (!used.has(g.id) && !used.has(b.id)) { used.add(g.id); used.add(b.id); teams.push({ members: [g, b], match: false }); }
+  for (const c of house()) if (!used.has(c.id)) teams.push({ members: [c], match: false });
+  return teams;
+}
+function teamRow(t, i, scoreHtml = "") {
+  const mine = t.members.includes(player);
+  const names = t.members.map(nm).join(" & ");
+  const label = t.label || names;
+  return `<div class="row ${t.win ? "win" : ""}"><span class="dot" style="background:${t.color || t.members[0].def.top}"></span><span class="grow">${esc(label)}${t.label ? `<small>${esc(names)}</small>` : t.match ? `<small>Match</small>` : ""}</span>${mine ? `<span class="tag gold">Takımın</span>` : ""}${scoreHtml}</div>`;
+}
+function pairGame() {
+  const teams = pairTeams();
+  openModal(`
+    <span class="eyebrow">Gün ${state.day} · villa oyunu</span>
+    <h2>Çift Yarışı: Tepsi Taşıma</h2>
+    <p>Çiftler takım oluyor. Match'ler birlikte, diğerleri en iyi anlaştığı kişiyle. Kazanan çift galada dokunulmaz olur.</p>
+    <div class="list">${teams.map((t, i) => teamRow(t, i)).join("")}</div>
+    <button class="btn" type="button" id="g-start">Oyna</button>`);
+  $("g-start").addEventListener("click", () => timingGame(score => finishGame(teams, score, "pair")));
+}
+function groupTeams() {
+  const teams = [];
+  for (const gr of state.groups) {
+    const members = gr.members.map(id => byId[id]).filter(Boolean);
+    if (members.length) teams.push({ members, label: gr.name, color: gr.color, group: gr });
+  }
+  for (const g of ["F", "M"]) {
+    const free = house().filter(c => c.def.g === g && !groupOf(c.id));
+    if (free.length) teams.push({ members: free, label: g === "F" ? "Bağımsız Kızlar" : "Bağımsız Erkekler", color: "#9AA7BC" });
+  }
+  return teams;
+}
+function groupGame() {
+  const teams = groupTeams();
+  openModal(`
+    <span class="eyebrow">Gün ${state.day} · villa oyunu</span>
+    <h2>Grup Mücadelesi: Halat Çekme</h2>
+    <p>Gruplar yarışıyor, gruba girmeyenler bağımsız takım oluyor. Kazanan grup galada karşı takımdan birini koruma altına alır.</p>
+    <div class="list">${teams.map((t, i) => teamRow(t, i)).join("")}</div>
+    <button class="btn" type="button" id="g-start">Oyna</button>`);
+  $("g-start").addEventListener("click", () => tapGame(score => finishGame(teams, score, "group")));
+}
+function timingGame(done) {
+  const scores = [];
+  let round = 0, raf = 0, pos = 0, dir = 1, t0 = 0;
+  const zones = [0.3, 0.22, 0.15], speeds = [0.8, 1.05, 1.3];
+  openModal(`
+    <span class="eyebrow">Tepsi taşıma · 3 tur</span>
+    <h2>Dengeyi yakala</h2>
+    <p>Turuncu çizgi yeşil alanın ortasındayken Bırak'a bas. Her turda alan daralır.</p>
+    <div class="track" id="tr"><div class="zone" id="zn"></div><div class="marker" id="mk"></div></div>
+    <div class="rounds" id="rd"><span>1. tur</span><span>2. tur</span><span>3. tur</span></div>
+    <button class="btn tap-big" type="button" id="g-hit">Bırak</button>`);
+  const zn = $("zn"), mk = $("mk");
+  const setup = () => { const w = zones[round]; zn.style.left = (50 - w * 50) + "%"; zn.style.width = (w * 100) + "%"; pos = Math.random() * 0.2; dir = 1; t0 = performance.now(); };
+  const tick = ts => {
+    const dt = Math.min(0.05, Math.max(0, (ts - t0) / 1000)); t0 = ts;
+    pos += dir * speeds[round] * dt;
+    if (pos > 1) { pos = 1; dir = -1; } if (pos < 0) { pos = 0; dir = 1; }
+    mk.style.left = (pos * 100) + "%";
+    raf = requestAnimationFrame(tick);
+  };
+  setup(); raf = requestAnimationFrame(tick);
+  $("g-hit").addEventListener("click", () => {
+    if (round >= 3) return;
+    const half = zones[round] / 2, d = Math.abs(pos - 0.5);
+    const s = d <= half ? Math.round(100 - d / half * 35) : Math.max(0, Math.round(55 - (d - half) * 260));
+    scores.push(s);
+    $("rd").children[round].textContent = s;
+    round++;
+    if (round >= 3) { cancelAnimationFrame(raf); $("g-hit").disabled = true; later(700, () => done(Math.round(scores.reduce((a, b) => a + b, 0) / 3))); }
+    else setup();
+  });
+}
+function tapGame(done) {
+  let taps = 0, started = false, end = 0, finished = false;
+  openModal(`
+    <span class="eyebrow">Halat çekme · 5 saniye</span>
+    <h2>Çek!</h2>
+    <p>Düğmeye olabildiğince hızlı dokun. İlk dokunuşla süre başlar.</p>
+    <div class="rope"><i id="rp"></i></div>
+    <div class="big-num" id="tp">0</div>
+    <button class="btn tap-big" type="button" id="g-tap">Çek!</button>`);
+  const tick = () => {
+    const left = Math.max(0, end - performance.now());
+    $("g-tap").textContent = "Çek! " + (left / 1000).toFixed(1) + " sn";
+    if (left <= 0) { if (!finished) { finished = true; $("g-tap").disabled = true; later(500, () => done(Math.min(100, Math.round(taps * 3.2)))); } return; }
+    requestAnimationFrame(tick);
+  };
+  $("g-tap").addEventListener("click", () => {
+    if (!started) { started = true; end = performance.now() + 5000; requestAnimationFrame(tick); }
+    if (performance.now() > end) return;
+    taps++;
+    $("tp").textContent = taps;
+    $("rp").style.left = Math.min(96, 50 + taps * 1.4) + "%";
+  });
+}
+function aiScore(t) {
+  const m = t.members;
+  if (m.length >= 2 && !t.label) return 38 + Math.random() * 34 + getChem(m[0], m[1]) * 3;
+  let trust = 0, n = 0;
+  for (let i = 0; i < m.length; i++) for (let j = i + 1; j < m.length; j++) { trust += getChem(m[i], m[j]); n++; }
+  return 40 + Math.random() * 30 + (n ? trust / n : 3) * 2.4 + (t.label && !t.group ? -6 : 0);
+}
+function finishGame(teams, myScore, kind) {
+  for (const t of teams) {
+    if (t.members.includes(player)) {
+      const others = t.members.length - 1;
+      t.score = others ? Math.round((myScore + aiScore(t) * others) / (others + 1)) : myScore;
+    } else t.score = Math.round(aiScore(t));
+    t.score = Math.max(0, Math.min(100, t.score));
+  }
+  const sorted = teams.slice().sort((a, b) => b.score - a.score);
+  const win = sorted[0]; win.win = true;
+  openModal(`
+    <span class="eyebrow">Sonuçlar</span>
+    <h2>${esc(win.label || win.members.map(c => c.def.name).join(" & "))} kazandı</h2>
+    <p>Senin skorun: ${myScore}</p>
+    <div class="list">${sorted.map((t, i) => teamRow(t, i, `<span class="score"><span class="bar"><i data-w="${t.score}"></i></span>${t.score}</span>`)).join("")}</div>
+    <div id="g-reward"></div>`);
+  later(60, () => $("modal-body").querySelectorAll("[data-w]").forEach(el => { el.style.width = el.dataset.w + "%"; }));
+  const box = $("g-reward");
+  const finish = msg => {
+    box.innerHTML = `<p>${msg}</p><button class="btn" type="button" id="g-back">Villaya dön</button>`;
+    $("g-back").addEventListener("click", () => { closeModal(); state.phase = "day"; updateHud(true); toast(msg.replace(/<[^>]+>/g, ""), "news", 5000); });
+  };
+  if (kind === "pair") {
+    win.members.forEach(c => state.immune.add(c.id));
+    finish(`<b style="color:var(--altin)">${esc(win.members.map(nm).join(" ve "))}</b> galada dokunulmaz. Onlara oy verilemez.`);
+  } else {
+    const g = win.members[0].def.g;
+    const opp = house().filter(c => c.def.g !== g);
+    if (win.members.includes(player)) {
+      box.innerHTML = `<p>Grubun kazandı. Karşı takımdan kimi koruma altına alıyorsunuz?</p><div class="list">${opp.map(c => `<button class="row pick" type="button" data-id="${c.id}"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}<small>Uyumunuz ${getChem(player, c)}/10</small></span>${state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : ""}</button>`).join("")}</div>`;
+      box.querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => { const c = byId[b.dataset.id]; state.immune.add(c.id); finish(`<b style="color:var(--altin)">${esc(c.def.name)}</b> grubunuzun koruması altında, galada dokunulmaz.`); }));
+    } else {
+      let chosen = null;
+      for (const m of win.members) { const mm = state.matchOf[m.id]; if (mm && opp.some(c => c.id === mm)) { chosen = byId[mm]; break; } }
+      if (!chosen && opp.length) chosen = opp.slice().sort((a, b) => win.members.reduce((s, m) => s + getChem(m, b), 0) - win.members.reduce((s, m) => s + getChem(m, a), 0))[0];
+      if (chosen) { state.immune.add(chosen.id); finish(`${esc(win.label)} grubu <b style="color:var(--altin)">${esc(nm(chosen))}</b> kişisini koruma altına aldı. Galada dokunulmaz.`); }
+      else finish("Korunacak kimse kalmadı.");
+    }
+  }
+}
+
+/* ---------- Gala sineması ---------- */
+let speed = 1;
+const wait = ms => new Promise(res => setTimeout(res, REDUCE ? Math.min(ms, 300) : ms / speed));
+function walkTo(c, x, y) {
+  return new Promise(res => {
+    const p = findPath(ROOMS[c.room], Math.round(c.x), Math.round(c.y), (a, b) => a === x && b === y);
+    if (!p || !p.length) { res(); return; }
+    c.sit = false; c.path = p; c.onArrive = res;
+  });
+}
+function caption(main, sub = "") {
+  const box = $("caption");
+  box.hidden = !main;
+  $("cap-main").textContent = main; $("cap-sub").textContent = sub;
+  box.classList.remove("cap-in"); void box.offsetWidth; box.classList.add("cap-in");
+}
+function galaGroupsTargets() {
+  for (const gr of state.groups) {
+    const members = gr.members.map(id => byId[id]).filter(Boolean);
+    const opp = house().filter(c => c.def.g !== gr.g && !state.immune.has(c.id) && !members.some(m => state.matchOf[m.id] === c.id));
+    let best = null, min = Infinity;
+    for (const c of opp) { const s = members.reduce((a, m) => a + getChem(m, c), 0) / members.length + Math.random() * 0.6; if (s < min) { min = s; best = c; } }
+    gr.target = best;
+  }
+}
+function npcVote(v) {
+  const opp = house().filter(c => c.def.g !== v.def.g && !state.immune.has(c.id));
+  if (!opp.length) return null;
+  const gr = groupOf(v.id);
+  if (gr && gr.target && opp.includes(gr.target) && state.matchOf[v.id] !== gr.target.id && Math.random() < 0.9) return gr.target;
+  let pool = opp.filter(c => state.matchOf[v.id] !== c.id);
+  if (!pool.length) pool = opp;
+  let best = null, min = Infinity;
+  for (const c of pool) { const s = getChem(v, c) + Math.random() * 1.2; if (s < min) { min = s; best = c; } }
+  return best;
+}
+function playerVotePanel() {
+  return new Promise(res => {
+    const opp = house().filter(c => c.def.g !== player.def.g);
+    const valid = opp.filter(c => !state.immune.has(c.id));
+    if (!valid.length) { res(null); return; }
+    const gr = groupOf(player.id);
+    const rows = opp.map(c => {
+      const imm = state.immune.has(c.id);
+      const tags = [
+        state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : "",
+        gr && gr.target === c ? `<span class="tag gold">Grubunun seçimi</span>` : "",
+        imm ? `<span class="tag ok">Dokunulmaz</span>` : "",
+      ].join("");
+      return `<button class="row pick" type="button" data-id="${c.id}" ${imm ? "disabled" : ""}><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}<small>Uyumunuz ${getChem(player, c)}/10</small></span>${tags}</button>`;
+    }).join("");
+    openModal(`
+      <span class="eyebrow">Sandık başındasın</span>
+      <h2>Kimi eliyorsun?</h2>
+      <p>${gr && gr.target ? `${esc(gr.name)} grubu ${esc(gr.target.def.name)} için anlaştı. Farklı oy verirsen grubun bunu sayımda görür.` : "Oyun gizli. Sayımda herkes görecek."}</p>
+      <div class="list">${rows}</div>`, "gold soft");
+    $("modal-body").querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => { closeModal(); res(byId[b.dataset.id]); }));
+  });
+}
+function renderTallyLive(counts, cands, hot) {
+  const max = Math.max(1, ...cands.map(c => counts.get(c) || 0));
+  $("tally-live").innerHTML = cands.map(c => {
+    const n = counts.get(c) || 0;
+    return `<span class="${c === hot ? "hot" : ""}">${esc(nm(c))}</span><span class="bar"><i style="width:${n / max * 100}%"></i></span><span class="n">${n}</span>`;
+  }).join("");
+}
+async function startGala() {
   const { done, total } = talkProgress();
   if (state.phase !== "day") return;
+  if (!state.gameDone) { toast("Önce bugünün villa oyunu oynanmalı."); return; }
   if (done < total) {
     const mine = npcs.filter(n => n.def.g !== player.def.g && !talked(player, n)).map(n => n.def.name);
     toast(mine.length ? "Önce konuşman gerekenler: " + mine.join(", ") : "Diğer yarışmacılar hâlâ konuşuyor (" + done + "/" + total + ").");
     return;
   }
-  closeDialog();
-  state.phase = "gala"; galaLock = true;
-  for (const n of npcs) { n.mode = "idle"; n.task = null; n.chat = null; n.path = []; n.after = null; }
-  player.path = []; state.target = null;
+  closeDialog(); closeModal();
+  state.phase = "gala"; speed = 1;
+  $("speed-btn").hidden = false; $("speed-btn").textContent = "Hızlandır ×3";
+  $("room-chip").hidden = true;
+  for (const c of house()) { c.mode = "idle"; c.task = null; c.chat = null; c.path = []; c.after = null; c.bubble = null; c.onArrive = null; }
+  state.target = null; state.hover = null; state.flyCards = [];
+  // açılış kartı
+  $("tc-eyebrow").textContent = "Gün " + state.day;
+  $("tc-sub").textContent = house().length + " yarışmacı · 1 veda";
+  const tc = $("title-card");
+  tc.hidden = false; void tc.offsetWidth; tc.classList.add("on");
+  await wait(900);
+  // salona geçiş: herkes koltuğuna
+  state.room = "gala";
+  for (const g of ["F", "M"]) {
+    const list = house().filter(c => c.def.g === g);
+    const seats = GALA_SEATS[g], off = Math.max(0, Math.floor((seats.length - list.length) / 2));
+    list.forEach((c, i) => { const [x, y] = seats[Math.min(seats.length - 1, off + i)]; c.room = "gala"; c.seat = [x, y]; sitDown(c, x, y); });
+  }
+  state.camFocus = { x: 4, y: 4 }; snapCamera();
+  await wait(2200);
+  tc.classList.remove("on");
+  await wait(700);
+  tc.hidden = true;
+  caption("Herkes yerini aldı", "Kızlar bir yanda, erkekler karşıda. Sandık ortada.");
+  await wait(2600);
+  // dokunulmazlar
+  const imm = house().filter(c => state.immune.has(c.id));
+  if (imm.length) {
+    state.spots = imm;
+    caption("Dokunulmaz: " + imm.map(c => c.def.name).join(" ve "), "Bu gece onlara oy verilemez.");
+    await wait(2600);
+  }
+  // match'ler
   const couples = [], seen = new Set();
   for (const c of house()) {
     const m = state.matchOf[c.id];
-    if (!m || seen.has(c.id)) continue;
+    if (!m || seen.has(c.id) || !byId[m]) continue;
     seen.add(c.id); seen.add(m);
     couples.push([c, byId[m]]);
-    state.revealed.add(pairKey(c.id, m));
   }
-  const single = house().filter(c => !state.matchOf[c.id]).map(c => c === player ? c.def.name + " (sen)" : c.def.name);
-  const nm = c => esc(c === player ? c.def.name + " (sen)" : c.def.name);
-  openModal(`
-    <span class="eyebrow">Gün ${state.day} · Gala gecesi</span>
-    <h2>Match'ler açıklanıyor</h2>
-    <p>Gün boyunca oluşan eşleşmeler ilk kez herkesin önünde.</p>
-    <div class="list">${couples.length ? couples.map(([a, b]) => `<div class="couple">${nm(a)} ${HEART_SVG} ${nm(b)}</div>`).join("") : `<p>Bu gece match olan yok.</p>`}</div>
-    ${single.length ? `<p>Match'i olmayanlar: ${esc(single.join(", "))}</p>` : ""}
-    <p>Match'ler galada birbirine oy vermez.</p>
-    <button class="btn" type="button" id="g-next">Oylamaya geç</button>`);
-  $("g-next").addEventListener("click", galaVote);
-}
-function galaVote() {
-  const cands = npcs.filter(n => n.def.g !== player.def.g);
-  const rows = cands.map(c => {
-    const v = getChem(player, c), m = state.matchOf[player.id] === c.id;
-    return `<button class="row pick" type="button" data-id="${c.id}">
-      <span class="dot" style="background:${c.def.top}"></span>
-      <span class="grow">${esc(c.def.name)}<small>Uyumunuz ${v}/10</small></span>
-      ${m ? `<span class="tag love">Match'in</span>` : state.matchOf[c.id] ? `<span class="tag">Match'li</span>` : ""}
-    </button>`;
-  }).join("");
-  openModal(`
-    <span class="eyebrow">Gala · oylama</span>
-    <h2>Karşı takımdan birini ele</h2>
-    <p>Herkes karşı takımdan bir kişiyi eleme için seçiyor. En çok oyu alan villadan ayrılır.</p>
-    <div class="list">${rows}</div>`);
-  $("modal-body").querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => galaReveal(byId[b.dataset.id])));
-}
-function galaReveal(myPick) {
-  const votes = house().map(v => {
-    if (v === player) return [v, myPick];
-    const opp = house().filter(c => c.def.g !== v.def.g);
-    const pool = opp.filter(c => state.matchOf[v.id] !== c.id);
-    let best = null, min = Infinity;
-    for (const c of (pool.length ? pool : opp)) { const s = getChem(v, c) + Math.random() * 1.2; if (s < min) { min = s; best = c; } }
-    return [v, best];
-  });
-  const nm = c => esc(c === player ? c.def.name + " (sen)" : c.def.name);
-  openModal(`
-    <span class="eyebrow">Gala · oylar</span>
-    <h2>Oylar okunuyor</h2>
-    <div class="list" id="g-votes"></div>
-    <div id="g-tally"></div>`);
-  const box = $("g-votes");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let i = 0;
-  const addRow = () => {
-    const [v, t] = votes[i++];
-    const el = document.createElement("div");
-    el.className = "row";
-    el.innerHTML = `<span class="dot" style="background:${v.def.top}"></span><span class="grow">${nm(v)}</span><span class="tag">${nm(t)}</span>`;
-    box.appendChild(el);
-    if (i < votes.length) setTimeout(addRow, reduce ? 0 : 550); else setTimeout(() => galaTally(votes), reduce ? 0 : 700);
-  };
-  addRow();
-}
-function galaTally(votes) {
-  const count = new Map();
-  for (const [, t] of votes) count.set(t, (count.get(t) || 0) + 1);
-  const rows = [...count.entries()].map(([c, n]) => {
-    const chemSum = votes.filter(([v]) => v.def.g !== c.def.g).reduce((s, [v]) => s + getChem(v, c), 0);
-    return { c, n, chemSum, r: Math.random() };
-  }).sort((a, b) => b.n - a.n || a.chemSum - b.chemSum || a.r - b.r);
-  const out = rows[0].c;
-  const nm = c => esc(c === player ? c.def.name + " (sen)" : c.def.name);
-  $("g-tally").innerHTML = `
-    <div class="tally">
-      <span class="h">Yarışmacı</span><span class="h">Oy</span>
-      ${rows.map(r => `<span class="${r.c === out ? "out" : ""}">${nm(r.c)}</span><span class="num ${r.c === out ? "out" : ""}">${r.n}</span>`).join("")}
-    </div>
-    ${rows[1] && rows[1].n === rows[0].n ? `<p>Oylar eşit; karşı takımla uyumu en düşük olan ayrılıyor.</p>` : ""}`;
-  const b = document.createElement("button");
-  b.className = "btn"; b.type = "button"; b.textContent = "Sonucu açıkla";
-  b.addEventListener("click", () => galaResult(out));
-  $("g-tally").appendChild(b);
-  b.focus();
-}
-function galaResult(out) {
+  state.spots = [];
+  caption("Match'ler açıklanıyor", couples.length ? "" : "Bu gece kimse match olmadı.");
+  await wait(1800);
+  for (const [a, b] of couples) {
+    state.revealed.add(pairKey(a.id, b.id));
+    state.spots = [a, b];
+    state.hearts.push({ c: a, t0: NOW }, { c: b, t0: NOW });
+    caption(a.def.name + " ♥ " + b.def.name, "Match'ler galada birbirine oy vermez.");
+    await wait(2400);
+  }
+  state.spots = [];
+  // grup kararları
+  galaGroupsTargets();
+  const pg = groupOf(player.id);
+  caption("Oylama başlıyor", "Herkes karşı takımdan birini seçecek. Oylar sayıma kadar gizli.");
+  await wait(2600);
+  if (pg && pg.target) { caption(pg.name + " fısıldaşıyor", "Grubun " + pg.target.def.name + " için anlaştı."); await wait(2400); }
+  // sandık yürüyüşü
+  const votes = [];
+  for (const v of shuffle(house())) {
+    state.camFocus = v; state.spots = [v];
+    caption(nm(v) + " sandığa yürüyor", "");
+    await wait(500);
+    await walkTo(v, SANDIK.stand[0], SANDIK.stand[1]);
+    setFace(v, 0, -1);
+    let t;
+    if (v === player) { caption("Sıra sende", ""); t = await playerVotePanel(); }
+    else { await wait(1100); t = npcVote(v); }
+    const from = iso(SANDIK.stand[0], SANDIK.stand[1]), to = iso(SANDIK.x, SANDIK.y);
+    state.flyCards.push({ x0: from.x + 6, y0: from.y - 34, x1: to.x, y1: to.y - 26, t0: NOW, dur: 650 / speed });
+    caption(nm(v) + " oyunu attı", "");
+    if (t) votes.push([v, t]);
+    await wait(900);
+    const back = v.seat;
+    walkTo(v, back[0], back[1]).then(() => sitDown(v, back[0], back[1]));
+    await wait(700);
+  }
+  state.spots = [];
+  state.camFocus = { x: SANDIK.x, y: SANDIK.y };
+  await wait(1400);
+  for (const c of house()) if (c.seat && !c.sit) sitDown(c, c.seat[0], c.seat[1]);
+  if (!votes.length) { endGalaUI(); state.phase = "day"; nextDay(null); return; }
+  // sayım
+  const cands = [...new Set(votes.map(([, t]) => t))];
+  const counts = new Map();
+  $("tally-live").hidden = false;
+  renderTallyLive(counts, cands, null);
+  caption("Oylar sayılıyor", "Sandık açıldı.");
+  await wait(2000);
+  const reveal = shuffle(votes);
+  for (let i = 0; i < reveal.length; i++) {
+    const [, t] = reveal[i];
+    counts.set(t, (counts.get(t) || 0) + 1);
+    const lastOnes = i >= reveal.length - 2;
+    caption((lastOnes ? (i === reveal.length - 1 ? "Son oy... " : "Bir oy daha... ") : "Bir oy: ") + nm(t), "");
+    state.spots = [t];
+    const top = Math.max(...counts.values());
+    renderTallyLive(counts, cands, [...counts.entries()].find(([, n]) => n === top)[0]);
+    await wait(lastOnes ? 2400 : 1300);
+  }
+  const rows = cands.map(c => ({ c, n: counts.get(c) || 0, chemSum: votes.filter(([v]) => v.def.g !== c.def.g).reduce((s, [v]) => s + getChem(v, c), 0), r: Math.random() }))
+    .sort((a, b) => b.n - a.n || a.chemSum - b.chemSum || a.r - b.r);
+  const out = rows[0].c, tie = rows[1] && rows[1].n === rows[0].n;
+  // grup ihaneti
+  if (pg && pg.target) {
+    const myVote = votes.find(([v]) => v === player);
+    if (myVote && myVote[1] !== pg.target) {
+      for (const id of pg.members) if (id !== player.id && byId[id]) setChem(player, byId[id], getChem(player, byId[id]) - 3);
+      later(400, () => toast(pg.name + " grubun farklı oy verdiğini gördü. Güven -3", "bad", 5000));
+      if (pg.members.some(id => id !== player.id && byId[id] && getChem(player, byId[id]) < 3)) { leaveGroup(player.id); later(2000, () => toast(pg.name + " grubundan çıkarıldın.", "bad", 5000)); }
+    }
+  }
+  state.spots = [out]; state.camFocus = out;
+  caption(tie ? "Oylar eşit..." : "Karar belli", tie ? "Karşı takımla uyumu en düşük olan ayrılıyor." : "");
+  await wait(2200);
+  $("tally-live").hidden = true;
+  caption(nm(out) + " villaya veda ediyor", "");
+  await wait(1200);
   if (out === player) {
+    say(player, "Bu kadarmış. Hepinize teşekkürler.", 3500);
+    await wait(2500);
+    endGalaUI();
     openModal(`
       <span class="eyebrow">Gala · sonuç</span>
       <h2>Villaya veda ettin</h2>
-      <p>Bu gece en çok oyu sen aldın. ${state.day}. günde elendin. Karşı takımla uyumun düşük kalınca oylar sana yöneldi.</p>
-      <button class="btn" type="button" id="g-restart">Yeniden başla</button>`);
-    $("g-restart").addEventListener("click", () => { galaLock = false; newGame(); });
+      <p>Bu gece en çok oyu sen aldın. ${state.day}. günde elendin.</p>
+      <button class="btn gold" type="button" id="g-restart">Yeniden başla</button>`, "gold");
+    $("g-restart").addEventListener("click", () => newGame());
     return;
   }
+  say(out, out.def.bye, 3600);
+  await wait(3000);
+  out.sit = false;
+  await walkTo(out, 0, 10);
+  out.leaving = true;
+  await wait(900);
+  endGalaUI();
   openModal(`
     <span class="eyebrow">Gala · sonuç</span>
-    <h2>${esc(out.def.name)} villadan ayrılıyor</h2>
+    <h2>${esc(out.def.name)} villadan ayrıldı</h2>
     <p>"${esc(out.def.bye)}"</p>
     <p>Yarın sabah villaya yeni bir yarışmacı girecek.</p>
-    <button class="btn" type="button" id="g-day">Yeni güne geç</button>`);
-  $("g-day").addEventListener("click", () => { galaLock = false; closeModal(); nextDay(out); });
+    <button class="btn gold" type="button" id="g-day">Yeni güne geç</button>`, "gold");
+  $("g-day").addEventListener("click", () => { closeModal(); nextDay(out); });
+}
+function endGalaUI() {
+  caption("");
+  $("speed-btn").hidden = true;
+  $("tally-live").hidden = true;
+  state.spots = []; state.camFocus = null;
+}
+$("speed-btn").addEventListener("click", () => { speed = speed === 1 ? 3 : 1; $("speed-btn").textContent = speed === 1 ? "Hızlandır ×3" : "Normal hız"; });
+
+function scatter(c) {
+  const rm = Math.random() < 0.6 ? "havuz" : "teras", r = ROOMS[rm];
+  for (let i = 0; i < 40; i++) {
+    const x = Math.floor(Math.random() * r.w), y = Math.floor(Math.random() * r.h);
+    if (tileAt(r, x, y) === "." && !(rm === "havuz" && x === 5 && y === 11)) { c.room = rm; c.x = x; c.y = y; c.sit = false; return; }
+  }
+  c.room = "havuz"; c.x = 6; c.y = 11;
 }
 function nextDay(out) {
-  const partner = state.matchOf[out.id];
-  if (partner) { unmatch(out.id); if (partner === player.id) later(1600, () => toast("Match'in villadan ayrıldı.", "bad")); }
-  npcs = npcs.filter(n => n !== out);
-  delete byId[out.id];
+  if (out) {
+    const partner = state.matchOf[out.id];
+    if (partner) { unmatch(out.id); if (partner === player.id) later(1600, () => toast("Match'in villadan ayrıldı.", "bad")); }
+    leaveGroup(out.id);
+    npcs = npcs.filter(n => n !== out);
+    delete byId[out.id];
+  }
   state.day++;
-  state.talked.clear();
-  state.galaReadyShown = false;
-  const g = out.def.g;
-  const tpl = state.pool[g].shift() || { name: (g === "F" ? "Yeni kız " : "Yeni erkek ") + state.day, skin: "#C99A76", hair: "#2A1D14", hs: g === "F" ? "long" : "short", top: "#6C8EBF", bottom: "#2B2F3A", legs: "pants", likes: ["durust"], dislikes: ["strateji"], open: "Merhaba!" };
-  const id = "y" + state.day + tpl.name.toLowerCase();
-  const def = withDefaults(Object.assign({ g }, tpl));
-  const nc = mkChar(id, def, "havuz", 0, 2, { arrivedDay: state.day, face: [1, 0] });
-  nc.arrivedAt = NOW;
-  const p = findPath(ROOMS.havuz, 0, 2, (x, y) => x === 3 && y === 4);
-  if (p) nc.path = p;
-  npcs.push(nc); byId[id] = nc;
+  state.talked.clear(); state.immune.clear();
+  state.gameDone = false; state.eventDone = false; state.galaReadyShown = false; state.flyCards = [];
+  for (const n of npcs) { scatter(n); n.leaving = false; n.alpha = 1; n.mode = "idle"; n.seat = null; n.nextWander = NOW + 2000 + Math.random() * 3000; }
+  player.room = "havuz"; player.x = 5; player.y = 11; player.sit = false; player.path = []; player.seat = null;
+  state.room = "havuz"; $("room-name").textContent = ROOMS.havuz.name; $("room-chip").hidden = false;
   state.phase = "day";
-  lastHud = ""; updateHud();
+  if (out) {
+    const g = out.def.g;
+    const tpl = state.pool[g].shift() || { name: (g === "F" ? "Yeni kız " : "Yeni erkek ") + state.day, skin: "#C99A76", hair: "#2A1D14", hs: g === "F" ? "long" : "short", top: "#6C8EBF", bottom: "#2B2F3A", legs: "pants", likes: ["durust"], dislikes: ["strateji"], open: "Merhaba!" };
+    const id = "y" + state.day + "_" + Math.floor(Math.random() * 1e6);
+    const def = withDefaults(Object.assign({ g }, tpl));
+    const nc = mkChar(id, def, "havuz", 0, 2, { arrivedDay: state.day, face: [1, 0] });
+    nc.arrivedAt = NOW;
+    const p = findPath(ROOMS.havuz, 0, 2, (x, y) => x === 3 && y === 4);
+    if (p) nc.path = p;
+    npcs.push(nc); byId[id] = nc;
+    later(1500, () => { toast("Yeni yarışmacı villaya girdi: " + def.name, "love"); say(nc, "Merhaba! Ben " + def.name + ".", 3500); });
+  }
+  snapCamera();
+  updateHud(true);
   toast("Gün " + state.day + " başladı. Herkes yeniden konuşmalı.", "good");
-  later(1400, () => { toast("Yeni yarışmacı villaya girdi: " + def.name, "love"); say(nc, "Merhaba! Ben " + def.name + ".", 3500); });
 }
 
 /* ---------- Pencereler ---------- */
-function openModal(html) { $("modal-body").innerHTML = html; $("modal").hidden = false; const b = $("modal-body").querySelector("button, input"); if (b) b.focus({ preventScroll: true }); }
+function openModal(html, cls = "") {
+  $("modal-body").className = "modal " + cls.split(" ").filter(c => c && c !== "soft").join(" ");
+  $("modal").classList.toggle("soft", cls.includes("soft"));
+  $("modal-body").innerHTML = html; $("modal").hidden = false;
+  const b = $("modal-body").querySelector("button:not([disabled]), input");
+  if (b) b.focus({ preventScroll: true });
+}
 function closeModal() { $("modal").hidden = true; }
-$("modal").addEventListener("click", e => { if (e.target.id === "modal" && !galaLock && state.phase !== "start") closeModal(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !galaLock && state.phase !== "start") { closeModal(); closeDialog(); } });
+const canDismiss = () => state.phase === "day";
+$("modal").addEventListener("click", e => { if (e.target.id === "modal" && canDismiss()) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && canDismiss()) { closeModal(); closeDialog(); } });
 
 const RULES = `
   <ul>
-    <li>Birine dokun, yanına gidip konuşursun. Verdiğin cevaplar uyumunuzu belirler.</li>
-    <li>Galaya gidebilmek için evdeki her kız her erkekle konuşmuş olmalı; sen de dahil. Diğerleri kendi aralarında konuşur.</li>
-    <li>Uyum yüksek çıkarsa match olabilirsiniz. Match'in galada sana oy vermez; bu da villada kalma şansını artırır.</li>
-    <li>Galada match'ler açıklanır, sonra herkes karşı takımdan birini eleme için seçer. En çok oyu alan villadan ayrılır.</li>
-    <li>Elenen gider, ertesi sabah yerine yeni bir yarışmacı gelir.</li>
+    <li>Birine dokun, konuşma başlar. Karşı cinsle konuşma <b>uyumu</b>, kendi cinsinle konuşma <b>güveni</b> belirler.</li>
+    <li>Uyum yüksekse match olabilirsiniz. Match'in galada sana oy vermez.</li>
+    <li>Güven yüksekse gruba katılırsın ya da grup kurarsın. Gruplar galada ortak hedefe oy verir; farklı oy vermek ihanettir.</li>
+    <li>Konuşmaların yarısı bitince villa oyunu başlar. Kazananlar galada dokunulmazlık kazanır.</li>
+    <li>Her kız her erkekle konuşmadan gala açılmaz. Galada herkes karşı takımdan birini eler; en çok oyu alan gider, yerine yeni biri gelir.</li>
   </ul>`;
 function openStart() {
   let gender = "F";
@@ -1137,11 +1616,7 @@ function openStart() {
   const set = g => { gender = g; $("g-f").setAttribute("aria-pressed", String(g === "F")); $("g-m").setAttribute("aria-pressed", String(g === "M")); };
   $("g-f").addEventListener("click", () => set("F"));
   $("g-m").addEventListener("click", () => set("M"));
-  const go = () => {
-    const name = ($("player-name").value.trim() || "Deniz").slice(0, 14);
-    closeModal();
-    beginGame(gender, name);
-  };
+  const go = () => { const name = ($("player-name").value.trim() || "Deniz").slice(0, 14); closeModal(); beginGame(gender, name); };
   $("s-go").addEventListener("click", go);
   $("player-name").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
 }
@@ -1157,24 +1632,30 @@ function openHouse() {
     let right = "";
     if (me) right = `<span class="tag">Sen</span>`;
     else if (opp) right = state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : talked(player, c) ? `<span class="tag ok">Konuştunuz</span>` : `<span class="tag">Konuşmadınız</span>`;
-    else right = `<span class="tag">Takım arkadaşın</span>`;
-    const sub = opp ? `Uyum ${getChem(player, c)}/10` : me ? "" : c.arrivedDay === state.day && state.day > 1 ? "Yeni geldi" : "";
-    const heart = shownMatch(c) && !me && state.matchOf[c.id] !== player.id ? ` · ${esc(byId[state.matchOf[c.id]].def.name)} ile match` : "";
-    return `<div class="row"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}${sub || heart ? `<small>${esc(sub)}${heart}</small>` : ""}</span>${right}</div>`;
+    else right = groupOf(c.id) && groupOf(c.id) === groupOf(player.id) ? `<span class="tag gold">Grubunda</span>` : `<span class="tag">${talked(player, c) ? "Konuştunuz" : "Takım"}</span>`;
+    const bits = [];
+    if (!me) bits.push((opp ? "Uyum " : "Güven ") + getChem(player, c) + "/10");
+    if (groupOf(c.id)) bits.push(groupOf(c.id).name);
+    if (state.immune.has(c.id)) bits.push("dokunulmaz");
+    if (c.arrivedDay === state.day && state.day > 1) bits.push("yeni geldi");
+    if (shownMatch(c) && !me && state.matchOf[c.id] !== player.id && byId[state.matchOf[c.id]]) bits.push(byId[state.matchOf[c.id]].def.name + " ile match");
+    return `<div class="row"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}${bits.length ? `<small>${esc(bits.join(" · "))}</small>` : ""}</span>${right}</div>`;
   };
   const girls = house().filter(c => c.def.g === "F"), boys = house().filter(c => c.def.g === "M");
+  const groups = state.groups.map(g => `<span class="gchip"><i style="background:${g.color}"></i>${esc(g.name)}: ${esc(g.members.map(id => byId[id] ? byId[id].def.name : "").join(", "))}</span>`).join("");
   openModal(`
     <span class="eyebrow">Gün ${state.day} · konuşmalar ${done}/${total}</span>
     <h2>Evdekiler</h2>
-    <p>${pending ? `Diğer yarışmacıların ${pending} konuşması daha var.` : "Diğer yarışmacılar konuşmalarını bitirdi."} Yeni match'ler galada açıklanır.</p>
+    <p>${pending ? `Diğer yarışmacıların ${pending} konuşması daha var.` : "Diğer yarışmacılar konuşmalarını bitirdi."} ${state.gameDone ? "Bugünün oyunu oynandı." : "Villa oyunu konuşmaların yarısında başlar."} Yeni match'ler galada açıklanır.</p>
+    <span class="group-title">Gruplar</span><div class="chips">${groups || `<span class="gchip">Henüz grup yok</span>`}</div>
     <span class="group-title">Kızlar</span><div class="list">${girls.map(row).join("")}</div>
     <span class="group-title">Erkekler</span><div class="list">${boys.map(row).join("")}</div>
     <button class="btn ghost" type="button" id="m-ok">Kapat</button>`);
   $("m-ok").addEventListener("click", closeModal);
 }
 function openMap() {
-  const rows = Object.values(ROOMS).map(r => `
-    <button class="btn ${r.id === state.room ? "" : "ghost"} row-btn" type="button" data-room="${r.id}">${esc(r.name)}${r.id === state.room ? " · buradasın" : ""}</button>`).join("");
+  const rows = Object.values(ROOMS).filter(r => r.public).map(r => `
+    <button class="btn ${r.id === state.room ? "" : "ghost"}" type="button" data-room="${r.id}">${esc(r.name)}${r.id === state.room ? " · buradasın" : ""}</button>`).join("");
   openModal(`
     <span class="eyebrow">Alanya · yaz villası</span>
     <h2>Harita</h2>
@@ -1204,12 +1685,17 @@ $("gala-btn").addEventListener("click", startGala);
 function step(c, dt) {
   if (!c.path.length) { c.moving = false; return; }
   const [tx, ty] = c.path[0];
-  const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy), sp = c.speed * dt;
+  const g = state.phase === "gala" ? speed : 1;
+  const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy), sp = c.speed * dt * (g === 1 ? 1 : g * 0.85);
   setFace(c, dx, dy);
-  c.moving = true; c.walkT += dt * 11;
+  c.moving = true; c.walkT += dt * 11 * g;
   if (d <= sp) {
     c.x = tx; c.y = ty; c.path.shift();
-    if (!c.path.length) { c.moving = false; if (c === player) playerArrive(); else npcArrive(c); }
+    if (!c.path.length) {
+      c.moving = false;
+      if (c.onArrive) { const f = c.onArrive; c.onArrive = null; f(); }
+      else if (c === player) playerArrive(); else npcArrive(c);
+    }
   } else { c.x += dx / d * sp; c.y += dy / d * sp; }
 }
 function clampCamera() {
@@ -1220,12 +1706,17 @@ function clampCamera() {
   c.x = (maxX - minX) <= vw ? (minX + maxX) / 2 : Math.max(minX + vw / 2, Math.min(maxX - vw / 2, c.x));
   c.y = (maxY - minY) <= vh ? (minY + maxY) / 2 : Math.max(minY + vh / 2, Math.min(maxY - vh / 2, c.y));
 }
-function snapCamera() { const p = iso(player.x, player.y); state.cam.x = p.x; state.cam.y = p.y - 20; clampCamera(); }
+function camGoal() {
+  if (state.phase === "gala" && state.camFocus) { const p = iso(state.camFocus.x, state.camFocus.y); return { x: p.x, y: p.y - 30 }; }
+  const p = iso(player.x, player.y);
+  return { x: p.x, y: p.y + (dlg ? 60 : -20) };
+}
+function snapCamera() { const g = camGoal(); state.cam.x = g.x; state.cam.y = g.y; clampCamera(); }
 function updateCamera(dt) {
-  if (!state.cam.follow) return;
-  const p = iso(player.x, player.y), k = 1 - Math.pow(0.002, dt);
-  state.cam.x += (p.x - state.cam.x) * k;
-  state.cam.y += (p.y + (dlg ? 60 : -20) - state.cam.y) * k;
+  if (!state.cam.follow && state.phase !== "gala") return;
+  const g = camGoal(), k = 1 - Math.pow(state.phase === "gala" ? 0.05 : 0.002, dt);
+  state.cam.x += (g.x - state.cam.x) * k;
+  state.cam.y += (g.y - state.cam.y) * k;
   clampCamera();
 }
 
@@ -1242,6 +1733,9 @@ function ellipse(x, y, rx, ry, fill) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry
 function circle(x, y, r, fill) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); }
 function rrect(x, y, w, h, r, fill) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fillStyle = fill; ctx.fill(); }
 function hash(x, y) { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); }
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; }
+function shade(hex, f) { const [r, g, b] = hex2rgb(hex); const k = f < 0 ? 1 + f : 1, add = f > 0 ? f : 0; return "rgb(" + [r, g, b].map(v => Math.round(v * k + (255 - v * k) * add)).join(",") + ")"; }
 function heart(x, y, s, fill) {
   ctx.beginPath();
   ctx.moveTo(x, y + s * 0.9);
@@ -1257,26 +1751,47 @@ function isoBox(wx, wy, fx, fy, h, z0, top, left, right) {
   poly([A(z0 + h), B(z0 + h), Cc(z0 + h), D(z0 + h)], top);
 }
 
-/* ---------- Arka plan ---------- */
-function drawBackdrop(t) {
-  const g = ctx.createLinearGradient(0, 0, 0, ch);
-  g.addColorStop(0, "#16223A"); g.addColorStop(0.38, "#3B3458"); g.addColorStop(0.56, "#B65A3F"); g.addColorStop(0.63, "#F0913A");
-  g.addColorStop(0.635, "#2C7A86"); g.addColorStop(1, "#0F3047");
-  ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+/* ---------- Arka plan (gün içinde sabahtan gün batımına) ---------- */
+function timeOfDay() {
+  if (state.phase === "start") return 0.85;
+  const { done, total } = talkProgress();
+  return Math.min(1, 0.05 + (total ? done / total : 0) * 0.95);
+}
+function drawBackdrop(t, r) {
   const hy = ch * 0.633;
+  if (r.night) {
+    const g = ctx.createLinearGradient(0, 0, 0, ch);
+    g.addColorStop(0, "#070A18"); g.addColorStop(0.6, "#161A3A"); g.addColorStop(1, "#241C3F");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+    for (let i = 0; i < 70; i++) {
+      const x = hash(i, 3) * cw, y = hash(i, 7) * ch * 0.7, tw = 0.4 + 0.6 * Math.abs(Math.sin(t / 900 + i));
+      circle(x, y, hash(i, 11) > 0.85 ? 1.4 : 0.8, "rgba(255,245,220," + (0.35 + 0.5 * tw) + ")");
+    }
+    circle(cw * 0.13, ch * 0.3, 14, "#F7EED6");
+    circle(cw * 0.13 + 5, ch * 0.3 - 4, 12, "#161A3A");
+    return;
+  }
+  const tod = timeOfDay();
+  const top = mix("#4C93C9", "#16223A", tod), mid = mix("#8FC6E3", "#3B3458", tod), low = mix("#CFE7EE", "#B65A3F", tod), hor = mix("#F6E7C8", "#F0913A", tod);
+  const sea1 = mix("#3AA0B5", "#2C7A86", tod), sea2 = mix("#17607A", "#0F3047", tod);
+  const g = ctx.createLinearGradient(0, 0, 0, ch);
+  g.addColorStop(0, top); g.addColorStop(0.38, mid); g.addColorStop(0.56, low); g.addColorStop(0.63, hor);
+  g.addColorStop(0.635, sea1); g.addColorStop(1, sea2);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+  const sx = cw * (0.55 + 0.19 * tod), sy = hy - (1 - tod) * ch * 0.42 + 6;
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, cw, hy); ctx.clip();
-  const sg = ctx.createRadialGradient(cw * 0.74, hy, 4, cw * 0.74, hy, 80);
-  sg.addColorStop(0, "rgba(255,210,130,.9)"); sg.addColorStop(1, "rgba(255,170,90,0)");
+  const sg = ctx.createRadialGradient(sx, sy, 4, sx, sy, 90);
+  sg.addColorStop(0, "rgba(255,220,150,.9)"); sg.addColorStop(1, "rgba(255,190,110,0)");
   ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, hy);
-  circle(cw * 0.74, hy + 6, 22, "#FFC56B");
-  ctx.fillStyle = "#2A2440";
+  circle(sx, sy, 20 + tod * 3, mix("#FFF4D6", "#FFC56B", tod));
+  ctx.fillStyle = mix("#7E8FA8", "#2A2440", tod);
   const kx = cw * 0.1;
   ctx.beginPath(); ctx.moveTo(kx - 30, hy); ctx.lineTo(kx - 18, hy - 22); ctx.lineTo(kx + 6, hy - 30); ctx.lineTo(kx + 34, hy - 18); ctx.lineTo(kx + 52, hy); ctx.fill();
   ctx.fillRect(kx - 4, hy - 42, 7, 14); ctx.fillRect(kx + 14, hy - 38, 6, 12);
   ctx.restore();
-  ctx.strokeStyle = "rgba(255,200,140,.35)"; ctx.lineWidth = 1.2;
+  ctx.strokeStyle = tod > 0.5 ? "rgba(255,200,140,.35)" : "rgba(255,255,255,.3)"; ctx.lineWidth = 1.2;
   for (let i = 0; i < 9; i++) {
-    const y = hy + 8 + i * 13, w = 26 - i * 1.5, x = cw * 0.74 + Math.sin(t / 900 + i) * 6 - w / 2;
+    const y = hy + 8 + i * 13, w = 26 - i * 1.5, x = sx + Math.sin(t / 900 + i) * 6 - w / 2;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.stroke();
   }
 }
@@ -1287,48 +1802,56 @@ function wq(p1, p2, u0, u1, v0, v1) {
   const a = lerpP(p1, p2, u0), b = lerpP(p1, p2, u1);
   return [[a.x, a.y - v0 * WALL_H], [b.x, b.y - v0 * WALL_H], [b.x, b.y - v1 * WALL_H], [a.x, a.y - v1 * WALL_H]];
 }
-function drawWallSeg(p1, p2, base, base2, feat, lit) {
+function drawWallSeg(r, p1, p2, side, feat, t) {
+  const W = r.walls;
+  const base = W ? (side ? W.a : W.b) : (side ? "#F1E4D3" : "#D9C7B2");
   poly(wq(p1, p2, 0, 1, 0, 1), base);
-  poly(wq(p1, p2, 0, 1, 0, 0.07), base2);
+  poly(wq(p1, p2, 0, 1, 0, 0.07), W ? W.base : (side ? "#D8C8B2" : "#C0AE98"));
+  if (W) {
+    poly(wq(p1, p2, 0.12, 0.88, 0.18, 0.82), null, "rgba(201,162,74,.45)", 1);
+    const m = lerpP(p1, p2, 0.5), fl = 0.6 + 0.4 * Math.sin(t / 500 + p1.x);
+    const g = ctx.createRadialGradient(m.x, m.y - WALL_H * 0.62, 0, m.x, m.y - WALL_H * 0.62, 16);
+    g.addColorStop(0, "rgba(255,214,140," + 0.7 * fl + ")"); g.addColorStop(1, "rgba(255,214,140,0)");
+    ctx.fillStyle = g; ctx.fillRect(m.x - 16, m.y - WALL_H * 0.62 - 16, 32, 32);
+    circle(m.x, m.y - WALL_H * 0.62, 2.2, "#FFE3A6");
+  }
   if (feat === "window") {
     poly(wq(p1, p2, 0.1, 0.22, 0.3, 0.8), "#2B8F8A");
     poly(wq(p1, p2, 0.78, 0.9, 0.3, 0.8), "#2B8F8A");
     poly(wq(p1, p2, 0.24, 0.76, 0.3, 0.8), "#2E4A6B", "#F7EFE2", 2);
-    poly(wq(p1, p2, 0.3, 0.5, 0.36, 0.72), lit ? "rgba(246,178,107,.55)" : "rgba(246,178,107,.3)");
+    poly(wq(p1, p2, 0.3, 0.5, 0.36, 0.72), side ? "rgba(246,178,107,.55)" : "rgba(246,178,107,.3)");
     poly(wq(p1, p2, 0.24, 0.76, 0.27, 0.31), "#F7EFE2");
   } else if (feat === "door") {
-    poly(wq(p1, p2, 0.16, 0.84, 0, 0.8), "#F7EFE2");
-    poly(wq(p1, p2, 0.22, 0.78, 0, 0.74), "#7E4F33");
-    poly(wq(p1, p2, 0.27, 0.48, 0.08, 0.66), "#6B412A");
-    poly(wq(p1, p2, 0.52, 0.73, 0.08, 0.66), "#6B412A");
+    poly(wq(p1, p2, 0.16, 0.84, 0, 0.8), W ? W.trim : "#F7EFE2");
+    poly(wq(p1, p2, 0.22, 0.78, 0, 0.74), W ? "#4A1D2E" : "#7E4F33");
+    poly(wq(p1, p2, 0.27, 0.48, 0.08, 0.66), W ? "#3A1524" : "#6B412A");
+    poly(wq(p1, p2, 0.52, 0.73, 0.08, 0.66), W ? "#3A1524" : "#6B412A");
     const h = lerpP(p1, p2, 0.7); circle(h.x, h.y - 0.36 * WALL_H, 1.6, "#F2C14E");
   }
-  poly(wq(p1, p2, 0, 1, 0.95, 1.05), "#C46A3D");
-  poly(wq(p1, p2, 0, 1, 1.05, 1.08), "#A9542F");
+  poly(wq(p1, p2, 0, 1, 0.95, 1.05), W ? W.trim : "#C46A3D");
+  poly(wq(p1, p2, 0, 1, 1.05, 1.08), W ? W.trim2 : "#A9542F");
 }
 function drawWalls(r, t) {
-  for (let x = 0; x < r.w; x++) drawWallSeg(iso(x - 0.5, -0.5), iso(x + 0.5, -0.5), "#F1E4D3", "#D8C8B2", r.windows.y.includes(x) ? "window" : null, true);
+  for (let x = 0; x < r.w; x++) drawWallSeg(r, iso(x - 0.5, -0.5), iso(x + 0.5, -0.5), true, r.windows.y.includes(x) ? "window" : null, t);
   for (let y = 0; y < r.h; y++) {
     const feat = r.doors["0," + y] ? "door" : r.windows.x.includes(y) ? "window" : null;
-    drawWallSeg(iso(-0.5, y - 0.5), iso(-0.5, y + 0.5), "#D9C7B2", "#C0AE98", feat, false);
+    drawWallSeg(r, iso(-0.5, y - 0.5), iso(-0.5, y + 0.5), false, feat, t);
   }
   if (r.lights) drawLights(r, t);
 }
 function drawLights(r, t) {
   const runs = [[iso(-0.5, -0.5), iso(r.w - 0.5, -0.5), r.w], [iso(-0.5, -0.5), iso(-0.5, r.h - 0.5), r.h]];
+  const glow = 0.4 + timeOfDay() * 0.6;
   for (const [a, b, n] of runs) {
     const pts = [];
-    for (let i = 0; i <= n * 4; i++) {
-      const u = i / (n * 4), p = lerpP(a, b, u), seg = (i % 4) / 4;
-      pts.push([p.x, p.y - WALL_H * 0.9 + Math.sin(seg * Math.PI) * 9]);
-    }
+    for (let i = 0; i <= n * 4; i++) { const u = i / (n * 4), p = lerpP(a, b, u), seg = (i % 4) / 4; pts.push([p.x, p.y - WALL_H * 0.9 + Math.sin(seg * Math.PI) * 9]); }
     ctx.strokeStyle = "rgba(40,30,30,.7)"; ctx.lineWidth = 1;
     ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
     for (let i = 2; i < pts.length; i += 4) {
-      const [x, y] = pts[i], fl = 0.75 + 0.25 * Math.sin(t / 400 + i);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, 9);
-      g.addColorStop(0, "rgba(255,200,110," + (0.8 * fl) + ")"); g.addColorStop(1, "rgba(255,200,110,0)");
-      ctx.fillStyle = g; ctx.fillRect(x - 9, y - 9, 18, 18);
+      const [x, y] = pts[i], fl = (0.75 + 0.25 * Math.sin(t / 400 + i)) * glow;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, 10);
+      g.addColorStop(0, "rgba(255,200,110," + (0.85 * fl) + ")"); g.addColorStop(1, "rgba(255,200,110,0)");
+      ctx.fillStyle = g; ctx.fillRect(x - 10, y - 10, 20, 20);
       circle(x, y + 1, 2, "#FFD58A");
     }
   }
@@ -1336,11 +1859,17 @@ function drawLights(r, t) {
 
 /* ---------- Zemin ---------- */
 function drawPlatformSides(r) {
-  const T = 16, wood = r.floor === "wood";
-  const c1 = wood ? "#7A5136" : "#B9A88F", c2 = wood ? "#64412B" : "#A39177";
+  const T = 16;
+  const c1 = r.floor === "wood" ? "#7A5136" : r.floor === "gala" ? "#14172C" : "#B9A88F";
+  const c2 = r.floor === "wood" ? "#64412B" : r.floor === "gala" ? "#0E1022" : "#A39177";
   for (let y = 0; y < r.h; y++) { const a = iso(r.w - 0.5, y - 0.5), b = iso(r.w - 0.5, y + 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c1); }
   for (let x = 0; x < r.w; x++) { const a = iso(x + 0.5, r.h - 0.5), b = iso(x - 0.5, r.h - 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c2); }
+  if (r.floor === "gala") {
+    ctx.strokeStyle = "#C9A24A"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); let a = iso(r.w - 0.5, -0.5); ctx.moveTo(a.x, a.y); a = iso(r.w - 0.5, r.h - 0.5); ctx.lineTo(a.x, a.y); a = iso(-0.5, r.h - 0.5); ctx.lineTo(a.x, a.y); ctx.stroke();
+  }
 }
+const isCarpet = (r, x, y) => r.floor === "gala" && ((y === 10 && x <= 6) || (x === 6 && y >= 7 && y <= 10));
 function drawFloor(r, t) {
   for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
     const k = r.map[y][x], p = iso(x, y), d = diamond(p.x, p.y);
@@ -1350,12 +1879,23 @@ function drawFloor(r, t) {
       ctx.strokeStyle = "rgba(70,40,20,.25)"; ctx.lineWidth = 1;
       for (let i = 1; i < 3; i++) { const a = iso(x - 0.5, y - 0.5 + i / 3), b = iso(x + 0.5, y - 0.5 + i / 3); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
       poly(d, null, "rgba(70,40,20,.3)", 1);
+    } else if (r.floor === "gala") {
+      poly(d, (x + y) % 2 ? "#262A48" : "#2D3254");
+      poly(d, null, "rgba(201,162,74,.22)", 1);
+      if (isCarpet(r, x, y)) { poly(diamond(p.x, p.y, 0.98), "#8E1F3A"); poly(diamond(p.x, p.y, 0.98), null, "rgba(233,196,106,.6)", 1); }
     } else {
       poly(d, (x + y) % 2 ? "#ECE0CD" : "#E3D5BF");
       if (hash(x, y) > 0.7) poly(diamond(p.x, p.y, 0.5), "rgba(190,165,130,.18)");
       poly(d, null, "rgba(120,100,80,.2)", 1);
     }
-    if (k === "D") { poly(diamond(p.x, p.y, 0.72), "#F28C28"); poly(diamond(p.x, p.y, 0.56), "#C9641A"); }
+    if (k === "D" && r.public) { poly(diamond(p.x, p.y, 0.72), "#F28C28"); poly(diamond(p.x, p.y, 0.56), "#C9641A"); }
+  }
+  if (r.floats) for (const f of r.floats) {
+    const p = iso(f.x + Math.sin(t / 2100 + f.x) * 0.15, f.y + Math.cos(t / 1900 + f.y) * 0.12), bob = Math.sin(t / 500 + f.x) * 1.2;
+    ctx.lineWidth = 5; ctx.strokeStyle = f.c;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + bob, 11, 5.5, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,.7)";
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + bob - 1, 11, 5.5, 0, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke();
   }
 }
 function drawWater(r, x, y, p, t) {
@@ -1377,17 +1917,33 @@ function drawWater(r, x, y, p, t) {
   if (!isW(x - 1, y)) edge(L, T);
 }
 function drawOverlays(t) {
-  if (state.hover && !down && !dlg) { const p = iso(state.hover.x, state.hover.y); poly(diamond(p.x, p.y, 0.96), null, "rgba(255,255,255,.75)", 1.5); }
-  for (const [x, y] of player.path) { const p = iso(x, y); ellipse(p.x, p.y, 3, 1.6, "rgba(242,140,40,.85)"); }
+  if (state.hover && !down && !dlg && state.phase === "day") { const p = iso(state.hover.x, state.hover.y); poly(diamond(p.x, p.y, 0.96), null, "rgba(255,255,255,.75)", 1.5); }
+  if (state.phase === "day") for (const [x, y] of player.path) { const p = iso(x, y); ellipse(p.x, p.y, 3, 1.6, "rgba(242,140,40,.85)"); }
   if (state.target) {
     const p = iso(state.target.x, state.target.y), s = 0.55 + 0.12 * Math.sin(t / 160);
     ctx.lineWidth = 2; ctx.strokeStyle = "#F28C28";
     ctx.beginPath(); ctx.ellipse(p.x, p.y, 22 * s, 11 * s, 0, 0, Math.PI * 2); ctx.stroke();
   }
+  for (const c of state.spots) {
+    const p = iso(c.x, c.y), g = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 36);
+    g.addColorStop(0, "rgba(255,240,200,.55)"); g.addColorStop(1, "rgba(255,240,200,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p.x, p.y, 36, 18, 0, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawSpotCones() {
+  if (!state.spots.length) return;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (const c of state.spots) {
+    const p = iso(c.x, c.y), topY = state.cam.y - ch / (2 * z) - 10;
+    const g = ctx.createLinearGradient(0, topY, 0, p.y);
+    g.addColorStop(0, "rgba(255,240,200,0)"); g.addColorStop(1, "rgba(255,240,200,.16)");
+    poly([[p.x - 5, topY], [p.x + 5, topY], [p.x + 26, p.y], [p.x - 26, p.y]], g);
+  }
+  ctx.restore();
 }
 
 /* ---------- Objeler ---------- */
-function drawObject(r, o) {
+function drawObject(r, o, t) {
   const { x, y, k } = o, p = iso(x, y);
   if (k === "L") {
     const back = r.loungerBack[x + "," + y] || -1;
@@ -1407,10 +1963,11 @@ function drawObject(r, o) {
     ellipse(p.x, p.y + 2, 22, 10, "rgba(30,20,20,.2)");
     isoBox(x, y, 0.42, 0.42, 11, 0, "#B4613A", "#8E4527", "#A4532F");
     ctx.fillStyle = "#6B4A2E"; ctx.fillRect(p.x - 2, p.y - 30, 4, 22);
-    const cy = p.y - 42;
-    circle(p.x - 11, cy + 4, 13, "#2F6B3A"); circle(p.x + 11, cy + 3, 13, "#2F6B3A");
-    circle(p.x, cy - 8, 15, "#3B7F45"); circle(p.x - 5, cy + 7, 12, "#34763F"); circle(p.x + 6, cy - 2, 11, "#468D50");
-    for (const [ox, oy] of [[-12, 2], [8, -10], [13, 6], [-4, -14], [-1, 9], [-15, -6]]) circle(p.x + ox, cy + oy, 2.6, "#F28C28");
+    const cy = p.y - 42, sway = Math.sin(t / 1400 + x) * 0.8;
+    circle(p.x - 11 + sway, cy + 4, 13, "#2F6B3A"); circle(p.x + 11 + sway, cy + 3, 13, "#2F6B3A");
+    circle(p.x + sway, cy - 8, 15, "#3B7F45"); circle(p.x - 5 + sway, cy + 7, 12, "#34763F"); circle(p.x + 6 + sway, cy - 2, 11, "#468D50");
+    circle(p.x - 3 + sway, cy - 13, 6, "rgba(255,255,255,.08)");
+    for (const [ox, oy] of [[-12, 2], [8, -10], [13, 6], [-4, -14], [-1, 9], [-15, -6]]) circle(p.x + ox + sway, cy + oy, 2.6, "#F28C28");
   } else if (k === "P") {
     ellipse(p.x, p.y + 1, 14, 6, "rgba(30,20,20,.18)");
     isoBox(x, y, 0.42, 0.42, 13, 0, "#C46A3D", "#9A4C27", "#B05B32");
@@ -1420,6 +1977,7 @@ function drawObject(r, o) {
     ellipse(p.x, p.y + 1, 18, 8, "rgba(30,20,20,.18)");
     isoBox(x, y, 0.16, 0.16, 14, 0, "#6B4A2E", "#523822", "#5E4129");
     isoBox(x, y, 0.72, 0.72, 3, 14, "#F3E9DC", "#C9BBA6", "#DCCEB8");
+    const a = iso(x - 0.12, y - 0.1); ctx.fillStyle = "rgba(242,140,40,.9)"; ctx.fillRect(a.x - 1.5, a.y - 24, 3, 6);
   } else if (k === "C") {
     let bx = 0, by = 0;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { bx = -dx; by = -dy; }
@@ -1431,6 +1989,24 @@ function drawObject(r, o) {
     if (x === 3) for (const [ox, col] of [[-0.25, "#2BB3A3"], [0, "#F28C28"], [0.22, "#E4572E"]]) {
       const a = iso(x + ox, y); ctx.fillStyle = col; ctx.fillRect(a.x - 2, a.y - 36, 4, 10); ctx.fillRect(a.x - 1, a.y - 39, 2, 3);
     }
+  } else if (k === "H") {
+    const [fx, fy] = r.seatFace(x, y), bx = -fx, by = -fy;
+    ellipse(p.x, p.y + 2, 15, 7, "rgba(0,0,0,.3)");
+    isoBox(x, y, 0.5, 0.5, 9, 0, "#A8324F", "#6E1A30", "#8A2540");
+    isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 18, 9, "#A8324F", "#6E1A30", "#8A2540");
+    isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 2, 27, "#E9C46A", "#B08A35", "#C9A24A");
+  } else if (k === "S") {
+    const pulse = 0.5 + 0.5 * Math.sin(t / 450);
+    const g = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 44);
+    g.addColorStop(0, "rgba(233,196,106," + (0.25 + 0.15 * pulse) + ")"); g.addColorStop(1, "rgba(233,196,106,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p.x, p.y, 44, 22, 0, 0, Math.PI * 2); ctx.fill();
+    isoBox(x, y, 0.86, 0.86, 7, 0, "#2E2A4A", "#1C1A33", "#25223F");
+    isoBox(x, y, 0.86, 0.86, 1.5, 7, "#E9C46A", "#B08A35", "#C9A24A");
+    const cnt = Math.min(9, state.flyCards.filter(f => NOW - f.t0 > f.dur).length);
+    for (let i = 0; i < cnt; i++) { ctx.fillStyle = "#FFFDF6"; ctx.fillRect(p.x - 7 + (i % 3) * 4.5, p.y - 13 - Math.floor(i / 3) * 2.5, 4, 2); }
+    isoBox(x, y, 0.5, 0.5, 18, 8.5, "rgba(220,232,245,.5)", "rgba(170,190,215,.5)", "rgba(195,210,230,.5)");
+    isoBox(x, y, 0.54, 0.54, 2, 26.5, "#E9C46A", "#B08A35", "#C9A24A");
+    ctx.fillStyle = "#1B1E38"; ctx.fillRect(p.x - 6, p.y - 30, 12, 1.6);
   }
 }
 function drawRailing(r) {
@@ -1447,7 +2023,9 @@ function drawRailing(r) {
 }
 
 /* ---------- Karakter çizimi (Sims'e yakın oranlar, geçici) ---------- */
+const OUTLINE = "rgba(25,16,18,.38)";
 function line(x1, y1, x2, y2, w, col) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+function limb(x1, y1, x2, y2, w, col) { line(x1, y1, x2, y2, w + 1.2, OUTLINE); line(x1, y1, x2, y2, w, col); }
 function hairBehind(d) {
   ctx.fillStyle = d.hair;
   if (d.hs === "long") { ctx.beginPath(); ctx.roundRect(-8, -60, 12.5, 25, 4); ctx.fill(); }
@@ -1463,6 +2041,7 @@ function hairFront(d) {
   if (d.hs === "long") ellipse(-4.4, -53, 3.6, 6.5, hc);
   if (d.hs === "bun") circle(-3, -64.5, 3.4, hc);
   if (d.hs === "curly") for (let i = 0; i <= 6; i++) { const a = Math.PI + i / 6 * Math.PI; circle(Math.cos(a) * 6.4, -57 + Math.sin(a) * 6.4, 2.7, hc); }
+  if (d.hs !== "buzz") { ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(0.5, -57.5, 5, Math.PI * 1.25, Math.PI * 1.6); ctx.stroke(); }
 }
 function hairBack(d) {
   const hc = d.hair;
@@ -1474,55 +2053,70 @@ function hairBack(d) {
   if (d.hs === "pony") ellipse(0, -49, 2.6, 6, hc);
   if (d.hs === "curly") for (let i = 0; i <= 8; i++) { const a = i / 8 * Math.PI * 2; circle(Math.cos(a) * 6.2, -56 + Math.sin(a) * 6.2, 2.6, hc); }
 }
-function drawChar(c) {
+function drawChar(c, t) {
   const d = c.def, p = iso(c.x, c.y);
   const swing = c.moving ? Math.sin(c.walkT) * 3.2 : 0;
-  const bob = c.moving ? Math.abs(Math.sin(c.walkT)) * 1.2 : 0;
+  const bob = c.moving ? Math.abs(Math.sin(c.walkT)) * 1.2 : Math.sin(t / 650 + c.seed) * 0.35;
+  if (c.leaving) c.alpha = Math.max(0, c.alpha - 0.03);
+  if (c.alpha <= 0) return;
   ctx.save();
+  ctx.globalAlpha = c.alpha;
   ctx.translate(p.x, p.y);
-  if (c === player) { ctx.strokeStyle = "rgba(242,140,40,.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 13, 6, 0, 0, Math.PI * 2); ctx.stroke(); }
+  if (c === player && state.phase !== "gala") { const s = 1 + Math.sin(t / 300) * 0.06; ctx.strokeStyle = "rgba(242,140,40,.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 13 * s, 6 * s, 0, 0, Math.PI * 2); ctx.stroke(); }
   else if (dlg && dlg.n === c) { ctx.strokeStyle = "rgba(255,107,139,.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 13, 6, 0, 0, Math.PI * 2); ctx.stroke(); }
-  ellipse(0, 0, c.sit ? 13 : 10, c.sit ? 5 : 4, "rgba(20,15,30,.24)");
+  if (state.immune.has(c.id) && state.phase === "gala") { ctx.strokeStyle = "rgba(233,196,106,.95)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 7, 0, 0, Math.PI * 2); ctx.stroke(); }
+  ellipse(0, 0, c.sit ? 13 : 10, c.sit ? 5 : 4, "rgba(20,15,30,.26)");
   if (!c.right) ctx.scale(-1, 1);
   const sitOff = c.sit ? 13 : 0;
   const lower = d.legs === "pants" ? d.bottom : d.skin;
   if (c.sit) {
     for (const off of [-1.6, 1.6]) {
-      line(-1, -12 + off, 7, -11 + off, 5, d.legs === "dress" ? d.skin : d.bottom);
-      line(7, -11 + off, 10, -3 + off, 4.4, lower);
-      ellipse(11, -2 + off, 2.8, 1.6, "#2A2420");
+      limb(-1, -12 + off, 7, -11 + off, 5, d.legs === "dress" ? d.skin : d.bottom);
+      limb(7, -11 + off, 10, -3 + off, 4.4, lower);
+      ellipse(11, -2 + off, 2.9, 1.7, d.shoe);
     }
   } else {
     for (const [hx, fx] of [[-2.8, -2.8 + swing], [2.8, 2.8 - swing]]) {
-      line(hx, -25, fx, -2, 5, lower);
+      limb(hx, -25, fx, -2, 5, lower);
       if (d.legs === "shorts") line(hx, -25, hx + (fx - hx) * 0.4, -16, 5.4, d.bottom);
-      ellipse(fx + 1, -1.2, 3.2, 1.8, "#2A2420");
+      ellipse(fx + 1, -1.2, 3.3, 1.9, d.shoe);
+      ellipse(fx + 1, -1.8, 2.2, 0.8, "rgba(255,255,255,.18)");
     }
   }
   ctx.translate(0, sitOff - bob);
-  if (d.legs === "dress") poly([[-6.5, -32], [6.5, -32], [9, -15], [-9, -15]], d.bottom);
+  if (d.legs === "dress") poly([[-6.5, -32], [6.5, -32], [9, -15], [-9, -15]], d.bottom, OUTLINE, 0.8);
   const sh = c.front ? 1 : -1;
-  line(-7.5 * sh, -43, (-8.8 - swing * 0.6) * sh, -27, 3.6, d.skin);
+  limb(-7.5 * sh, -43, (-8.8 - swing * 0.6) * sh, -27, 3.6, d.skin);
   line(-7.5 * sh, -43, (-8.2 - swing * 0.25) * sh, -37, 4.4, d.top);
   hairBehind(d);
-  rrect(-7, -47, 14, 22, 4, d.top);
-  rrect(c.front ? 0 : -7, -47, 7, 22, 3, "rgba(255,255,255,.08)");
-  line(7.5 * sh, -43, (8.8 + swing * 0.6) * sh, -27, 3.6, d.skin);
+  ctx.beginPath(); ctx.roundRect(-7, -47, 14, 22, 4);
+  ctx.fillStyle = d.top; ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.lineWidth = 0.9; ctx.stroke();
+  rrect(c.front ? 0 : -7, -47, 7, 22, 3, "rgba(255,255,255,.09)");
+  rrect(c.front ? -7 : 0, -47, 7, 22, 3, "rgba(0,0,0,.06)");
+  if (c.front) poly([[-2.6, -47], [2.6, -47], [0, -43.6]], d.skin);
+  if (d.legs !== "dress") { ctx.fillStyle = shade(d.bottom, -0.25); ctx.fillRect(-7, -26.5, 14, 1.6); }
+  limb(7.5 * sh, -43, (8.8 + swing * 0.6) * sh, -27, 3.6, d.skin);
   line(7.5 * sh, -43, (8.2 + swing * 0.25) * sh, -37, 4.4, d.top);
   ctx.fillStyle = d.skin; ctx.fillRect(-2, -51, 4, 5);
-  circle(0, -56, 6.4, d.skin);
+  ctx.beginPath(); ctx.arc(0, -56, 6.4, 0, Math.PI * 2); ctx.fillStyle = d.skin; ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.lineWidth = 0.8; ctx.stroke();
   if (c.front) {
     hairFront(d);
-    if (d.beard) { ctx.fillStyle = d.hair; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(0.8, -55.5, 6.2, 0.08 * Math.PI, 0.92 * Math.PI); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1; }
-    circle(1.2, -55.4, 0.95, "#2A1A14"); circle(4.2, -55.4, 0.95, "#2A1A14");
-    if (d.blush) ellipse(4.8, -53.6, 1.3, 0.7, "rgba(230,110,90,.4)");
+    if (d.beard) { ctx.fillStyle = d.hair; ctx.globalAlpha = 0.85 * c.alpha; ctx.beginPath(); ctx.arc(0.8, -55.5, 6.2, 0.08 * Math.PI, 0.92 * Math.PI); ctx.closePath(); ctx.fill(); ctx.globalAlpha = c.alpha; }
+    const blink = ((t + c.seed * 977) % 4300) < 130;
+    if (blink) { line(0.3, -55.3, 2.1, -55.3, 0.8, "#2A1A14"); line(3.3, -55.3, 5.1, -55.3, 0.8, "#2A1A14"); }
+    else {
+      ellipse(1.2, -55.4, 1.35, 1.1, "#FFFFFF"); ellipse(4.2, -55.4, 1.35, 1.1, "#FFFFFF");
+      circle(1.5, -55.3, 0.8, "#2A1A14"); circle(4.5, -55.3, 0.8, "#2A1A14");
+    }
+    line(0.2, -57.4, 2.2, -57.7, 0.8, shade(d.hair, -0.1)); line(3.3, -57.7, 5.2, -57.4, 0.8, shade(d.hair, -0.1));
+    if (d.blush) ellipse(5, -53.5, 1.3, 0.7, "rgba(230,110,90,.4)");
     ctx.strokeStyle = d.beard ? "#E9CFB8" : "#7A3F2E"; ctx.lineWidth = 0.9; ctx.lineCap = "round";
-    ctx.beginPath(); ctx.arc(2.8, -53.4, 1.5, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.arc(2.8, -53.3, 1.5, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
   } else hairBack(d);
   ctx.restore();
 }
 
-/* ---------- Etiketler ve balonlar ---------- */
+/* ---------- Etiketler, balonlar, efektler ---------- */
 function wrap(text, maxW) {
   const words = text.split(" "), lines = [];
   let cur = "";
@@ -1530,21 +2124,26 @@ function wrap(text, maxW) {
   if (cur) lines.push(cur);
   return lines;
 }
-function drawLabels(chars, t) {
+function drawLabels(chars) {
   const placed = [];
   const viewL = state.cam.x - cw / (2 * z) + 6, viewR = state.cam.x + cw / (2 * z) - 6;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   for (const c of chars) {
+    if (c.alpha <= 0.05) continue;
     const p = iso(c.x, c.y), headTop = p.y - (c.sit ? 50 : 63);
     ctx.font = "800 9px Manrope, system-ui, sans-serif";
     const isNew = c.arrivedDay && c.arrivedDay === state.day && state.day > 1;
-    const nm = c.def.name + (isNew ? " · yeni" : "");
-    const hasHeart = shownMatch(c);
-    const nw = ctx.measureText(nm).width + 10 + (hasHeart ? 11 : 0);
-    rrect(p.x - nw / 2, headTop - 15, nw, 12, 6, c === player ? "#F28C28" : isNew ? "#2BB3A3" : "rgba(17,28,46,.78)");
-    if (hasHeart) heart(p.x - nw / 2 + 8, headTop - 9.2, 3.4, c === player ? "#1B2A41" : "#FF6B8B");
+    const label = c.def.name + (isNew ? " · yeni" : "");
+    const hasHeart = shownMatch(c), gr = groupOf(c.id);
+    const extra = (hasHeart ? 11 : 0) + (gr ? 9 : 0);
+    const nw = ctx.measureText(label).width + 10 + extra;
+    const lx = p.x - nw / 2;
+    rrect(lx, headTop - 15, nw, 12, 6, c === player ? "#F28C28" : isNew ? "#2BB3A3" : "rgba(17,28,46,.8)");
+    let cx = lx + 6;
+    if (gr) { circle(cx + 1, headTop - 9, 2.6, gr.color); cx += 9; }
+    if (hasHeart) heart(cx + 2, headTop - 9.2, 3.4, c === player ? "#1B2A41" : "#FF6B8B");
     ctx.fillStyle = c === player || isNew ? "#1B2A41" : "#F3E9DC";
-    ctx.fillText(nm, p.x + (hasHeart ? 5.5 : 0), headTop - 8.6);
+    ctx.fillText(label, p.x + extra / 2, headTop - 8.6);
     const b = c.bubble;
     if (!b || NOW > b.until) continue;
     ctx.font = "700 11px Manrope, system-ui, sans-serif";
@@ -1563,13 +2162,32 @@ function drawLabels(chars, t) {
     ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 9);
     if (by + bh > headTop - 24) { ctx.moveTo(tailX - 5, by + bh); ctx.lineTo(tailX, by + bh + 6); ctx.lineTo(tailX + 5, by + bh); }
     ctx.fillStyle = c === player ? "#FFF1E2" : "#FFFDF8"; ctx.fill();
-    if (b.alert) { ctx.strokeStyle = "#E4572E"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 9); ctx.stroke(); }
+    ctx.strokeStyle = b.alert ? "#E4572E" : "rgba(27,42,65,.18)"; ctx.lineWidth = b.alert ? 1.6 : 1; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 9); ctx.stroke();
     ctx.fillStyle = "#1B2A41";
     lines.forEach((l, i) => ctx.fillText(l, tx, by + 12 + i * 14));
     ctx.globalAlpha = 1;
   }
 }
+function drawEffects() {
+  state.hearts = state.hearts.filter(h => NOW - h.t0 < 2600);
+  for (const h of state.hearts) {
+    const k = (NOW - h.t0) / 2600, p = iso(h.c.x, h.c.y);
+    ctx.globalAlpha = 1 - k;
+    for (let i = 0; i < 3; i++) heart(p.x + Math.sin(k * 6 + i * 2) * 8 + (i - 1) * 7, p.y - 60 - k * 40 - i * 8, 4.5 - i, "#FF6B8B");
+    ctx.globalAlpha = 1;
+  }
+  for (const f of state.flyCards) {
+    const k = Math.min(1, (NOW - f.t0) / f.dur);
+    if (k >= 1) continue;
+    const x = f.x0 + (f.x1 - f.x0) * k, y = f.y0 + (f.y1 - f.y0) * k - Math.sin(k * Math.PI) * 18;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(k * 2.2);
+    ctx.fillStyle = "#FFFDF6"; ctx.fillRect(-4, -2.5, 8, 5);
+    ctx.strokeStyle = "#C9A24A"; ctx.lineWidth = 0.8; ctx.strokeRect(-4, -2.5, 8, 5);
+    ctx.restore();
+  }
+}
 function drawDoorTags(r, t) {
+  if (!r.public) return;
   ctx.font = "800 9px Manrope, system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   for (const key in r.doors) {
     const [x, y] = key.split(",").map(Number), p = iso(x, y), label = r.doors[key].label + " ›";
@@ -1580,23 +2198,30 @@ function drawDoorTags(r, t) {
 }
 
 /* ---------- Ana döngü ---------- */
+function worldTransform() { ctx.setTransform(dpr * z, 0, 0, dpr * z, dpr * (cw / 2 - state.cam.x * z), dpr * (ch / 2 - state.cam.y * z)); }
 function render(t) {
   const r = room();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  drawBackdrop(t);
-  ctx.setTransform(dpr * z, 0, 0, dpr * z, dpr * (cw / 2 - state.cam.x * z), dpr * (ch / 2 - state.cam.y * z));
+  drawBackdrop(t, r);
+  worldTransform();
   drawWalls(r, t);
   drawPlatformSides(r);
   drawFloor(r, t);
   drawOverlays(t);
-  const chars = npcs.filter(n => n.room === state.room).concat(player);
-  const items = r.objects.map(o => ({ d: o.x + o.y, f: () => drawObject(r, o) }))
-    .concat(chars.map(c => ({ d: c.x + c.y + 0.05 + (c.sit ? 0.05 : 0), f: () => drawChar(c) })));
+  const chars = house().filter(c => c.room === state.room);
+  const items = r.objects.map(o => ({ d: o.x + o.y, f: () => drawObject(r, o, t) }))
+    .concat(chars.map(c => ({ d: c.x + c.y + 0.05 + (c.sit ? 0.05 : 0), f: () => drawChar(c, t) })));
   items.sort((a, b) => a.d - b.d);
   for (const it of items) it.f();
   drawRailing(r);
+  drawSpotCones();
+  drawEffects();
   drawDoorTags(r, t);
-  drawLabels(chars.sort((a, b) => (a.x + a.y) - (b.x + b.y)), t);
+  if (!r.night) {
+    const tod = timeOfDay();
+    if (tod > 0.4) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = "rgba(255,130,60," + ((tod - 0.4) * 0.12) + ")"; ctx.fillRect(0, 0, cw, ch); worldTransform(); }
+  }
+  drawLabels(chars.sort((a, b) => (a.x + a.y) - (b.x + b.y)));
 }
 let last = 0;
 function frame(ts) {
@@ -1606,6 +2231,11 @@ function frame(ts) {
     step(player, dt);
     for (const n of npcs.slice()) updateNPC(n, dt);
     scheduleTalks();
+    if (state.phase === "day" && !dlg && $("modal").hidden) {
+      const { done, total } = talkProgress();
+      if (!state.eventDone && total && done / total >= 0.25) dayEvent();
+      if (!state.gameDone && total && done / total >= 0.5 && !player.path.length) startGame();
+    }
     updateCamera(dt);
     updateHud();
     render(ts);
@@ -1623,26 +2253,32 @@ function buildCast(gender, name) {
   }
   player = mkChar("sen", withDefaults(Object.assign({ name, g: gender, likes: [], dislikes: [] }, PLAYER_LOOK[gender])), "havuz", 5, 11, { face: [1, 1], speed: 3.1 });
   byId.sen = player;
-  // tohum uyumları: dizideki ilişki haritasıyla uyumlu başlangıç
+  // başlangıç ilişkileri: karakter dokümanındaki haritaya göre
   setChem(byId.bora, byId.nehir, 6); setChem(byId.tolga, byId.defne, 6);
   setChem(byId.arda, byId.ece, 5); setChem(byId.kaan, byId.selin, 4);
+  state.groups = [];
+  newGroup("F", ["nehir", "defne", "ece"]);
+  newGroup("M", ["kaan", "tolga"]);
+  for (const [a, b] of [["nehir", "defne"], ["nehir", "ece"], ["defne", "ece"], ["kaan", "tolga"]]) setChem(byId[a], byId[b], 7);
 }
 function beginGame(gender, name) {
   state.room = "havuz"; state.day = 1; state.phase = "day";
   state.talked = new Set(); state.chem = new Map(); state.matchOf = {}; state.revealed = new Set(); state.metPlayer = new Set();
+  state.immune = new Set(); state.gameDone = false; state.eventDone = false;
   state.pool = { F: NEWCOMERS.F.slice(), M: NEWCOMERS.M.slice() };
-  state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500;
+  state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500; state.spots = []; state.hearts = []; state.flyCards = [];
   buildCast(gender, name);
-  $("room-name").textContent = ROOMS.havuz.name;
-  lastHud = ""; updateHud();
+  $("room-name").textContent = ROOMS.havuz.name; $("room-chip").hidden = false;
+  updateHud(true);
   snapCamera();
   const opp = npcs.filter(n => n.def.g !== gender).map(n => n.def.name);
   later(500, () => toast("Gün 1. Galadan önce konuşman gerekenler: " + opp.join(", ")));
 }
 function newGame() {
-  closeDialog();
-  state.phase = "start";
+  closeDialog(); endGalaUI(); closeModal();
+  state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
   buildCast("F", "Deniz");
+  $("room-chip").hidden = false; $("room-name").textContent = ROOMS.havuz.name;
   snapCamera();
   openStart();
 }
@@ -1650,9 +2286,11 @@ function newGame() {
 /* Otomatik testler için küçük kanca */
 window.__villa = {
   tileToScreen(x, y, up = 0) { const p = iso(x, y); return { x: (p.x - state.cam.x) * z + cw / 2, y: (p.y - up - state.cam.y) * z + ch / 2 }; },
-  info() { const tp = talkProgress(); return { room: state.room, day: state.day, phase: state.phase, x: player.x, y: player.y, match: state.matchOf[player.id] || null, done: tp.done, total: tp.total, npcs: npcs.map(n => n.id + ":" + n.room + ":" + n.mode), dialog: !!dlg }; },
+  info() { const tp = talkProgress(); return { room: state.room, day: state.day, phase: state.phase, match: state.matchOf[player.id] || null, done: tp.done, total: tp.total, game: state.gameDone, immune: [...state.immune], groups: state.groups.map(g => g.name + ":" + g.members.join("+")), dialog: !!dlg, n: npcs.length }; },
   pending() { return housePairs().filter(([a, b]) => !talked(a, b)).map(([a, b]) => a.id + "-" + b.id); },
   pos(id) { const c = byId[id]; return c ? { x: c.x, y: c.y, room: c.room, mode: c.mode } : null; },
+  debugImmune() { state.immune.add(player.id); },
+  debugTalkAll() { for (const [a, b] of housePairs()) state.talked.add(pairKey(a.id, b.id)); },
 };
 
 newGame();

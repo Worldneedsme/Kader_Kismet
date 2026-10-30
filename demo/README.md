@@ -1,38 +1,48 @@
 # Villa demosu (oyun sistemi prototipi)
 
-Tarayıcıda çalışan, tek dosyalık bir prototip. Amaç çizimleri değil **hareketi ve oyun sistemini** test etmek;
+Tarayıcıda çalışan, tek dosyalık bir prototip. Amaç **hareketi ve oyun sistemini** test etmek;
 tüm görseller kodla çizilmiş geçici şekiller.
 
 ## Çalıştırma
 `index.html` dosyasını herhangi bir tarayıcıda aç. Kurulum, sunucu veya bağımlılık yok
 (fontlar Google Fonts'tan gelir, internet yoksa sistem fontuna düşer).
 
-## Oyun döngüsü
+## Günlük döngü
 1. **Giriş:** Kız ya da erkek karakter seçilir, isim girilir.
-2. **Gün:** Birine dokununca yanına gidip konuşma başlar. Karşı cinsle yapılan konuşmada 3 soru gelir;
-   cevaplar karakterin kişiliğine göre **uyumu** (0-10) artırır ya da düşürür.
-   - Uyum 7 ve üstüyse karakter **match** teklif eder. Match'in tek kişi; yeni match eskisini bitirir.
-   - Karakter başka biriyle match'liyse teklif etmez ("kalbim başka yerde").
-   - Sonraki günlerde uyum 4'ün altına düşerse match biter.
-   - Aynı cinsle konuşma kısa bir arkadaş sohbetidir, sayılmaz.
-3. **Diğer yarışmacılar** kendi aralarında (kız-erkek) yürüyüp konuşur, gerekirse diğer alana geçer;
-   uyumları yüksekse gizlice match olurlar.
-4. **Gala kapısı:** Evdeki her kız her erkekle konuşmadan (oyuncu dahil) Gala butonu açılmaz. Sayaç üstte.
-5. **Gala:**
-   - Önce gün içinde oluşan match'ler açıklanır.
-   - Herkes karşı takımdan birini eleme için seçer. Yarışmacılar en düşük uyumlu olduklarını seçer, kendi match'lerini seçmez.
-   - Match'ler birbirine oy vermez; match'in avantajı budur, ayrıca kalkan yok.
-   - En çok oyu alan villadan ayrılır. Eşitlikte karşı takımla uyumu en düşük olan gider. Oyuncu da elenebilir.
-6. **Yeni gün:** Elenenin cinsinden yeni bir yarışmacı girer, konuşmalar sıfırlanır, uyumlar ve match'ler korunur.
+2. **Konuşmalar:** Birine dokununca yanına gidip 3 soruluk konuşma başlar. Cevaplar karakterin kişiliğine göre puanlanır.
+   - Karşı cinsle: **uyum** (0-10). 7 ve üstünde match teklif edilir. Match tek kişiyle olur, uyum 4'ün altına düşerse biter.
+   - Kendi cinsinle: **güven** (0-10). 7 ve üstünde gruba davet edilirsin ya da birlikte grup kurarsınız.
+3. **Gruplar:** Başlangıçta "Havuz Kızları" (Nehir, Defne, Ece) ve "Teras Ekibi" (Kaan, Tolga) var.
+   Grup renkleri isim etiketlerinde görünür. Grubun güveni 3'ün altına düşerse gruptan çıkarılırsın.
+4. **Diğer yarışmacılar** kız-erkek ikililer halinde birbirinin yanına yürüyüp konuşur; uyum yüksekse gizlice match olurlar.
+5. **Villa haberi:** Konuşmaların dörtte biri bitince günün olayı çıkar (dedikodu, tartışma, not...) ve ilişkileri etkiler.
+6. **Villa oyunu:** Konuşmaların yarısı bitince zorunlu toplu oyun başlar. Günler sırayla değişir:
+   - **Çift Yarışı (tek günler):** Match'ler birlikte, diğerleri en iyi anlaştığı kişiyle takım olur.
+     Oyuncu zamanlama oyunu oynar (3 tur, alan daralır). Kazanan çift galada dokunulmaz.
+   - **Grup Mücadelesi (çift günler):** Gruplar ve bağımsızlar yarışır. Oyuncu 5 saniye hızlı dokunur (halat çekme).
+     Kazanan grup karşı takımdan birini koruma altına alır (genelde kendi match'ini).
+7. **Gala kapısı:** Her kız her erkekle konuşmadan ve günün oyunu oynanmadan Gala açılmaz.
+8. **Gala gecesi (sinematik):**
+   - Altın "Gala Gecesi" açılış kartı, gece salonu; kızlar ve erkekler karşılıklı koltuklara oturur.
+   - Dokunulmazlar ve match'ler spot ışığında açıklanır.
+   - Gruplar ortak hedef belirler. Herkes tek tek sandığa yürür, oy pusulasını atar, yerine döner. Oyuncunun sırası gelince seçim paneli açılır.
+   - Oylar sandıktan tek tek okunur, canlı sayım tablosu dolar; son oylarda gerilim için bekleme uzar.
+   - En çok oyu alan veda eder ve kapıdan çıkar. Eşitlikte karşı takımla uyumu en düşük olan gider.
+   - Match'ler birbirine oy vermez. Grubundan farklı oy verirsen ihanet sayılır (güven -3, gerekirse gruptan atılma).
+   - "Hızlandır ×3" ile sinematik hızlanır.
+9. **Yeni gün:** Elenenin cinsinden yeni yarışmacı girer; konuşmalar, oyun ve dokunulmazlık sıfırlanır.
+
+## Görsel
+- Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; teras ışıkları akşama doğru parlar.
+- Karakterlerde çizgi, göz kırpma, nefes alma, kaş, ayakkabı ve saç parlaması var. Havuzda simitler yüzüyor.
+- Gala salonu: yıldızlı gece, altın süslemeli duvarlar, kırmızı halı, bordo koltuklar, ışıklı cam sandık.
 
 ## Diğer
 - Havuz Başı ve Teras alanları; kapı paspası ya da Harita ile geçiş.
-- Sohbet kutusu: yazılanlar baloncuk olur, yakındaki karakter cevap verir. Telefon numarası, @kullanıcı adı ve
-  Instagram gibi ifadeler `***` ile maskelenir (moderasyon örneği).
-- "Evdekiler" ekranı: kiminle konuştuğun, uyumlar, match durumu, diğerlerinin kalan konuşma sayısı.
+- Sohbet kutusu: telefon numarası, @kullanıcı adı ve Instagram gibi ifadeler `***` ile maskelenir.
+- "Evdekiler": gruplar, uyum/güven değerleri, match ve dokunulmazlık durumu.
 
 ## Bilinçli olarak yapılmayanlar
-- Gerçek çok oyunculu bağlantı (Supabase Realtime) yok; diğer karakterler yapay zekâsız basit kurallarla hareket ediyor.
+- Gerçek çok oyunculu bağlantı (Supabase Realtime) yok; diğer karakterler basit kurallarla hareket ediyor.
 - Avatar giydirme, kalıcı kayıt ve izleyici oyu yok.
 - Gerçek oyunda motor olarak Phaser + Tiled düşünülüyor; bu demo bağımlılıksız olsun diye düz Canvas ile yazıldı.
-  Izgara, yol bulma ve oyun kuralları birebir taşınabilir.

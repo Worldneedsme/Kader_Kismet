@@ -18,7 +18,7 @@ Flört / reality show türünden **esinlenen**, kendi markasıyla çıkacak bir 
 | 5 | [Arayüz şablonları](docs/05-arayuz-sablonlari.md) | Instagram ve oyun için ortak ekran şablonları (Canva) |
 | 6 | [Senaryo: Hafta 1-2](docs/senaryo/hafta-1-2.md) | İlk 2 haftanın bölümleri, anketler ve dallanmalar |
 | 7 | [Açık sorular ve öneriler](docs/07-acik-sorular-oneriler.md) | Karar bekleyen konular için öneriler |
-| — | [Villa demosu](demo/README.md) | Tarayıcıda oynanan oyun sistemi prototipi: konuşma, match, gala, eleme (`demo/index.html`) |
+| — | [Villa demosu](demo/README.md) | Tarayıcıda oynanan oyun sistemi prototipi: konuşma, match, gruplar, villa oyunları, sinematik gala (`demo/index.html`) |
 
 ## Durum
 
@@ -29,6 +29,6 @@ Flört / reality show türünden **esinlenen**, kendi markasıyla çıkacak bir 
 - [x] Arayüz şablon listesi (taslak)
 - [x] Hafta 1-2 senaryo taslağı
 - [ ] İsim kararı + TÜRKPATENT ön araştırması + avukat görüşü
-- [x] Tarayıcıda oynanan villa demosu (karo zemin, dokun-yürü, konuşma ve uyum, match, gala ve eleme, yeni yarışmacı)
+- [x] Tarayıcıda oynanan villa demosu (konuşma, match, gruplar, villa oyunları, sinematik gala, yeni yarışmacı)
 - [ ] Canva şablonlarının üretimi
 - [ ] Instagram kanalı ve 5-6 hazır bölüm
