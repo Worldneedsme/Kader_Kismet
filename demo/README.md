@@ -48,12 +48,12 @@ tüm görseller kodla çizilmiş geçici şekiller.
    - Sonra herkes evine döner. Konuşmalar, oyun, Bordo hakkı ve dokunulmazlık sıfırlanır.
 
 ## Görsel
-- Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; teras ışıkları akşama doğru parlar.
+- Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; evlerdeki ışık zincirleri akşama doğru parlar.
 - Karakterlerde çizgi, göz kırpma, nefes alma, kaş, ayakkabı ve saç parlaması var. Havuzda simitler yüzüyor.
 - Gala salonu: yıldızlı gece, altın süslemeli duvarlar, kırmızı halı, bordo koltuklar, ışıklı cam sandık.
 
 ## Diğer
-- Havuz Başı ve Teras alanları; kapı paspası ya da Harita ile geçiş.
+- Havuz Başı, Kızlar Evi, Erkekler Evi; kapı paspası ya da Harita ile geçiş.
 - Sohbet kutusu: telefon numarası, @kullanıcı adı ve Instagram gibi ifadeler `***` ile maskelenir.
 - "Evdekiler": gruplar, uyum/güven değerleri, match ve dokunulmazlık durumu.
 
