@@ -4,7 +4,7 @@ Her soru için bir öneri ve gerekçe. Kararlar verildikçe "Karar" sütunu dold
 
 | Soru | Öneri | Karar |
 |------|-------|-------|
-| Oyun/kanal adı | Kısa liste: Yaz Yalanları, Lodos Villa, Kalpkapı, Sırlı Kumsal → kontrol sonrası seç | |
+| Oyun/kanal adı | Kısa liste: Yaz Yalanları, Lodos Villa, Kalpkapı, Sırlı Kumsal → kontrol sonrası seç | **Kader & Kısmet** (yüksek risk; TÜRKPATENT + avukat şart) |
 | Mekân | Alanya'da yaz villası | |
 | Görsel stil | Tek stil illüstrasyon portreler | |
 | Ana mekanik | İzleyici sırrı → oyunda "Sır Kartı" | Konuşma → uyum → match; galada karşı takımdan eleme. Sır kartları çıkarıldı. |

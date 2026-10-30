@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Alanya Villa Prototipi</title>
+<title>Kader &amp; Kısmet</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -170,8 +170,17 @@ body {
 }
 .cap-sub:empty { display: none; }
 .cap-in .cap-main, .cap-in .cap-sub { animation: wipe-in .35s ease; }
+.bug {
+  position: absolute; right: 8px; top: 8px; z-index: 1;
+  font: 400 15px/1 var(--f-baslik); text-transform: uppercase; letter-spacing: .02em;
+  color: rgba(243, 242, 238, .88); text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
+  pointer-events: none;
+}
+.bug b { color: var(--fusya); font-weight: 400; margin: 0 3px; }
+.logo { display: flex; align-items: baseline; gap: 6px; font: 400 40px/.9 var(--f-baslik); text-transform: uppercase; letter-spacing: .005em; }
+.logo b { color: var(--fusya); font-weight: 400; }
 .speed-btn {
-  position: absolute; right: 8px; top: 8px; z-index: 3;
+  position: absolute; right: 8px; top: 30px; z-index: 3;
   border: 2px solid var(--beyaz); padding: 3px 10px;
   background: var(--siyah); color: var(--beyaz);
   font: 700 12px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
@@ -353,6 +362,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--fusya); out
     <canvas id="game" aria-label="Villa oyun alanı. Zemine dokunarak yürü, birine dokunarak konuş."></canvas>
     <div class="chip" id="room-chip"><i></i><span id="room-name">Havuz Başı</span></div>
     <div class="chip timer-chip" id="timer-chip" hidden></div>
+    <div class="bug" aria-hidden="true">Kader<b>&amp;</b>Kısmet</div>
     <div class="caption" id="caption" hidden><div class="cap-main" id="cap-main"></div><div class="cap-sub" id="cap-sub"></div></div>
     <button class="speed-btn" id="speed-btn" type="button" hidden>Hızlandır ×3</button>
     <div class="tally-live" id="tally-live" hidden></div>
@@ -375,7 +385,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--fusya); out
       <span class="eyebrow" id="tc-eyebrow">Gün 1</span>
       <h1 id="tc-title">Gala Gecesi</h1>
       <span class="rule"></span>
-      <p id="tc-sub">Alanya · yaz villası</p>
+      <p id="tc-sub">Kader &amp; Kısmet</p>
     </div>
     <div class="fade" id="fade"></div>
   </main>
@@ -1986,6 +1996,7 @@ const RULES = `
 function openStart() {
   let gender = "F";
   openModal(`
+    <div class="logo" aria-label="Kader ve Kısmet"><span>Kader</span><b>&amp;</b><span>Kısmet</span></div>
     <span class="eyebrow">Alanya · yaz villası</span>
     <h2>Villaya giriş</h2>
     <p>Karakterini seç. Çizimler geçici; bu demo oyun sistemini denemek için.</p>

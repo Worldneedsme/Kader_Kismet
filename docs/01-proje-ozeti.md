@@ -1,4 +1,9 @@
-# Proje Özeti: Flört Evi Oyunu (çalışma adı: belirlenecek)
+# Proje Özeti: Kader & Kısmet
+
+> **İsim riski:** "Kısmet" kelimesi esin kaynağı programı ("Kısmetse Olur") çağrıştırıyor ve
+> brief'teki "benzer isim kullanılmayacak" kuralıyla çelişiyor. Karıştırılma / haksız rekabet riski
+> nedeniyle Instagram kanalı ve mağaza kaydından **önce** TÜRKPATENT araştırması (sınıf 9, 38, 41)
+> ve marka avukatı görüşü şart. Bkz. [İsim adayları](03-isim-adaylari.md).
 
 ## Konsept
 Flört / reality show türündeki programlardan **esinlenen**, kendi markasıyla çıkacak bir mobil oyun.

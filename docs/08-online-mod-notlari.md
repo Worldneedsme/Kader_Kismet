@@ -33,4 +33,4 @@ Oyuncuları birbirine en çok bağlayacak özellik. Ama riskleri de en yüksek o
 Kızlar evi / erkekler evi ayrımı, yeni gelenin dans ritüeli ve "Gala" adı esin kaynağı formata çok yakın.
 Tür kalıbı olarak savunulabilir olabilir, ama segment adları ve sıralı ritüellerin birebir kopyası
 "haksız rekabet / format taklidi" tartışması doğurabilir. Lansman öncesi avukata sorulacak listesi:
-"Gala", "Bordo Oda", ayrı evler + misafirlik, yeni gelen töreni (tanışma → dans → özel oda).
+oyun adı "Kader & Kısmet" (en kritik madde), "Gala", "Bordo Oda", ayrı evler + misafirlik, yeni gelen töreni (tanışma → dans → özel oda).

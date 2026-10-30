@@ -1,5 +1,18 @@
 # İsim Adayları ve Ön Kontrol
 
+## Karar: Kader & Kısmet
+Proje sahibi oyun ve kanal adı olarak **Kader & Kısmet**'i seçti.
+
+**Risk notu:** Bu isim aşağıdaki 1. eleme kriterine ("Kısmet" kökü) takılıyor. Esin kaynağı programla
+karıştırılma ihtimali, sınıf 41'de (eğlence, TV programı) var olabilecek tescillerle çakışma ve haksız rekabet
+iddiası riski taşıyor. Lansmandan ve Instagram kanalını açmadan önce yapılacaklar:
+1. TÜRKPATENT'te "Kader & Kısmet", "Kader ve Kısmet", "Kısmet" için birebir ve benzer marka araştırması (sınıf 9, 38, 41).
+2. Marka avukatından yazılı görüş: tescil edilebilirlik ve karıştırılma riski.
+3. Risk yüksek çıkarsa yedek isimler: aşağıdaki kısa liste (Yaz Yalanları, Lodos Villa, Kalpkapı, Sırlı Kumsal).
+4. Görsel kimlik (logo, renk, font) esin kaynağından belirgin şekilde farklı tutulmalı; mevcut yayın grafiği dili fuşya/siyah/beyaz.
+
+---
+
 > **Önemli:** Aşağıdaki adayların hiçbiri için TÜRKPATENT, alan adı veya sosyal medya
 > kontrolü **henüz yapılmadı**. Bu liste bir başlangıç havuzudur; nihai karar avukat
 > görüşünden sonra verilmeli. Bu doküman hukuki görüş değildir.

@@ -1,11 +1,12 @@
-# Flört Evi Oyunu (çalışma adı: belirlenecek)
+# Kader & Kısmet
 
 Flört / reality show türünden **esinlenen**, kendi markasıyla çıkacak bir mobil oyun.
 Önce tek kişilik hikâye modu, ardından 8-12 kişilik online "Ev" modu.
 
-> **Not:** `Kader_Kismet` yalnızca repo adıdır, ürün adı değildir. "Kısmet" kelimesi
-> esin kaynağı programı çağrıştırdığı için ürün/kanal adında kullanılmayacak
-> (bkz. [İsim adayları](docs/03-isim-adaylari.md)).
+> **İsim riski:** "Kısmet" kelimesi esin kaynağı programı ("Kısmetse Olur") çağrıştırıyor ve
+> brief'teki "benzer isim kullanılmayacak" kuralıyla çelişiyor. Karıştırılma / haksız rekabet riski
+> nedeniyle Instagram kanalı ve mağaza kaydından **önce** TÜRKPATENT araştırması (sınıf 9, 38, 41)
+> ve marka avukatı görüşü şart. Bkz. [İsim adayları](docs/03-isim-adaylari.md).
 
 ## Dokümanlar
 
@@ -29,7 +30,8 @@ Flört / reality show türünden **esinlenen**, kendi markasıyla çıkacak bir 
 - [x] Karakter listesi ve ilişki haritası (taslak)
 - [x] Arayüz şablon listesi (taslak)
 - [x] Hafta 1-2 senaryo taslağı
-- [ ] İsim kararı + TÜRKPATENT ön araştırması + avukat görüşü
+- [x] İsim kararı: **Kader & Kısmet**
+- [ ] TÜRKPATENT ön araştırması + avukat görüşü (isim için kritik)
 - [x] Tarayıcıda oynanan villa demosu (konuşma, match, gruplar, villa oyunları, sinematik gala, yeni yarışmacı)
 - [ ] Canva şablonlarının üretimi
 - [ ] Instagram kanalı ve 5-6 hazır bölüm
