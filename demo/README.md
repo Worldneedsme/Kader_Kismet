@@ -7,8 +7,19 @@ tüm görseller kodla çizilmiş geçici şekiller.
 `index.html` dosyasını herhangi bir tarayıcıda aç. Kurulum, sunucu veya bağımlılık yok
 (fontlar Google Fonts'tan gelir, internet yoksa sistem fontuna düşer).
 
+## Mekân
+- **Kızlar Evi** ve **Erkekler Evi** ayrı. **Havuz Başı** ortak alan; karşı cinsle orada buluşulur.
+- Karşı eve sadece misafirlikte girilir; kapı ve harita kilitli görünür.
+- **Bordo Oda:** Baş başa konuşma odası (mumlu sehpa, bordo koltuklar). Sadece çağrıyla girilir.
+
 ## Günlük döngü
-1. **Giriş:** Kız ya da erkek karakter seçilir, isim girilir.
+1. **Giriş:** Kız ya da erkek karakter seçilir, isim girilir. Oyuncu kendi evinde başlar.
+1. **Misafirlik:** Gün içinde rastgele biri (bazen sen) 90 saniyeliğine karşı eve misafir olur ve oradakilerle konuşabilir. Sayaç ekranda görünür.
+1. **Bordo Oda:**
+   - Günde bir kez karşı cinsten birini 45 saniyelik baş başa konuşmaya çağırabilirsin. Etkisi normal sohbetten güçlü: beğenilen cevap +3/+2, beğenilmeyen -2.
+   - Seni de çağırabilirler; reddedersen uyum -2.
+   - Diğer yarışmacılar da kendi aralarında gider.
+   - Herkes kimin kiminle gittiğini duyar. Match'i olanın match'iyle uyumu -2 düşer.
 2. **Konuşmalar:** Birine dokununca yanına gidip 3 soruluk konuşma başlar. Cevaplar karakterin kişiliğine göre puanlanır.
    - Karşı cinsle: **uyum** (0-10). 7 ve üstünde match teklif edilir. Match tek kişiyle olur, uyum 4'ün altına düşerse biter.
    - Kendi cinsinle: **güven** (0-10). 7 ve üstünde gruba davet edilirsin ya da birlikte grup kurarsınız.
@@ -30,7 +41,11 @@ tüm görseller kodla çizilmiş geçici şekiller.
    - En çok oyu alan veda eder ve kapıdan çıkar. Eşitlikte karşı takımla uyumu en düşük olan gider.
    - Match'ler birbirine oy vermez. Grubundan farklı oy verirsen ihanet sayılır (güven -3, gerekirse gruptan atılma).
    - "Hızlandır ×3" ile sinematik hızlanır.
-9. **Yeni gün:** Elenenin cinsinden yeni yarışmacı girer; konuşmalar, oyun ve dokunulmazlık sıfırlanır.
+9. **Yeni gün ve yeni yarışmacı töreni:** Elenenin cinsinden yeni yarışmacı gelir.
+   - "Yeni Yarışmacı" açılış kartı gösterilir. Yeni gelen karşı cinsin evine girer, herkes kendini tanıtır.
+   - Yeni gelen birini dansa kaldırır (müzikli dans animasyonu, uyum +2).
+   - Bordo Oda'ya geçip iki kişiyi sırayla baş başa konuşmaya çağırır; sen çağrılırsan konuşma sana açılır.
+   - Sonra herkes evine döner. Konuşmalar, oyun, Bordo hakkı ve dokunulmazlık sıfırlanır.
 
 ## Görsel
 - Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; teras ışıkları akşama doğru parlar.

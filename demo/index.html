@@ -205,14 +205,21 @@ body {
   background: var(--turunc); color: var(--gece);
   font: 800 13px var(--f-arayuz); cursor: pointer;
 }
-.actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .act {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: var(--panel); border: 1px solid var(--panel-acik);
-  border-radius: 12px; padding: 7px 4px;
-  color: var(--kum); font: 700 11px var(--f-arayuz);
+  border-radius: 12px; padding: 7px 2px;
+  color: var(--kum); font: 700 10.5px var(--f-arayuz); white-space: nowrap;
   cursor: pointer;
 }
+.act.bordo { background: #4A1222; border-color: #7A1E36; }
+.timer-chip { top: 44px; background: rgba(90, 20, 36, .92); border-color: var(--altin); font-variant-numeric: tabular-nums; }
+.timer-chip i { background: var(--altin); }
+.modal.bordo { border-color: #8E1F3A; background: #2A0E18; }
+.modal.bordo .eyebrow { color: #F08AA2; }
+.btn.bordo { background: linear-gradient(180deg, #A8324F, #7A1630); color: #FFF1F4; }
+.dialog.bordo { border-color: #8E1F3A; background: rgba(42, 14, 24, .97); }
 .act svg { width: 20px; height: 20px; }
 .act:active, .send:active, .choice:active, .btn:active { transform: translateY(1px); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); outline-offset: 2px; }
@@ -315,6 +322,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
   <main class="stage" id="stage">
     <canvas id="game" aria-label="Villa oyun alanı. Zemine dokunarak yürü, birine dokunarak konuş."></canvas>
     <div class="chip" id="room-chip"><i></i><span id="room-name">Havuz Başı</span></div>
+    <div class="chip timer-chip" id="timer-chip" hidden></div>
     <div class="caption" id="caption" hidden><div class="cap-main" id="cap-main"></div><div class="cap-sub" id="cap-sub"></div></div>
     <button class="speed-btn" id="speed-btn" type="button" hidden>Hızlandır ×3</button>
     <div class="tally-live" id="tally-live" hidden></div>
@@ -334,7 +342,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
     </div>
     <div class="title-card" id="title-card" hidden>
       <span class="eyebrow" id="tc-eyebrow">Gün 1</span>
-      <h1>Gala Gecesi</h1>
+      <h1 id="tc-title">Gala Gecesi</h1>
       <span class="rule"></span>
       <p id="tc-sub">Alanya · yaz villası</p>
     </div>
@@ -350,6 +358,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--turunc); ou
     <button class="act" type="button" id="btn-wave">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6a1.5 1.5 0 0 1 3 0v7a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15.5L3 12a1.5 1.5 0 0 1 2.7-1.2L8 14"/></svg>
       Selam
+    </button>
+    <button class="act bordo" type="button" id="btn-bordo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M3 21h18"/><path d="M12 15.5s-3.2-1.9-3.2-4a1.7 1.7 0 0 1 3.2-.8 1.7 1.7 0 0 1 3.2.8c0 2.1-3.2 4-3.2 4z" fill="currentColor"/></svg>
+      Bordo Oda
     </button>
     <button class="act" type="button" id="btn-map">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>
@@ -381,12 +393,14 @@ const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- Haritalar ----------
    .  zemin   D kapı    ~ havuz   L şezlong   U şemsiye   T turunç ağacı   P saksı
-   K  masa    C sandalye   B bar tezgâhı   H gala koltuğu   S oy sandığı            */
+   K  masa    C sandalye   B bar tezgâhı   H gala koltuğu   S oy sandığı
+   O  kanepe  V bordo koltuk   R mumlu sehpa                                        */
+const HOUSE_SEAT = () => [0, 1];
 const ROOMS = {
   havuz: {
-    name: "Havuz Başı", floor: "stone", public: true,
+    name: "Havuz Başı", floor: "stone", public: true, entry: [5, 11],
     map: [
-      "P..........P",
+      "P....D.....P",
       ".........T..",
       "D........T..",
       ".........T..",
@@ -401,28 +415,69 @@ const ROOMS = {
       "............",
       "P....P.....P",
     ],
-    doors: { "0,2": { to: "teras", at: [1, 4], label: "Teras" } },
-    windows: { y: [2, 5, 10], x: [6, 9, 12] },
+    doors: { "0,2": { to: "kizlar", at: [1, 4], label: "Kızlar Evi" }, "5,0": { to: "erkekler", at: [1, 4], label: "Erkekler Evi" } },
+    windows: { y: [2, 9], x: [6, 9, 12] },
     loungerBack: { "7,7": 1 },
     floats: [{ x: 3.6, y: 7.2, c: "#FF6B8B" }, { x: 5.3, y: 5.6, c: "#F2C14E" }],
   },
-  teras: {
-    name: "Teras", floor: "wood", public: true,
+  kizlar: {
+    name: "Kızlar Evi", floor: "wood", public: true, home: "F", entry: [1, 4],
     map: [
-      "P.BBB....P",
+      "P.BBB...P.",
       "..........",
-      "..CKC..P..",
+      "..CKC.....",
       "..........",
-      "D....CKC..",
+      "D.....OO..",
       "..........",
       "..........",
       "..P.......",
       "..........",
-      "P........P",
+      "P.......P.",
     ],
     doors: { "0,4": { to: "havuz", at: [1, 2], label: "Havuz Başı" } },
-    windows: { y: [6, 8], x: [1, 7] },
-    railing: true, lights: true, loungerBack: {},
+    windows: { y: [6], x: [1, 7] },
+    lights: true, loungerBack: {}, seatFace: HOUSE_SEAT,
+    wood: ["#CDA683", "#C49C78"],
+    walls: { a: "#F7E6E4", b: "#EBD3D1", base: "#D9B9B6", trim: "#D98E9E", trim2: "#B86F80" },
+    sofa: ["#E07A93", "#B5566F", "#C96680"], chair: ["#F2C14E", "#C99A2E", "#DDAE3C"],
+  },
+  erkekler: {
+    name: "Erkekler Evi", floor: "wood", public: true, home: "M", entry: [1, 4],
+    map: [
+      "P....BBB.P",
+      "..........",
+      "......CKC.",
+      "..........",
+      "D.OO......",
+      "..........",
+      "..........",
+      ".......P..",
+      "..........",
+      "P........P",
+    ],
+    doors: { "0,4": { to: "havuz", at: [5, 1], label: "Havuz Başı" } },
+    windows: { y: [2, 7], x: [7] },
+    lights: true, loungerBack: {}, seatFace: HOUSE_SEAT,
+    wood: ["#8E6A4E", "#86634A"],
+    walls: { a: "#E4EBF2", b: "#CDD7E2", base: "#B3C0CE", trim: "#5B7FA6", trim2: "#46668A" },
+    sofa: ["#4F79A8", "#375A82", "#436A96"], chair: ["#2BB3A3", "#1C8584", "#23A093"],
+  },
+  bordo: {
+    name: "Bordo Oda", floor: "carpet", night: true, entry: [3, 4],
+    map: [
+      ".......",
+      "..V....",
+      ".VR....",
+      ".......",
+      ".......",
+      "D......",
+      ".......",
+    ],
+    doors: { "0,5": { to: null, at: [0, 0], label: "" } },
+    windows: { y: [], x: [] },
+    loungerBack: {},
+    seatFace: (x, y) => (y === 1 ? [0, 1] : [1, 0]),
+    walls: { a: "#5A1424", b: "#46101C", base: "#2E0A12", trim: "#C9A24A", trim2: "#9C7A2E" },
   },
   gala: {
     name: "Gala Salonu", floor: "gala", night: true,
@@ -453,11 +508,15 @@ for (const id in ROOMS) {
   r.objects = [];
   for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
     const ch = r.map[y][x];
-    if ("LUTPKCBHS".includes(ch)) r.objects.push({ x, y, k: ch });
+    if ("LUTPKCBHSOVR".includes(ch)) r.objects.push({ x, y, k: ch });
   }
 }
 const WALK = new Set([".", "D"]);
-const SIT = new Set(["L", "C", "H"]);
+const SIT = new Set(["L", "C", "H", "O", "V"]);
+const BORDO_SEATS = { host: [2, 1], guest: [1, 2] };
+const homeOf = c => (c.def.g === "F" ? "kizlar" : "erkekler");
+const otherHouse = c => (c.def.g === "F" ? "erkekler" : "kizlar");
+const VISIT_MS = 90000, BORDO_MS = 45000;
 const tileAt = (r, x, y) => (x < 0 || y < 0 || x >= r.w || y >= r.h) ? null : r.map[y][x];
 const GALA_SEATS = { F: [[2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1]], M: [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8]] };
 const SANDIK = { x: 6, y: 6, stand: [6, 7] };
@@ -488,7 +547,7 @@ const TRUST_QUESTIONS = [
 ];
 const SMALLTALK = [
   ["Nasıl gidiyor, alışabildin mi?", "Yavaş yavaş. Sen?", "Ben seni tanımak için buradayım."],
-  ["Bu akşam terasta oturalım mı?", "Olabilir, bakarız.", "Bakarız mı? Peki."],
+  ["Bu akşam havuz başında oturalım mı?", "Olabilir, bakarız.", "Bakarız mı? Peki."],
   ["Seninle konuşmak iyi geliyor.", "Bana da, itiraf edeyim.", "O zaman galada görüşürüz."],
   ["Bana karşı dürüst ol, tamam mı?", "Her zaman.", "Göreceğiz."],
   ["Galada kimin yanında olacaksın?", "Henüz bilmiyorum.", "Bence biliyorsun."],
@@ -498,6 +557,20 @@ const SMALLTALK = [
   ["Oyunda iyiydin bugün.", "Sen de fena değildin.", "Bir dahaki sefere aynı takım?"],
   ["Bazen seni anlamıyorum.", "Sormak yeter.", "Peki, soruyorum: ne düşünüyorsun?"],
 ];
+const BORDO_QUESTIONS = [
+  { q: "Burada kimse bizi duymuyor. Bana gerçekten ne hissediyorsun?", a: [["Seni ilk gördüğüm andan beri aklımdasın.", "flort"], ["Henüz emin değilim ama merak ediyorum.", "durust"], ["Bunu galadan sonra konuşalım.", "strateji"]] },
+  { q: "Neden beni seçtin?", a: [["Çünkü seninle konuşurken zaman duruyor.", "flort"], ["Seninle derin bir şey paylaşabileceğimi hissettim.", "derin"], ["Galada yanımda olmanı istiyorum.", "strateji"]] },
+  { q: "Evde biri senin hakkında konuşuyor. Bilmek ister misin?", a: [["Hayır, ben sana inanıyorum.", "durust"], ["Tabii, her şeyi bilmek isterim.", "strateji"], ["Boş ver, şu an sadece biz varız.", "flort"]] },
+  { q: "Bu oda bitince ne olacak sence?", a: [["Herkes dedikodu yapacak, haha!", "eglence"], ["Bir şey değişecek, hissediyorum.", "derin"], ["Hiçbir şey, bu aramızda kalacak.", "durust"]] },
+  { q: "Bir sırrını söyle, ben de söyleyeyim.", a: [["Bazen kendimi burada çok yalnız hissediyorum.", "derin"], ["Sırrım şu: seni kıskanıyorum.", "flort"], ["Sır vermem, ama seninle başka.", "strateji"]] },
+];
+const BORDO_TALK = [
+  ["Buraya seni neden çağırdığımı biliyorsun.", "Tahmin ediyorum...", "O zaman söyle bakalım."],
+  ["Evde herkes bizi konuşacak.", "Konuşsunlar.", "Sen hiç böyle değildin."],
+  ["Seninle baş başa kalmak istedim.", "Ben de bunu bekliyordum.", "Süremiz az, iyi kullanalım."],
+  ["Bana karşı açık ol.", "Her zaman öyleydim.", "Güzel. Ben de öyle olacağım."],
+];
+const MEET_LINES = ["Hoş geldin, ben {n}.", "Selam, ben {n}. Memnun oldum.", "Hoş geldin! {n} ben."];
 
 /* ---------- Karakterler ---------- */
 const BASE = {
@@ -567,9 +640,10 @@ const PLAYER_LOOK = {
   M: { skin: "#C7976F", hair: "#4A2F1F", hs: "short", top: "#F28C28", bottom: "#24364F", legs: "pants", shoe: "#F3E9DC" },
 };
 const START_POS = {
-  nehir: ["havuz", 7, 6, true, [0, 1]], bora: ["havuz", 9, 8, false, [-1, 0]], selin: ["havuz", 10, 2, false, [1, 1]],
-  kaan: ["havuz", 4, 2, false, [1, 1]], defne: ["havuz", 3, 11, false, [1, 0]],
-  tolga: ["teras", 2, 2, true, [1, 0]], ece: ["teras", 4, 2, true, [-1, 0]], arda: ["teras", 8, 7, false, [1, 1]],
+  nehir: ["havuz", 7, 6, true, [0, 1]], selin: ["havuz", 10, 2, false, [1, 1]],
+  defne: ["kizlar", 4, 6, false, [1, 0]], ece: ["kizlar", 2, 2, true, [1, 0]],
+  bora: ["havuz", 9, 8, false, [-1, 0]], arda: ["havuz", 3, 11, false, [1, 0]],
+  kaan: ["erkekler", 4, 6, false, [1, 1]], tolga: ["erkekler", 8, 2, true, [-1, 0]],
 };
 const GROUP_NAMES = { F: ["Havuz Kızları", "Gün Batımı", "Kum Saati"], M: ["Teras Ekibi", "İskele Çetesi", "Rüzgâr Ekibi"] };
 const GROUP_COLORS = { F: ["#FF6B8B", "#B48CFF", "#F2C14E"], M: ["#4FA3FF", "#E9C46A", "#7AD3A0"] };
@@ -594,6 +668,7 @@ const state = {
   room: "havuz", day: 1, phase: "start",
   talked: new Set(), chem: new Map(), matchOf: {}, revealed: new Set(), metPlayer: new Set(),
   groups: [], immune: new Set(), gameDone: false, eventDone: false,
+  visit: null, nextVisit: 0, timer: null, bordoUsed: false, bordoInviteDone: false, bordoNpcDone: false, dancers: [],
   cam: { x: 0, y: 0, follow: true }, camFocus: null, hover: null, target: null,
   pool: { F: [], M: [] }, nextSchedule: 0, galaReadyShown: false,
   spots: [], hearts: [], flyCards: [],
@@ -728,7 +803,8 @@ function seatTaken(roomId, x, y, except) {
 }
 
 /* ---------- Balonlar, UI yardımcıları ---------- */
-function say(c, text, ms = 3200, alert = false) { c.bubble = { text, until: NOW + ms / (state.phase === "gala" ? speed : 1), alert }; }
+const cine = () => state.phase === "gala" || state.phase === "ceremony";
+function say(c, text, ms = 3200, alert = false) { c.bubble = { text, until: NOW + ms / (cine() ? speed : 1), alert }; }
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[m]));
 function toast(text, kind = "", ms = 3600, html = false) {
@@ -778,7 +854,7 @@ function playerArrive() {
   const a = player.action; player.action = null;
   if (!a) return;
   if (a.type === "sit") sitDown(player, a.x, a.y);
-  else if (a.type === "door") changeRoom(a.door.to, a.door.at);
+  else if (a.type === "door") { if (canEnter(player, a.door.to)) changeRoom(a.door.to, a.door.at); }
   else if (a.type === "talk") {
     const n = a.npc;
     setFace(player, n.x - player.x, n.y - player.y);
@@ -794,7 +870,7 @@ function sitDown(c, x, y) {
   const r = ROOMS[c.room], k = tileAt(r, x, y);
   c.x = x; c.y = y; c.sit = true; c.path = [];
   if (k === "L") { const back = r.loungerBack[x + "," + y] || -1; setFace(c, 0, -back); }
-  else if (k === "H") { const [fx, fy] = r.seatFace(x, y); setFace(c, fx, fy); }
+  else if (k === "H" || k === "O" || k === "V") { const [fx, fy] = r.seatFace(x, y); setFace(c, fx, fy); }
   else for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { setFace(c, dx, dy); break; }
 }
 function changeRoom(to, at) {
@@ -856,17 +932,25 @@ function refreshChem() {
   $("dlg-chem-val").textContent = v + "/10";
 }
 const okBtn = () => [{ label: "Görüşürüz", fn: closeDialog, main: true }];
-function openDialog(n) {
-  const opposite = n.def.g !== player.def.g;
+function openDialog(n, opts = {}) {
+  const bordo = !!opts.bordo;
+  const opposite = bordo || n.def.g !== player.def.g;
   n.prevMode = n.mode === "wait" ? "wait" : "idle";
   n.mode = "player"; n.path = []; n.after = null; n.hold = 0;
   n.x = Math.round(n.x); n.y = Math.round(n.y);
-  setFace(n, player.x - n.x, player.y - n.y);
-  dlg = { n, opposite, qs: shuffle(opposite ? QUESTIONS : TRUST_QUESTIONS).slice(0, 3), i: 0, first: !state.metPlayer.has(n.id) };
-  $("dlg-name").textContent = n.def.name + (groupOf(n.id) ? " · " + groupOf(n.id).name : "");
+  if (!bordo) setFace(n, player.x - n.x, player.y - n.y);
+  dlg = { n, opposite, bordo, onDone: opts.onDone || null, qs: shuffle(bordo ? BORDO_QUESTIONS : opposite ? QUESTIONS : TRUST_QUESTIONS).slice(0, 3), i: 0, first: !state.metPlayer.has(n.id) };
+  $("dlg-name").textContent = n.def.name + (bordo ? " · Bordo Oda" : groupOf(n.id) ? " · " + groupOf(n.id).name : "");
   $("dlg-avatar").textContent = n.def.name.slice(0, 1);
   $("dlg-avatar").style.background = n.def.top;
+  $("dialog").classList.toggle("bordo", bordo);
   $("dialog").hidden = false;
+  if (bordo) {
+    const q = dlg.qs[0];
+    say(n, q.q, 4200);
+    showDlg("Bordo Oda · baş başa, 45 saniye", "Sonunda baş başayız. " + q.q, choicesFor(q));
+    return;
+  }
   if (talked(player, n)) {
     const line = opposite ? "Bugün konuştuk zaten. Galada görüşürüz." : "Bugün konuştuk. Akşam yine bakarız.";
     say(n, line, 3000);
@@ -883,7 +967,9 @@ function choose(label, tag) {
   const n = dlg.n, d = n.def;
   say(player, label, 2600);
   const kind = d.likes.includes(tag) ? "like" : d.dislikes.includes(tag) ? "dislike" : "neutral";
-  const delta = kind === "like" ? (dlg.first ? 2 : 1) : kind === "dislike" ? -1 : (dlg.first ? 1 : 0);
+  const delta = dlg.bordo
+    ? (kind === "like" ? (dlg.first ? 3 : 2) : kind === "dislike" ? -2 : 1)
+    : (kind === "like" ? (dlg.first ? 2 : 1) : kind === "dislike" ? -1 : (dlg.first ? 1 : 0));
   setChem(player, n, getChem(player, n) + delta);
   const react = pick(d[kind]);
   dlg.i++;
@@ -953,11 +1039,12 @@ function finishTrust(react) {
 }
 function closeDialog() {
   if (!dlg) return;
-  const n = dlg.n;
+  const n = dlg.n, cb = dlg.onDone;
   if (n.mode === "player") n.mode = n.prevMode || "idle";
   n.nextWander = NOW + 3000;
   dlg = null;
   $("dialog").hidden = true;
+  if (cb) cb();
 }
 $("dlg-leave").addEventListener("click", closeDialog);
 
@@ -1023,6 +1110,7 @@ function handleTap(px, py) {
   if (!k) return;
   if (WALK.has(k)) {
     const door = k === "D" ? r.doors[tx + "," + ty] : null;
+    if (door && !canEnter(player, door.to)) { toast(ROOMS[door.to] ? ROOMS[door.to].name + " sadece misafirlikte açılır." : "Bu kapı kapalı."); return; }
     goTo((x, y) => x === tx && y === ty, door ? { type: "door", door } : null);
   } else if (SIT.has(k) && !seatTaken(r.id, tx, ty, player)) {
     goTo((x, y) => x === tx && y === ty, { type: "sit", x: tx, y: ty });
@@ -1035,15 +1123,57 @@ function doorTo(from, to) {
   for (const k in r.doors) if (r.doors[k].to === to) { const [x, y] = k.split(",").map(Number); return { x, y, door: r.doors[k] }; }
   return null;
 }
+function canEnter(c, roomId) {
+  const r = ROOMS[roomId];
+  if (!r) return false;
+  if (r.home && r.home !== c.def.g) return !!(state.visit && state.visit.c === c && state.visit.room === roomId);
+  return true;
+}
+function allowedRooms(c) {
+  const out = [homeOf(c), "havuz"];
+  if (state.visit && state.visit.c === c) out.push(state.visit.room);
+  return out;
+}
+/* Kapı kapı hedef odaya yürür; vardıysa true döner */
+function travel(c, target) {
+  if (c.room === target) return true;
+  if (c.path.length) return false;
+  const d = doorTo(c.room, target) || doorTo(c.room, "havuz");
+  if (!d) { c.room = target; const e = ROOMS[target].entry; c.x = e[0]; c.y = e[1]; return true; }
+  if (Math.round(c.x) === d.x && Math.round(c.y) === d.y) {
+    c.room = d.door.to; c.x = d.door.at[0]; c.y = d.door.at[1]; c.sit = false;
+    return c.room === target;
+  }
+  const p = findPath(ROOMS[c.room], Math.round(c.x), Math.round(c.y), (x, y) => x === d.x && y === d.y);
+  if (p && p.length) { c.sit = false; c.path = p; }
+  else { c.room = d.door.to; c.x = d.door.at[0]; c.y = d.door.at[1]; }
+  return false;
+}
+function meetRoom(a, b) {
+  if (a.room === b.room && allowedRooms(a).includes(a.room) && allowedRooms(b).includes(a.room)) return a.room;
+  const v = state.visit;
+  if (v && v.c === a && allowedRooms(b).includes(v.room)) return v.room;
+  if (v && v.c === b && allowedRooms(a).includes(v.room)) return v.room;
+  return "havuz";
+}
+function freeNpc(n) {
+  if (n.mode === "meet" || n.mode === "wait") abortMeet(n);
+  if (n.mode === "chat" && n.chat) { const p = n.chat.partner; if (p) { p.mode = "idle"; p.chat = null; } n.chat = null; }
+  n.mode = "idle"; n.task = null; n.path = []; n.after = null;
+}
 function scheduleTalks() {
   if (state.phase !== "day" || NOW < state.nextSchedule) return;
   state.nextSchedule = NOW + 1200;
   if (npcs.filter(n => n.mode === "meet").length >= 3) return;
-  const free = shuffle(npcs.filter(n => n.mode === "idle" && NOW > n.hold && NOW > (n.arrivedAt || 0) + 6000));
+  const free = shuffle(npcs.filter(n => n.mode === "idle" && NOW > n.hold && NOW > (n.arrivedAt || 0) + 6000 && !n.goRoom));
+  const v = state.visit;
+  // misafir varsa önce misafirin ev sahipleriyle konuşması
+  if (v && v.c !== player && free.includes(v.c) && v.c.room === v.room) free.sort((a, b) => (b === v.c) - (a === v.c));
   for (const a of free) for (const b of free) {
     if (a === b || a.def.g === b.def.g || talked(a, b)) continue;
-    a.mode = "meet"; a.task = { partner: b }; a.after = null; a.sit = false;
-    b.mode = "wait"; b.task = { partner: a }; b.after = null; b.path = b.path.slice(0, 1);
+    const room = meetRoom(a, b);
+    a.mode = "meet"; a.task = { partner: b, room }; a.after = null; a.sit = false;
+    b.mode = "wait"; b.task = { partner: a, room }; b.after = null; b.path = b.path.slice(0, 1);
     return;
   }
 }
@@ -1055,10 +1185,17 @@ function npcArrive(n) {
 }
 function updateNPC(n, dt) {
   step(n, dt);
-  if (state.phase === "gala") return;
+  if (state.phase !== "day") return;
+  if (n.mode === "away") {
+    if (NOW > n.awayUntil) { n.mode = "idle"; n.room = homeOf(n); const e = ROOMS[n.room].entry; n.x = e[0] + 1; n.y = e[1]; n.sit = false; }
+    return;
+  }
   if (n.mode === "idle") {
-    if (state.phase !== "day" || n.path.length || NOW < n.nextWander || NOW < n.hold) return;
+    if (n.goRoom) { if (travel(n, n.goRoom) && !n.path.length) n.goRoom = null; return; }
+    if (!allowedRooms(n).includes(n.room)) { n.goRoom = homeOf(n); return; }
+    if (n.path.length || NOW < n.nextWander || NOW < n.hold) return;
     n.nextWander = NOW + 4500 + Math.random() * 6000;
+    if (Math.random() < 0.18) { const opts = allowedRooms(n).filter(x => x !== n.room); if (opts.length) { n.goRoom = pick(opts); n.sit = false; return; } }
     const r = ROOMS[n.room];
     if (Math.random() < 0.3) {
       const seats = r.objects.filter(o => SIT.has(o.k) && !seatTaken(r.id, o.x, o.y, n));
@@ -1078,19 +1215,18 @@ function updateNPC(n, dt) {
       say(n, pick(n.def.talk), 3200);
       n.nextAmbient = NOW + 15000 + Math.random() * 15000;
     }
+  } else if (n.mode === "wait") {
+    const t = n.task;
+    if (!t || !npcs.includes(t.partner) || t.partner.mode !== "meet") { n.mode = "idle"; n.task = null; return; }
+    if (t.room && n.room !== t.room) travel(n, t.room);
   } else if (n.mode === "meet") {
     const p = n.task.partner;
-    if (!npcs.includes(p) || state.phase !== "day") { n.mode = "idle"; n.task = null; return; }
+    if (!npcs.includes(p) || p.mode === "away") { abortMeet(n); return; }
     if (n.path.length || p.mode === "player") return;
+    const target = n.task.room || "havuz";
+    if (!travel(n, target) || n.path.length) return;
+    if (p.room !== target || p.moving) return;
     const r = ROOMS[n.room];
-    if (n.room !== p.room) {
-      const d = doorTo(n.room, p.room);
-      if (!d) { abortMeet(n); return; }
-      if (Math.round(n.x) === d.x && Math.round(n.y) === d.y) { n.room = p.room; n.x = d.door.at[0]; n.y = d.door.at[1]; }
-      else { const pth = findPath(r, Math.round(n.x), Math.round(n.y), (x, y) => x === d.x && y === d.y); if (pth) n.path = pth; else abortMeet(n); }
-      return;
-    }
-    if (p.moving) return;
     if (dist(n, p) > 1.6) {
       const pth = findPath(r, Math.round(n.x), Math.round(n.y), nearGoal(r, Math.round(p.x), Math.round(p.y)));
       if (pth && pth.length) n.path = pth; else if (!pth) abortMeet(n);
@@ -1126,7 +1262,7 @@ function endNpcTalk(a, b) {
 
 /* ---------- Günün olayı ---------- */
 const EVENTS = [
-  (a, b, g) => ({ text: `<b>${esc(g.def.name)}</b> dedikodu yaydı: ${esc(a.def.name)} ile ${esc(b.def.name)} gece terasta uzun uzun konuşmuş.`, fx: () => { setChem(a, b, getChem(a, b) + 1); const m = state.matchOf[a.id]; if (m && m !== b.id && byId[m]) setChem(a, byId[m], getChem(a, byId[m]) - 2); } }),
+  (a, b, g) => ({ text: `<b>${esc(g.def.name)}</b> dedikodu yaydı: ${esc(a.def.name)} ile ${esc(b.def.name)} gece havuz başında uzun uzun konuşmuş.`, fx: () => { setChem(a, b, getChem(a, b) + 1); const m = state.matchOf[a.id]; if (m && m !== b.id && byId[m]) setChem(a, byId[m], getChem(a, byId[m]) - 2); } }),
   (a, b) => ({ text: `${esc(a.def.name)} ile ${esc(b.def.name)} sabah kahvaltıyı birlikte hazırladı.`, fx: () => setChem(a, b, getChem(a, b) + 1) }),
   (a, b) => ({ text: `Havuz başında ${esc(a.def.name)} ile ${esc(b.def.name)} arasında tartışma çıktı.`, fx: () => setChem(a, b, getChem(a, b) - 2) }),
   (a, b) => ({ text: `${esc(a.def.name)}, gece mutfakta ${esc(b.def.name)} için bir not bıraktı.`, fx: () => setChem(a, b, getChem(a, b) + 2) }),
@@ -1142,6 +1278,208 @@ function dayEvent() {
   const ev = pick(EVENTS)(a, b, g);
   ev.fx();
   toast("<b>Villa haberi</b> · " + ev.text, "news", 6500, true);
+}
+
+/* ---------- Misafirlik: biri belirli süre karşı eve geçer ---------- */
+function startVisit() {
+  const npcPool = npcs.filter(n => n.mode === "idle" && !n.goRoom && NOW > (n.arrivedAt || 0) + 6000);
+  const usePlayer = Math.random() < 0.3 || !npcPool.length;
+  const c = usePlayer ? player : pick(npcPool);
+  const room = otherHouse(c);
+  state.visit = { c, room, until: NOW + VISIT_MS };
+  if (c === player) {
+    closeDialog();
+    toast(ROOMS[room].name + "'ne 90 saniyeliğine misafir oldun! Oradakilerle konuşabilirsin.", "love", 5000);
+    changeRoom(room, ROOMS[room].entry);
+  } else {
+    freeNpc(c); c.goRoom = room;
+    toast(c.def.name + ", 90 saniyeliğine " + ROOMS[room].name + "'ne misafir oldu.", "news", 4500);
+  }
+}
+function endVisit() {
+  const v = state.visit;
+  state.visit = null;
+  state.nextVisit = NOW + 40000 + Math.random() * 25000;
+  if (!v) return;
+  if (v.c === player) {
+    if (player.room === v.room) { closeDialog(); toast("Misafirlik bitti, evine dönüyorsun."); changeRoom(homeOf(player), ROOMS[homeOf(player)].entry); }
+  } else if (npcs.includes(v.c)) {
+    if (v.c.mode === "meet" || v.c.mode === "wait") abortMeet(v.c);
+    v.c.goRoom = homeOf(v.c);
+  }
+}
+
+/* ---------- Bordo Oda: süreli, baş başa konuşma ---------- */
+function bordoGossip(a, b) {
+  toast(`<b>Bordo Oda</b> · ${esc(a.def.name)} ile ${esc(b.def.name)} baş başa. Herkes konuşuyor.`, "news", 5000, true);
+  for (const [x, y] of [[a, b], [b, a]]) {
+    const m = state.matchOf[x.id];
+    if (!m || m === y.id || !byId[m]) continue;
+    setChem(x, byId[m], getChem(x, byId[m]) - 2);
+    if (m === player.id) later(1300, () => toast("Match'in " + x.def.name + " Bordo Oda'ya geçti. Uyumunuz düştü.", "bad", 4500));
+    else if (x === player) later(1300, () => toast(byId[m].def.name + " bunu duydu ve kırıldı. Uyumunuz düştü.", "bad", 4500));
+  }
+}
+function fadeSwap(fn) {
+  return new Promise(res => {
+    const f = $("fade");
+    f.classList.add("on");
+    setTimeout(() => { fn(); f.classList.remove("on"); setTimeout(res, 320); }, 340);
+  });
+}
+function setTimer(label, ms, onEnd) { state.timer = { label, until: NOW + ms, onEnd }; }
+function enterBordo(host, guest) {
+  for (const [c, s] of [[host, BORDO_SEATS.host], [guest, BORDO_SEATS.guest]]) { c.room = "bordo"; c.path = []; c.goRoom = null; c.onArrive = null; sitDown(c, s[0], s[1]); }
+  if (host === player || guest === player) { state.room = "bordo"; $("room-name").textContent = ROOMS.bordo.name; snapCamera(); }
+}
+function sendHome(c) {
+  c.room = homeOf(c);
+  const e = ROOMS[c.room].entry, off = c === player ? 0 : 1;
+  c.x = e[0] + off; c.y = e[1] + off; c.sit = false; c.path = []; c.goRoom = null;
+  if (c !== player) { c.mode = "idle"; c.task = null; c.nextWander = NOW + 2500; }
+}
+/* oyuncunun Bordo Oda konuşması: bitince ya da süre dolunca çözülür */
+function bordoDialog(n) {
+  return new Promise(res => {
+    let done = false;
+    const finish = () => { if (done) return; done = true; state.timer = null; res(); };
+    openDialog(n, { bordo: true, onDone: finish });
+    setTimer("Bordo Oda", BORDO_MS, () => { if (dlg) { toast("Süre doldu."); closeDialog(); } finish(); });
+  });
+}
+async function playerBordo(n, hostIsPlayer) {
+  if (state.visit && state.visit.c === player) state.visit.until = NOW;
+  state.phase = "bordo";
+  closeDialog(); freeNpc(n);
+  const host = hostIsPlayer ? player : n, guest = hostIsPlayer ? n : player;
+  bordoGossip(host, guest);
+  await fadeSwap(() => enterBordo(host, guest));
+  await bordoDialog(n);
+  await fadeSwap(() => {
+    sendHome(player); sendHome(n);
+    state.room = player.room; $("room-name").textContent = ROOMS[state.room].name;
+    state.phase = "day"; snapCamera();
+  });
+  updateHud(true);
+}
+function openBordoPicker() {
+  if (state.bordoUsed) { toast("Bugünkü Bordo Oda hakkını kullandın."); return; }
+  const opp = npcs.filter(n => n.def.g !== player.def.g);
+  const busy = n => ["chat", "meet", "away", "player"].includes(n.mode);
+  openModal(`
+    <span class="eyebrow">Günde bir kez</span>
+    <h2>Bordo Oda'ya kimi çağırıyorsun?</h2>
+    <p>45 saniyelik baş başa konuşma. Etkisi normal sohbetten güçlü, ama herkes kimi çağırdığını görür. Match'i olanlar kıskanabilir.</p>
+    <div class="list">${opp.map(n => `<button class="row pick" type="button" data-id="${n.id}" ${busy(n) ? "disabled" : ""}><span class="dot" style="background:${n.def.top}"></span><span class="grow">${esc(n.def.name)}<small>Uyumunuz ${getChem(player, n)}/10${busy(n) ? " · şu an meşgul" : ""}</small></span>${state.matchOf[player.id] === n.id ? `<span class="tag love">Match'in</span>` : state.matchOf[n.id] ? `<span class="tag">Match'li</span>` : ""}</button>`).join("")}</div>
+    <button class="btn ghost" type="button" id="m-ok">Vazgeç</button>`, "bordo");
+  $("m-ok").addEventListener("click", closeModal);
+  $("modal-body").querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => {
+    closeModal(); state.bordoUsed = true; playerBordo(byId[b.dataset.id], true);
+  }));
+}
+function npcInvitesPlayer() {
+  state.bordoInviteDone = true;
+  const cands = npcs.filter(n => n.def.g !== player.def.g && n.mode !== "away" && getChem(player, n) >= 4);
+  if (!cands.length || Math.random() < 0.3) return;
+  const n = cands.sort((a, b) => getChem(player, b) - getChem(player, a))[0];
+  openModal(`
+    <span class="eyebrow">Bordo Oda daveti</span>
+    <h2>${esc(n.def.name)} seni Bordo Oda'ya çağırıyor</h2>
+    <p>45 saniye baş başa konuşacaksınız. Reddedersen ${esc(n.def.name)} kırılır.</p>
+    <button class="btn bordo" type="button" id="b-go">Git</button>
+    <button class="btn ghost" type="button" id="b-no">Reddet</button>`, "bordo");
+  $("b-go").addEventListener("click", () => { closeModal(); playerBordo(n, false); });
+  $("b-no").addEventListener("click", () => { closeModal(); setChem(player, n, getChem(player, n) - 2); toast(n.def.name + " reddedildiği için kırıldı. Uyum -2", "bad"); });
+}
+function npcBordo() {
+  state.bordoNpcDone = true;
+  const free = npcs.filter(n => n.mode === "idle" && !n.goRoom && NOW > (n.arrivedAt || 0) + 6000);
+  let best = null, bv = -1;
+  for (const a of free) for (const b of free) if (a.def.g === "F" && b.def.g === "M") { const v = getChem(a, b) + Math.random() * 2; if (v > bv) { bv = v; best = [a, b]; } }
+  if (!best) return;
+  const [a, b] = best;
+  enterBordo(a, b);
+  for (const c of best) { c.mode = "away"; c.awayUntil = NOW + 20000; }
+  setChem(a, b, getChem(a, b) + 2);
+  state.talked.add(pairKey(a.id, b.id));
+  bordoGossip(Math.random() < 0.5 ? a : b, Math.random() < 0.5 ? b : a);
+  if (getChem(a, b) >= 7 && !state.matchOf[a.id] && !state.matchOf[b.id]) makeMatch(a, b);
+  updateHud(true);
+}
+
+/* ---------- Yeni yarışmacı töreni ---------- */
+const CEREMONY_SPOTS = [[3, 6], [4, 6], [5, 6], [6, 6], [7, 6], [3, 7], [5, 7]];
+async function newcomerCeremony(nc) {
+  state.phase = "ceremony"; speed = 1;
+  $("speed-btn").hidden = false; $("speed-btn").textContent = "Hızlandır ×3";
+  $("room-chip").hidden = true;
+  const hostRoom = otherHouse(nc);
+  const hosts = house().filter(c => c.def.g !== nc.def.g);
+  for (const c of npcs) { c.mode = "idle"; c.task = null; c.chat = null; c.path = []; c.goRoom = null; c.bubble = null; }
+  $("tc-eyebrow").textContent = "Gün " + state.day;
+  $("tc-title").textContent = "Yeni Yarışmacı";
+  $("tc-sub").textContent = nc.def.name + " villaya geliyor";
+  const tc = $("title-card");
+  tc.hidden = false; void tc.offsetWidth; tc.classList.add("on");
+  await wait(900);
+  hosts.forEach((c, i) => { const [x, y] = CEREMONY_SPOTS[i % CEREMONY_SPOTS.length]; c.room = hostRoom; c.x = x; c.y = y; c.sit = false; setFace(c, 0, -1); });
+  nc.room = hostRoom; nc.x = 0; nc.y = 4; nc.sit = false;
+  state.room = hostRoom; state.camFocus = { x: 4, y: 5 }; snapCamera();
+  await wait(1800);
+  tc.classList.remove("on"); await wait(700); tc.hidden = true;
+  caption(nc.def.name + " " + ROOMS[hostRoom].name + "'ne giriyor", "Herkes yeni geleni karşılıyor.");
+  state.spots = [nc]; state.camFocus = nc;
+  await walkTo(nc, 5, 4); setFace(nc, 0, 1);
+  say(nc, "Merhaba! Ben " + nc.def.name + ".", 2600);
+  await wait(2200);
+  caption("Tanışma", "");
+  for (const h of hosts) {
+    state.spots = [h]; state.camFocus = h;
+    say(h, pick(MEET_LINES).replace("{n}", h.def.name), 2200);
+    getChem(nc, h);
+    await wait(1500);
+  }
+  // dans
+  state.spots = []; state.camFocus = { x: 4.5, y: 4 };
+  caption(nc.def.name + " dans için birini seçiyor...", "");
+  await wait(2200);
+  const partner = hosts.slice().sort((a, b) => (getChem(nc, b) + Math.random() * 3) - (getChem(nc, a) + Math.random() * 3))[0];
+  caption("Dans: " + nc.def.name + " ve " + nm(partner), partner === player ? "Seni seçti!" : "Diğerleri izliyor.");
+  await walkTo(partner, 4, 4);
+  setFace(partner, 1, 0); setFace(nc, -1, 0);
+  state.dancers = [nc, partner]; state.spots = [nc, partner];
+  setChem(nc, partner, getChem(nc, partner) + 2);
+  await wait(4500);
+  state.dancers = []; state.spots = [];
+  // bordo oda
+  caption(nc.def.name + " Bordo Oda'ya geçiyor", "İki kişiyi baş başa konuşmaya çağıracak.");
+  await wait(2400);
+  const guests = hosts.slice().sort((a, b) => (getChem(nc, b) - getChem(nc, a)) + (Math.random() - 0.5) * 3).slice(0, 2);
+  for (const g of guests) {
+    const back = [g.x, g.y];
+    await fadeSwap(() => { enterBordo(nc, g); state.room = "bordo"; state.camFocus = { x: 1.6, y: 1.6 }; snapCamera(); });
+    caption(nc.def.name + " ile " + nm(g), "Bordo Oda · baş başa");
+    if (g === player) { await wait(1200); caption(""); await bordoDialog(nc); }
+    else {
+      const lines = pick(BORDO_TALK);
+      for (let i = 0; i < lines.length; i++) { say(i % 2 ? g : nc, lines[i], 2400); await wait(2600); }
+      setChem(nc, g, getChem(nc, g) + 2);
+    }
+    state.talked.add(pairKey(nc.id, g.id));
+    g.room = hostRoom; g.x = back[0]; g.y = back[1]; g.sit = false;
+  }
+  caption("Herkes evine dönüyor", "Yeni gün başlıyor.");
+  await wait(1600);
+  await fadeSwap(() => {
+    for (const c of npcs) scatter(c);
+    sendHome(player); player.x = 5; player.y = 6;
+    state.room = player.room; $("room-name").textContent = ROOMS[state.room].name;
+    state.nextVisit = NOW + 30000;
+    endGalaUI(); state.phase = "day"; snapCamera();
+  });
+  $("room-chip").hidden = false;
+  updateHud(true);
+  toast("Gün " + state.day + " başladı. Herkes yeniden konuşmalı.", "good");
 }
 
 /* ---------- Toplu oyunlar ---------- */
@@ -1384,7 +1722,8 @@ async function startGala() {
     return;
   }
   closeDialog(); closeModal();
-  state.phase = "gala"; speed = 1;
+  state.phase = "gala"; speed = 1; state.visit = null; state.timer = null;
+  $("tc-title").textContent = "Gala Gecesi";
   $("speed-btn").hidden = false; $("speed-btn").textContent = "Hızlandır ×3";
   $("room-chip").hidden = true;
   for (const c of house()) { c.mode = "idle"; c.task = null; c.chat = null; c.path = []; c.after = null; c.bubble = null; c.onArrive = null; }
@@ -1538,7 +1877,7 @@ function endGalaUI() {
 $("speed-btn").addEventListener("click", () => { speed = speed === 1 ? 3 : 1; $("speed-btn").textContent = speed === 1 ? "Hızlandır ×3" : "Normal hız"; });
 
 function scatter(c) {
-  const rm = Math.random() < 0.6 ? "havuz" : "teras", r = ROOMS[rm];
+  const rm = Math.random() < 0.5 ? homeOf(c) : "havuz", r = ROOMS[rm];
   for (let i = 0; i < 40; i++) {
     const x = Math.floor(Math.random() * r.w), y = Math.floor(Math.random() * r.h);
     if (tileAt(r, x, y) === "." && !(rm === "havuz" && x === 5 && y === 11)) { c.room = rm; c.x = x; c.y = y; c.sit = false; return; }
@@ -1556,22 +1895,24 @@ function nextDay(out) {
   state.day++;
   state.talked.clear(); state.immune.clear();
   state.gameDone = false; state.eventDone = false; state.galaReadyShown = false; state.flyCards = [];
-  for (const n of npcs) { scatter(n); n.leaving = false; n.alpha = 1; n.mode = "idle"; n.seat = null; n.nextWander = NOW + 2000 + Math.random() * 3000; }
-  player.room = "havuz"; player.x = 5; player.y = 11; player.sit = false; player.path = []; player.seat = null;
-  state.room = "havuz"; $("room-name").textContent = ROOMS.havuz.name; $("room-chip").hidden = false;
-  state.phase = "day";
+  state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false;
+  state.nextVisit = NOW + 35000;
+  for (const n of npcs) { scatter(n); n.leaving = false; n.alpha = 1; n.mode = "idle"; n.seat = null; n.goRoom = null; n.nextWander = NOW + 2000 + Math.random() * 3000; }
+  sendHome(player); player.x = 5; player.y = 6; player.seat = null;
+  state.room = player.room; $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;
   if (out) {
     const g = out.def.g;
     const tpl = state.pool[g].shift() || { name: (g === "F" ? "Yeni kız " : "Yeni erkek ") + state.day, skin: "#C99A76", hair: "#2A1D14", hs: g === "F" ? "long" : "short", top: "#6C8EBF", bottom: "#2B2F3A", legs: "pants", likes: ["durust"], dislikes: ["strateji"], open: "Merhaba!" };
     const id = "y" + state.day + "_" + Math.floor(Math.random() * 1e6);
     const def = withDefaults(Object.assign({ g }, tpl));
-    const nc = mkChar(id, def, "havuz", 0, 2, { arrivedDay: state.day, face: [1, 0] });
+    const nc = mkChar(id, def, otherHouse({ def }), 0, 4, { arrivedDay: state.day, face: [1, 0] });
     nc.arrivedAt = NOW;
-    const p = findPath(ROOMS.havuz, 0, 2, (x, y) => x === 3 && y === 4);
-    if (p) nc.path = p;
     npcs.push(nc); byId[id] = nc;
-    later(1500, () => { toast("Yeni yarışmacı villaya girdi: " + def.name, "love"); say(nc, "Merhaba! Ben " + def.name + ".", 3500); });
+    updateHud(true);
+    newcomerCeremony(nc);
+    return;
   }
+  state.phase = "day";
   snapCamera();
   updateHud(true);
   toast("Gün " + state.day + " başladı. Herkes yeniden konuşmalı.", "good");
@@ -1586,13 +1927,16 @@ function openModal(html, cls = "") {
   if (b) b.focus({ preventScroll: true });
 }
 function closeModal() { $("modal").hidden = true; }
-const canDismiss = () => state.phase === "day";
+const canDismiss = () => state.phase === "day" && !$("modal-body").querySelector("#b-go");
 $("modal").addEventListener("click", e => { if (e.target.id === "modal" && canDismiss()) closeModal(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && canDismiss()) { closeModal(); closeDialog(); } });
 
 const RULES = `
   <ul>
+    <li>Kızlar Evi ve Erkekler Evi ayrı. Karşı cinsle Havuz Başı'nda buluşursun. Gün içinde rastgele biri 90 saniyeliğine karşı eve misafir olur.</li>
     <li>Birine dokun, konuşma başlar. Karşı cinsle konuşma <b>uyumu</b>, kendi cinsinle konuşma <b>güveni</b> belirler.</li>
+    <li><b>Bordo Oda:</b> Günde bir kez birini 45 saniyelik baş başa konuşmaya çağırabilirsin; seni de çağırabilirler. Etkisi güçlü ama herkes duyar.</li>
+    <li>Yeni yarışmacı karşı cinsin evine girer, herkesle tanışır, birini dansa kaldırır ve Bordo Oda'ya iki kişi çağırır.</li>
     <li>Uyum yüksekse match olabilirsiniz. Match'in galada sana oy vermez.</li>
     <li>Güven yüksekse gruba katılırsın ya da grup kurarsın. Gruplar galada ortak hedefe oy verir; farklı oy vermek ihanettir.</li>
     <li>Konuşmaların yarısı bitince villa oyunu başlar. Kazananlar galada dokunulmazlık kazanır.</li>
@@ -1635,6 +1979,7 @@ function openHouse() {
     else right = groupOf(c.id) && groupOf(c.id) === groupOf(player.id) ? `<span class="tag gold">Grubunda</span>` : `<span class="tag">${talked(player, c) ? "Konuştunuz" : "Takım"}</span>`;
     const bits = [];
     if (!me) bits.push((opp ? "Uyum " : "Güven ") + getChem(player, c) + "/10");
+    if (ROOMS[c.room]) bits.push(ROOMS[c.room].name);
     if (groupOf(c.id)) bits.push(groupOf(c.id).name);
     if (state.immune.has(c.id)) bits.push("dokunulmaz");
     if (c.arrivedDay === state.day && state.day > 1) bits.push("yeni geldi");
@@ -1654,18 +1999,22 @@ function openHouse() {
   $("m-ok").addEventListener("click", closeModal);
 }
 function openMap() {
-  const rows = Object.values(ROOMS).filter(r => r.public).map(r => `
-    <button class="btn ${r.id === state.room ? "" : "ghost"}" type="button" data-room="${r.id}">${esc(r.name)}${r.id === state.room ? " · buradasın" : ""}</button>`).join("");
+  const rows = Object.values(ROOMS).filter(r => r.public).map(r => {
+    const here = r.id === state.room, open = canEnter(player, r.id);
+    const note = here ? " · buradasın" : open ? "" : " · misafirlikte açılır";
+    return `<button class="btn ${here ? "" : "ghost"}" type="button" data-room="${r.id}" ${open ? "" : "disabled"}>${esc(r.name)}${note}</button>`;
+  }).join("");
   openModal(`
     <span class="eyebrow">Alanya · yaz villası</span>
     <h2>Harita</h2>
+    <p>Kızlar ve erkekler ayrı evlerde kalıyor. Havuz Başı ortak alan; karşı eve sadece misafirlikte girilir.</p>
     <div class="list">${rows}<button class="btn ghost" type="button" disabled>İskele · yakında</button></div>`);
   $("modal-body").querySelectorAll("[data-room]").forEach(b => b.addEventListener("click", () => {
     closeModal();
     const to = b.dataset.room;
-    if (to === state.room || state.phase !== "day") return;
+    if (to === state.room || state.phase !== "day" || !canEnter(player, to)) return;
     closeDialog();
-    changeRoom(to, doorTo(state.room, to).door.at);
+    changeRoom(to, ROOMS[to].entry);
   }));
 }
 $("chat").addEventListener("submit", e => {
@@ -1677,6 +2026,7 @@ $("chat").addEventListener("submit", e => {
 });
 $("btn-wave").addEventListener("click", () => { if (state.phase === "day") playerSays("Selam!"); });
 $("btn-house").addEventListener("click", () => { if (state.phase === "day") openHouse(); });
+$("btn-bordo").addEventListener("click", () => { if (state.phase === "day" && !dlg) openBordoPicker(); });
 $("btn-map").addEventListener("click", () => { if (state.phase === "day") openMap(); });
 $("btn-help").addEventListener("click", () => { if (state.phase === "day") openRules(); });
 $("gala-btn").addEventListener("click", startGala);
@@ -1685,7 +2035,7 @@ $("gala-btn").addEventListener("click", startGala);
 function step(c, dt) {
   if (!c.path.length) { c.moving = false; return; }
   const [tx, ty] = c.path[0];
-  const g = state.phase === "gala" ? speed : 1;
+  const g = cine() ? speed : 1;
   const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy), sp = c.speed * dt * (g === 1 ? 1 : g * 0.85);
   setFace(c, dx, dy);
   c.moving = true; c.walkT += dt * 11 * g;
@@ -1707,14 +2057,14 @@ function clampCamera() {
   c.y = (maxY - minY) <= vh ? (minY + maxY) / 2 : Math.max(minY + vh / 2, Math.min(maxY - vh / 2, c.y));
 }
 function camGoal() {
-  if (state.phase === "gala" && state.camFocus) { const p = iso(state.camFocus.x, state.camFocus.y); return { x: p.x, y: p.y - 30 }; }
+  if (cine() && state.camFocus) { const p = iso(state.camFocus.x, state.camFocus.y); return { x: p.x, y: p.y - 30 }; }
   const p = iso(player.x, player.y);
   return { x: p.x, y: p.y + (dlg ? 60 : -20) };
 }
 function snapCamera() { const g = camGoal(); state.cam.x = g.x; state.cam.y = g.y; clampCamera(); }
 function updateCamera(dt) {
-  if (!state.cam.follow && state.phase !== "gala") return;
-  const g = camGoal(), k = 1 - Math.pow(state.phase === "gala" ? 0.05 : 0.002, dt);
+  if (!state.cam.follow && !cine()) return;
+  const g = camGoal(), k = 1 - Math.pow(cine() ? 0.05 : 0.002, dt);
   state.cam.x += (g.x - state.cam.x) * k;
   state.cam.y += (g.y - state.cam.y) * k;
   clampCamera();
@@ -1832,7 +2182,7 @@ function drawWallSeg(r, p1, p2, side, feat, t) {
   poly(wq(p1, p2, 0, 1, 1.05, 1.08), W ? W.trim2 : "#A9542F");
 }
 function drawWalls(r, t) {
-  for (let x = 0; x < r.w; x++) drawWallSeg(r, iso(x - 0.5, -0.5), iso(x + 0.5, -0.5), true, r.windows.y.includes(x) ? "window" : null, t);
+  for (let x = 0; x < r.w; x++) drawWallSeg(r, iso(x - 0.5, -0.5), iso(x + 0.5, -0.5), true, x > 0 && r.doors[x + ",0"] ? "door" : r.windows.y.includes(x) ? "window" : null, t);
   for (let y = 0; y < r.h; y++) {
     const feat = r.doors["0," + y] ? "door" : r.windows.x.includes(y) ? "window" : null;
     drawWallSeg(r, iso(-0.5, y - 0.5), iso(-0.5, y + 0.5), false, feat, t);
@@ -1860,8 +2210,9 @@ function drawLights(r, t) {
 /* ---------- Zemin ---------- */
 function drawPlatformSides(r) {
   const T = 16;
-  const c1 = r.floor === "wood" ? "#7A5136" : r.floor === "gala" ? "#14172C" : "#B9A88F";
-  const c2 = r.floor === "wood" ? "#64412B" : r.floor === "gala" ? "#0E1022" : "#A39177";
+  const dark = r.floor === "gala" || r.floor === "carpet";
+  const c1 = r.floor === "wood" ? "#7A5136" : dark ? "#14172C" : "#B9A88F";
+  const c2 = r.floor === "wood" ? "#64412B" : dark ? "#0E1022" : "#A39177";
   for (let y = 0; y < r.h; y++) { const a = iso(r.w - 0.5, y - 0.5), b = iso(r.w - 0.5, y + 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c1); }
   for (let x = 0; x < r.w; x++) { const a = iso(x + 0.5, r.h - 0.5), b = iso(x - 0.5, r.h - 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c2); }
   if (r.floor === "gala") {
@@ -1875,10 +2226,15 @@ function drawFloor(r, t) {
     const k = r.map[y][x], p = iso(x, y), d = diamond(p.x, p.y);
     if (k === "~") { drawWater(r, x, y, p, t); continue; }
     if (r.floor === "wood") {
-      poly(d, (x + y) % 2 ? "#B07B4F" : "#A97449");
+      const wd = r.wood || ["#B07B4F", "#A97449"];
+      poly(d, (x + y) % 2 ? wd[0] : wd[1]);
       ctx.strokeStyle = "rgba(70,40,20,.25)"; ctx.lineWidth = 1;
       for (let i = 1; i < 3; i++) { const a = iso(x - 0.5, y - 0.5 + i / 3), b = iso(x + 0.5, y - 0.5 + i / 3); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
       poly(d, null, "rgba(70,40,20,.3)", 1);
+    } else if (r.floor === "carpet") {
+      poly(d, (x + y) % 2 ? "#5E1626" : "#561321");
+      poly(diamond(p.x, p.y, 0.6), null, "rgba(233,196,106,.18)", 1);
+      if (hash(x, y) > 0.55) ellipse(p.x + (hash(y, x) - 0.5) * 30, p.y + (hash(x + 3, y) - 0.5) * 12, 2.2, 1.2, "#C4213F");
     } else if (r.floor === "gala") {
       poly(d, (x + y) % 2 ? "#262A48" : "#2D3254");
       poly(d, null, "rgba(201,162,74,.22)", 1);
@@ -1981,12 +2337,13 @@ function drawObject(r, o, t) {
   } else if (k === "C") {
     let bx = 0, by = 0;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { bx = -dx; by = -dy; }
+    const cc = r.chair || ["#2BB3A3", "#1C8584", "#23A093"];
     ellipse(p.x, p.y + 1, 12, 5, "rgba(30,20,20,.16)");
-    isoBox(x, y, 0.36, 0.36, 8, 0, "#2BB3A3", "#1C8584", "#23A093");
-    isoBox(x + bx * 0.16, y + by * 0.16, bx ? 0.06 : 0.36, by ? 0.06 : 0.36, 12, 8, "#2BB3A3", "#1C8584", "#23A093");
+    isoBox(x, y, 0.36, 0.36, 8, 0, cc[0], cc[1], cc[2]);
+    isoBox(x + bx * 0.16, y + by * 0.16, bx ? 0.06 : 0.36, by ? 0.06 : 0.36, 12, 8, cc[0], cc[1], cc[2]);
   } else if (k === "B") {
     isoBox(x, y, 1, 0.7, 24, 0, "#F3E9DC", "#7E4F33", "#946040");
-    if (x === 3) for (const [ox, col] of [[-0.25, "#2BB3A3"], [0, "#F28C28"], [0.22, "#E4572E"]]) {
+    if (tileAt(r, x - 1, y) === "B" && tileAt(r, x + 1, y) === "B") for (const [ox, col] of [[-0.25, "#2BB3A3"], [0, "#F28C28"], [0.22, "#E4572E"]]) {
       const a = iso(x + ox, y); ctx.fillStyle = col; ctx.fillRect(a.x - 2, a.y - 36, 4, 10); ctx.fillRect(a.x - 1, a.y - 39, 2, 3);
     }
   } else if (k === "H") {
@@ -1995,6 +2352,32 @@ function drawObject(r, o, t) {
     isoBox(x, y, 0.5, 0.5, 9, 0, "#A8324F", "#6E1A30", "#8A2540");
     isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 18, 9, "#A8324F", "#6E1A30", "#8A2540");
     isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 2, 27, "#E9C46A", "#B08A35", "#C9A24A");
+  } else if (k === "O") {
+    const sc = r.sofa;
+    ellipse(p.x, p.y + 2, 20, 9, "rgba(30,20,20,.18)");
+    isoBox(x, y, 0.86, 0.6, 8, 0, sc[0], sc[1], sc[2]);
+    isoBox(x, y - 0.25, 0.86, 0.14, 13, 8, sc[0], sc[1], sc[2]);
+    isoBox(x - 0.36, y, 0.14, 0.6, 5, 8, sc[0], sc[1], sc[2]);
+    circle(p.x + 4, p.y - 12, 3.2, "rgba(255,255,255,.35)");
+  } else if (k === "V") {
+    const [fx, fy] = r.seatFace(x, y), bx = -fx, by = -fy;
+    ellipse(p.x, p.y + 2, 15, 7, "rgba(0,0,0,.35)");
+    isoBox(x, y, 0.56, 0.56, 9, 0, "#8E1F3A", "#5A1022", "#741A30");
+    isoBox(x + bx * 0.22, y + by * 0.22, bx ? 0.12 : 0.56, by ? 0.12 : 0.56, 16, 9, "#8E1F3A", "#5A1022", "#741A30");
+    isoBox(x + bx * 0.22, y + by * 0.22, bx ? 0.12 : 0.56, by ? 0.12 : 0.56, 2, 25, "#E9C46A", "#B08A35", "#C9A24A");
+  } else if (k === "R") {
+    ellipse(p.x, p.y + 1, 14, 6, "rgba(0,0,0,.35)");
+    isoBox(x, y, 0.14, 0.14, 12, 0, "#3A1A12", "#2A120C", "#32160F");
+    isoBox(x, y, 0.5, 0.5, 2.5, 12, "#4A2418", "#2E140C", "#3B1C12");
+    for (const [ox, oy] of [[-6, -1], [5, 1]]) {
+      const fl = 0.7 + 0.3 * Math.sin(t / 120 + ox);
+      ctx.fillStyle = "#F7EEDC"; ctx.fillRect(p.x + ox - 1.5, p.y + oy - 22, 3, 7);
+      const g = ctx.createRadialGradient(p.x + ox, p.y + oy - 24, 0, p.x + ox, p.y + oy - 24, 14);
+      g.addColorStop(0, "rgba(255,190,100," + 0.75 * fl + ")"); g.addColorStop(1, "rgba(255,190,100,0)");
+      ctx.fillStyle = g; ctx.fillRect(p.x + ox - 14, p.y + oy - 38, 28, 28);
+      ellipse(p.x + ox, p.y + oy - 24.5, 1.3, 2.4 * fl, "#FFD27A");
+    }
+    circle(p.x, p.y - 19, 3, "#C4213F"); circle(p.x + 2, p.y - 20.5, 2.2, "#E03A57");
   } else if (k === "S") {
     const pulse = 0.5 + 0.5 * Math.sin(t / 450);
     const g = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 44);
@@ -2055,8 +2438,9 @@ function hairBack(d) {
 }
 function drawChar(c, t) {
   const d = c.def, p = iso(c.x, c.y);
-  const swing = c.moving ? Math.sin(c.walkT) * 3.2 : 0;
-  const bob = c.moving ? Math.abs(Math.sin(c.walkT)) * 1.2 : Math.sin(t / 650 + c.seed) * 0.35;
+  const dancing = state.dancers.includes(c);
+  const swing = dancing ? Math.sin(t / 170) * 4.5 : c.moving ? Math.sin(c.walkT) * 3.2 : 0;
+  const bob = dancing ? Math.abs(Math.sin(t / 170)) * 3.5 : c.moving ? Math.abs(Math.sin(c.walkT)) * 1.2 : Math.sin(t / 650 + c.seed) * 0.35;
   if (c.leaving) c.alpha = Math.max(0, c.alpha - 0.03);
   if (c.alpha <= 0) return;
   ctx.save();
@@ -2176,6 +2560,17 @@ function drawEffects() {
     for (let i = 0; i < 3; i++) heart(p.x + Math.sin(k * 6 + i * 2) * 8 + (i - 1) * 7, p.y - 60 - k * 40 - i * 8, 4.5 - i, "#FF6B8B");
     ctx.globalAlpha = 1;
   }
+  for (const c of state.dancers) {
+    if (c.room !== state.room) continue;
+    const p = iso(c.x, c.y);
+    ctx.font = "800 12px Manrope, system-ui, sans-serif"; ctx.textAlign = "center";
+    for (let i = 0; i < 3; i++) {
+      const k = ((NOW / 1400) + i / 3 + c.seed) % 1;
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = i % 2 ? "#F2C14E" : "#FF6B8B";
+      ctx.fillText(i % 2 ? "♫" : "♪", p.x + Math.sin(k * 6 + i) * 10 + (i - 1) * 8, p.y - 70 - k * 30);
+    }
+    ctx.globalAlpha = 1;
+  }
   for (const f of state.flyCards) {
     const k = Math.min(1, (NOW - f.t0) / f.dur);
     if (k >= 1) continue;
@@ -2190,9 +2585,10 @@ function drawDoorTags(r, t) {
   if (!r.public) return;
   ctx.font = "800 9px Manrope, system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   for (const key in r.doors) {
-    const [x, y] = key.split(",").map(Number), p = iso(x, y), label = r.doors[key].label + " ›";
+    const dr = r.doors[key], open = canEnter(player, dr.to);
+    const [x, y] = key.split(",").map(Number), p = iso(x, y), label = dr.label + (open ? " ›" : " · kapalı");
     const w = ctx.measureText(label).width + 12, yy = p.y - 16 + Math.sin(t / 400) * 1.5;
-    rrect(p.x - w / 2, yy - 7, w, 14, 7, "#F28C28");
+    rrect(p.x - w / 2, yy - 7, w, 14, 7, open ? "#F28C28" : "#8A94A6");
     ctx.fillStyle = "#1B2A41"; ctx.fillText(label, p.x, yy);
   }
 }
@@ -2223,6 +2619,20 @@ function render(t) {
   }
   drawLabels(chars.sort((a, b) => (a.x + a.y) - (b.x + b.y)));
 }
+let chipTick = 0;
+function updateChips(ts) {
+  if (ts - chipTick < 250) return;
+  chipTick = ts;
+  const el = $("timer-chip"), fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+  let text = "";
+  if (state.timer) text = state.timer.label + " · " + fmt(state.timer.until - NOW);
+  else if (state.visit && state.phase === "day") {
+    const v = state.visit;
+    text = v.c === player ? ROOMS[v.room].name + "'nde misafirsin · " + fmt(v.until - NOW) : "Misafir: " + v.c.def.name + " → " + ROOMS[v.room].name + " · " + fmt(v.until - NOW);
+  }
+  el.hidden = !text;
+  if (text) el.innerHTML = "<i></i>" + esc(text);
+}
 let last = 0;
 function frame(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000 || 0);
@@ -2231,11 +2641,19 @@ function frame(ts) {
     step(player, dt);
     for (const n of npcs.slice()) updateNPC(n, dt);
     scheduleTalks();
-    if (state.phase === "day" && !dlg && $("modal").hidden) {
-      const { done, total } = talkProgress();
-      if (!state.eventDone && total && done / total >= 0.25) dayEvent();
-      if (!state.gameDone && total && done / total >= 0.5 && !player.path.length) startGame();
+    if (state.timer && NOW > state.timer.until) { const f = state.timer.onEnd; state.timer = null; f(); }
+    if (state.phase === "day") {
+      if (state.visit && NOW > state.visit.until) endVisit();
+      if (!dlg && $("modal").hidden) {
+        const { done, total } = talkProgress(), k = total ? done / total : 0;
+        if (!state.visit && NOW > state.nextVisit) startVisit();
+        else if (!state.eventDone && k >= 0.25) dayEvent();
+        else if (!state.gameDone && k >= 0.5 && !player.path.length) startGame();
+        else if (!state.bordoInviteDone && k >= 0.4) npcInvitesPlayer();
+        else if (!state.bordoNpcDone && k >= 0.6) npcBordo();
+      }
     }
+    updateChips(ts);
     updateCamera(dt);
     updateHud();
     render(ts);
@@ -2267,18 +2685,24 @@ function beginGame(gender, name) {
   state.immune = new Set(); state.gameDone = false; state.eventDone = false;
   state.pool = { F: NEWCOMERS.F.slice(), M: NEWCOMERS.M.slice() };
   state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500; state.spots = []; state.hearts = []; state.flyCards = [];
+  state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false; state.dancers = [];
+  state.nextVisit = NOW + 35000;
   buildCast(gender, name);
-  $("room-name").textContent = ROOMS.havuz.name; $("room-chip").hidden = false;
+  sendHome(player); player.x = 5; player.y = 6;
+  state.room = player.room;
+  $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;
   updateHud(true);
   snapCamera();
   const opp = npcs.filter(n => n.def.g !== gender).map(n => n.def.name);
-  later(500, () => toast("Gün 1. Galadan önce konuşman gerekenler: " + opp.join(", ")));
+  later(500, () => toast(ROOMS[state.room].name + "'ndesin. Karşı cinsle Havuz Başı'nda buluşabilirsin. Galadan önce konuşman gerekenler: " + opp.join(", "), "", 6000));
 }
 function newGame() {
   closeDialog(); endGalaUI(); closeModal();
   state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
+  state.visit = null; state.timer = null; state.dancers = [];
   buildCast("F", "Deniz");
-  $("room-chip").hidden = false; $("room-name").textContent = ROOMS.havuz.name;
+  sendHome(player); player.x = 5; player.y = 6; state.room = player.room;
+  $("room-chip").hidden = false; $("room-name").textContent = ROOMS[state.room].name;
   snapCamera();
   openStart();
 }
@@ -2286,7 +2710,7 @@ function newGame() {
 /* Otomatik testler için küçük kanca */
 window.__villa = {
   tileToScreen(x, y, up = 0) { const p = iso(x, y); return { x: (p.x - state.cam.x) * z + cw / 2, y: (p.y - up - state.cam.y) * z + ch / 2 }; },
-  info() { const tp = talkProgress(); return { room: state.room, day: state.day, phase: state.phase, match: state.matchOf[player.id] || null, done: tp.done, total: tp.total, game: state.gameDone, immune: [...state.immune], groups: state.groups.map(g => g.name + ":" + g.members.join("+")), dialog: !!dlg, n: npcs.length }; },
+  info() { const tp = talkProgress(); return { visit: state.visit ? state.visit.c.id + "->" + state.visit.room : null, proom: player.room, room: state.room, day: state.day, phase: state.phase, match: state.matchOf[player.id] || null, done: tp.done, total: tp.total, game: state.gameDone, immune: [...state.immune], groups: state.groups.map(g => g.name + ":" + g.members.join("+")), dialog: !!dlg, n: npcs.length }; },
   pending() { return housePairs().filter(([a, b]) => !talked(a, b)).map(([a, b]) => a.id + "-" + b.id); },
   pos(id) { const c = byId[id]; return c ? { x: c.x, y: c.y, room: c.room, mode: c.mode } : null; },
   debugImmune() { state.immune.add(player.id); },

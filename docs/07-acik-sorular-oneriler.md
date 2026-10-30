@@ -9,6 +9,7 @@ Her soru için bir öneri ve gerekçe. Kararlar verildikçe "Karar" sütunu dold
 | Görsel stil | Tek stil illüstrasyon portreler | |
 | Ana mekanik | İzleyici sırrı → oyunda "Sır Kartı" | Konuşma → uyum → match; galada karşı takımdan eleme. Sır kartları çıkarıldı. |
 | Oylama gecesinin adı | Yüzleşme Saati | "Gala" (marka/haksız rekabet riski avukata sorulacak) |
+| Özel konuşma odası | Fısıltı Odası | "Bordo Oda" (avukata sorulacaklar listesinde, bkz. [Online mod notları](08-online-mod-notlari.md)) |
 
 ## 1. Oyun/kanal adı
 Bkz. [İsim adayları](03-isim-adaylari.md). Instagram testi için de kalıcı adın kullanılması önerilir;
