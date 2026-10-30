@@ -7,8 +7,8 @@ Her soru için bir öneri ve gerekçe. Kararlar verildikçe "Karar" sütunu dold
 | Oyun/kanal adı | Kısa liste: Yaz Yalanları, Lodos Villa, Kalpkapı, Sırlı Kumsal → kontrol sonrası seç | |
 | Mekân | Alanya'da yaz villası | |
 | Görsel stil | Tek stil illüstrasyon portreler | |
-| Ana mekanik | İzleyici sırrı → oyunda "Sır Kartı" | |
-| Oylama gecesinin adı | Yüzleşme Saati | |
+| Ana mekanik | İzleyici sırrı → oyunda "Sır Kartı" | Konuşma → uyum → match; galada karşı takımdan eleme. Sır kartları çıkarıldı. |
+| Oylama gecesinin adı | Yüzleşme Saati | "Gala" (marka/haksız rekabet riski avukata sorulacak) |
 
 ## 1. Oyun/kanal adı
 Bkz. [İsim adayları](03-isim-adaylari.md). Instagram testi için de kalıcı adın kullanılması önerilir;
