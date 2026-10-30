@@ -86,6 +86,8 @@ body {
 /* Sahne */
 .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--siyah); border: 2px solid var(--cizgi); }
 #game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer; }
+.nojs { position: absolute; inset: 0; display: grid; place-content: center; gap: 8px; padding: 24px; text-align: center; font: 400 22px var(--f-baslik); text-transform: uppercase; color: var(--beyaz); }
+.nojs small { font: 500 14px/1.5 var(--f-metin); text-transform: none; color: var(--gri); }
 .chip {
   position: absolute; top: 8px; left: 8px;
   display: flex; align-items: center; gap: 6px;
@@ -370,6 +372,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--fusya); out
   </header>
 
   <main class="stage" id="stage">
+    <div class="nojs" id="nojs">Oyun yükleniyor…<br><small>Bu yazı kaybolmuyorsa açtığın görüntüleyici JavaScript çalıştırmıyor. Dosyayı Safari, Chrome ya da bilgisayarda bir tarayıcıda aç.</small></div>
     <canvas id="game" aria-label="Villa oyun alanı. Zemine dokunarak yürü, birine dokunarak konuş."></canvas>
     <div class="chip" id="room-chip"><i></i><span id="room-name">Havuz Başı</span></div>
     <div class="chip timer-chip" id="timer-chip" hidden></div>
@@ -437,6 +440,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--fusya); out
 <script>
 (() => {
 "use strict";
+document.getElementById("nojs").hidden = true;
+// eski tarayıcılar için roundRect yedeği
+if (!CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
 document.documentElement.lang = "tr";
 
 /* ---------- Sabitler ---------- */
