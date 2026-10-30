@@ -594,6 +594,14 @@ const QUESTIONS = [
   { q: "Burada en çok neyi özledin?", a: [["Ailemi.", "derin"], ["Telefonumu, haha!", "eglence"], ["Kendime ait bir köşeyi.", "durust"]] },
   { q: "Galadan sonra ne olacak sence?", a: [["Ne olursa olsun, seni tanımaya devam etmek istiyorum.", "flort"], ["Kimse emin olamaz, plan önemli.", "strateji"], ["Birileri ağlayacak, orası kesin.", "eglence"]] },
   { q: "Sana yalan söylesem anlar mısın?", a: [["Anlarım ve affetmem.", "durust"], ["Gözlerinden anlarım.", "flort"], ["Belki anlarım, belki anlamam. Oyun bu.", "strateji"]] },
+  { q: "Bende ilk neyi fark ettin?", a: [["Gülüşünü. Herkesten farklı.", "flort"], ["Kimseye yaranmaya çalışmamanı.", "durust"], ["Herkesi nasıl izlediğini.", "strateji"]] },
+  { q: "Bir ilişkide asla affetmeyeceğin şey ne?", a: [["Yalan. Gerisi konuşulur.", "durust"], ["İlgisizlik.", "derin"], ["Beni sıkmak, haha!", "eglence"]] },
+  { q: "Bu villadan biriyle çıksan, ilk nereye giderdik?", a: [["Kapadokya'da balon, gün doğumunda.", "flort"], ["Bir festivale, sabaha kadar!", "eglence"], ["Sessiz bir koya, telefonlar kapalı.", "derin"]] },
+  { q: "Ailen beni tanısa ne derdi?", a: [["\"Sonunda biri onu güldürmüş\" derlerdi.", "flort"], ["Önce sorgularlar, sonra severler.", "durust"], ["Onlara ne zaman söyleyeceğimi ben seçerim.", "strateji"]] },
+  { q: "Kalbin mi kazanır, aklın mı?", a: [["Kalbim, her seferinde.", "flort"], ["Aklım. Kalbim sonra yetişir.", "strateji"], ["İkisi de konuşur, ben dinlerim.", "derin"]] },
+  { q: "En son ne zaman ağladın?", a: [["Geçen ay, bir film yüzünden.", "derin"], ["Hatırlamıyorum, ağlamam ben.", "strateji"], ["Gülmekten ağladım, sayılır mı?", "eglence"]] },
+  { q: "Burada biri sana kalbini açsa ne yaparsın?", a: [["Ben de açarım. Cesaret bulaşıcıdır.", "flort"], ["Önce emin olmak isterim.", "durust"], ["Galadan önce mi sonra mı, ona bakarım.", "strateji"]] },
+  { q: "Kıskandığında nasıl biri olursun?", a: [["Susarım, sonra patlarım.", "durust"], ["Belli etmem, ama unutmam.", "strateji"], ["Daha çok ilgi gösteririm, haha.", "flort"]] },
 ];
 const TRUST_QUESTIONS = [
   { q: "Bu evde sırtını kime dayıyorsun?", a: [["Kimseye, ama sana şans vermeye hazırım.", "durust"], ["Güçlü olanın yanında dururum.", "strateji"], ["Bilmem, eğlenceli kim varsa!", "eglence"]] },
@@ -603,6 +611,11 @@ const TRUST_QUESTIONS = [
   { q: "Biri seni arkadan vursa ne yaparsın?", a: [["Yüzüne söylerim.", "durust"], ["Unutmam. Zamanı gelince öderim.", "strateji"], ["Gülüp geçerim, hayat kısa.", "eglence"]] },
   { q: "Akşam ekip olarak ne yapalım?", a: [["Havuz başında müzik, dans!", "eglence"], ["Terasta uzun bir sohbet.", "derin"], ["Kimin kime oy vereceğini konuşalım.", "strateji"]] },
   { q: "Match'in olsa bile bize sadık kalır mısın?", a: [["Arkadaşlık her şeyden önce gelir.", "durust"], ["Kalbim nereye derse...", "flort"], ["Duruma göre, oyun bu.", "strateji"]] },
+  { q: "Aynı kişiden hoşlanırsak ne yaparız?", a: [["Açıkça konuşuruz, arkadan iş çevirmeyiz.", "durust"], ["En iyi olan kazanır.", "strateji"], ["Kimse bizi ayıramaz, onu boş veririz!", "eglence"]] },
+  { q: "Dün gece kim kiminle uzun konuştu, gördün mü?", a: [["Gördüm ama başkasının işi.", "durust"], ["Gördüm. Not aldım.", "strateji"], ["Anlat anlat, kaçırdım!", "eglence"]] },
+  { q: "Sence kim galada sürpriz yapacak?", a: [["En sessiz olan. Hep öyle olur.", "derin"], ["Kimse beni şaşırtamaz.", "strateji"], ["Umarım biri dans eder!", "eglence"]] },
+  { q: "Biri sana kötü davranırsa yanında olayım mı?", a: [["Olursan bunu unutmam.", "durust"], ["Ben kendi savaşımı veririm.", "strateji"], ["Beraber gülüp geçeriz.", "eglence"]] },
+  { q: "Burada en çok kimden çekiniyorsun?", a: [["Fazla tatlı olanlardan.", "strateji"], ["Kimseden, herkese açığım.", "durust"], ["Kendimden, haha.", "eglence"]] },
 ];
 const SMALLTALK = [
   ["Nasıl gidiyor, alışabildin mi?", "Yavaş yavaş. Sen?", "Ben seni tanımak için buradayım."],
@@ -622,6 +635,10 @@ const BORDO_QUESTIONS = [
   { q: "Evde biri senin hakkında konuşuyor. Bilmek ister misin?", a: [["Hayır, ben sana inanıyorum.", "durust"], ["Tabii, her şeyi bilmek isterim.", "strateji"], ["Boş ver, şu an sadece biz varız.", "flort"]] },
   { q: "Bu oda bitince ne olacak sence?", a: [["Herkes dedikodu yapacak, haha!", "eglence"], ["Bir şey değişecek, hissediyorum.", "derin"], ["Hiçbir şey, bu aramızda kalacak.", "durust"]] },
   { q: "Bir sırrını söyle, ben de söyleyeyim.", a: [["Bazen kendimi burada çok yalnız hissediyorum.", "derin"], ["Sırrım şu: seni kıskanıyorum.", "flort"], ["Sır vermem, ama seninle başka.", "strateji"]] },
+  { q: "Galada bana oy verir misin?", a: [["Asla. Seni korurum.", "flort"], ["Sana söz veremem ama elimden geleni yaparım.", "durust"], ["Sen bana verir misin, önce onu söyle.", "strateji"]] },
+  { q: "Biri bizi kıskanırsa ne yaparız?", a: [["Kıskansın. Ben senin yanındayım.", "flort"], ["Onunla da konuşurum, açık olurum.", "durust"], ["Bundan avantaj çıkarırız.", "strateji"]] },
+  { q: "Şu an aklından ne geçiyor?", a: [["Bu sürenin bitmemesi.", "flort"], ["Sana gerçekten güvenebilir miyim.", "derin"], ["Dışarıda herkes ne konuşuyor acaba.", "eglence"]] },
+  { q: "Bana bir söz ver.", a: [["Arkandan asla konuşmayacağım.", "durust"], ["Seni galada yalnız bırakmayacağım.", "flort"], ["Söz vermem, gösteririm.", "strateji"]] },
 ];
 const BORDO_TALK = [
   ["Buraya seni neden çağırdığımı biliyorsun.", "Tahmin ediyorum...", "O zaman söyle bakalım."],
@@ -731,6 +748,7 @@ const state = {
   room: "havuz", day: 1, phase: "start",
   talked: new Set(), chem: new Map(), matchOf: {}, revealed: new Set(), metPlayer: new Set(),
   groups: [], immune: new Set(), gameDone: false, eventDone: false,
+  grudges: new Map(), confronts: [], hinted: new Set(), nextHint: 0,
   visit: null, nextVisit: 0, timer: null, bordoUsed: false, bordoInviteDone: false, bordoNpcDone: false, dancers: [],
   cam: { x: 0, y: 0, follow: true }, camFocus: null, hover: null, target: null,
   pool: { F: [], M: [] }, nextSchedule: 0, galaReadyShown: false,
@@ -1263,6 +1281,7 @@ function npcArrive(n) {
 function updateNPC(n, dt) {
   step(n, dt);
   if (state.phase !== "day") return;
+  if (n.mode === "confront") { updateConfront(n); return; }
   if (n.mode === "away") {
     if (NOW > n.awayUntil) { n.mode = "idle"; n.room = state.day === 1 ? "havuz" : homeOf(n); const e = ROOMS[n.room].entry; n.x = e[0] + 1; n.y = e[1]; n.sit = false; }
     return;
@@ -1389,12 +1408,119 @@ function endVisit() {
 /* ---------- Bordo Oda: süreli, baş başa konuşma ---------- */
 function bordoGossip(a, b) {
   toast(`<b>Bordo Oda</b> · ${esc(a.def.name)} ile ${esc(b.def.name)} baş başa. Herkes konuşuyor.`, "news", 5000, true);
+  reactToBordo(a, b);
   for (const [x, y] of [[a, b], [b, a]]) {
     const m = state.matchOf[x.id];
     if (!m || m === y.id || !byId[m]) continue;
     setChem(x, byId[m], getChem(x, byId[m]) - 2);
     if (m === player.id) later(1300, () => toast("Match'in " + x.def.name + " Bordo Oda'ya geçti. Uyumunuz düştü.", "bad", 4500));
     else if (x === player) later(1300, () => toast(byId[m].def.name + " bunu duydu ve kırıldı. Uyumunuz düştü.", "bad", 4500));
+  }
+}
+/* ---------- Duygular: hoşlanma, hesap sorma, arkadan iş çevirme ---------- */
+const CONFRONT_ANSWERS = [
+  ["Haklısın, özür dilerim. Seni kırmak istemedim.", "durust"],
+  ["Oyun bu. Stratejik bir karardı, kişisel değil.", "strateji"],
+  ["Kıskandın mı yoksa? Bu hoşuma gitti.", "flort"],
+  ["Gel şuna gülüp geçelim, akşam sana dans borcum olsun.", "eglence"],
+  ["Seninle konuşmak ayrı, o ayrı. İkisi de önemli.", "derin"],
+];
+const SCHEME_LINES = ["Ona güvenmeyin, iki yüzlü.", "Herkese aynı şeyi söylüyor.", "Kameralar için oynuyor.", "Dün gece başka şey diyordu."];
+function crushOf(c) {
+  if (!c || c === player) return null;
+  let best = null, bv = 5.5;
+  for (const o of house()) if (o.def.g !== c.def.g) { const v = getChem(c, o); if (v > bv) { bv = v; best = o; } }
+  return best;
+}
+const grudge = (a, b) => (state.grudges.get(a.id + ">" + b.id) || 0) >= state.day;
+function reactToBordo(a, b) {
+  let confronted = false;
+  for (const x of npcs) {
+    if (x === a || x === b || x.mode === "away") continue;
+    const c = crushOf(x);
+    if (c !== a && c !== b) continue;
+    const rival = c === a ? b : a;
+    later(5000 + Math.random() * 4000, () => scheme(x, rival, c));
+    if (!confronted) { confronted = true; later(2500, () => confront(x, c, rival)); }
+  }
+}
+function scheme(x, rival, crush) {
+  if (!npcs.includes(x) || !house().includes(rival)) return;
+  setChem(rival, crush, getChem(rival, crush) - 1);
+  const others = house().filter(y => y.def.g !== rival.def.g && y !== crush && y !== x);
+  if (others.length) { const y = pick(others); setChem(rival, y, getChem(rival, y) - 1); }
+  state.grudges.set(x.id + ">" + rival.id, state.day + 1);
+  const line = pick(SCHEME_LINES);
+  if (rival === player) toast(`<b>${esc(x.def.name)}</b> arkandan iş çeviriyor: "${esc(line)}" Uyumların düştü.`, "bad", 6000, true);
+  else toast(`<b>${esc(x.def.name)}</b>, ${esc(rival.def.name)} hakkında fısıldıyor: "${esc(line)}"`, "news", 5500, true);
+  if (x.room === state.room && state.phase === "day") say(x, line, 3000);
+}
+function confront(x, c, rival, reason = "bordo") {
+  if (!npcs.includes(x) || !house().includes(c)) return;
+  if (c === player) { state.confronts.push({ x, rival, reason }); toast(x.def.name + " sana doğru geliyor. Yüzü asık.", "bad"); return; }
+  setChem(x, c, getChem(x, c) - 1);
+  const q = `${c.def.name}, neden ${rival.def.name} ile gittin?`;
+  toast(`<b>Hesap soruluyor</b> · ${esc(x.def.name)}: "${esc(q)}"`, "news", 5500, true);
+  if (x.room === state.room && c.room === state.room && state.phase === "day") { say(x, q, 3000, true); later(1600, () => say(c, "Bu benim kararım.", 2600)); }
+}
+function processConfronts() {
+  const job = state.confronts[0];
+  if (!job) return;
+  const x = job.x;
+  if (!npcs.includes(x)) { state.confronts.shift(); return; }
+  if (x.mode === "confront" || ["chat", "meet", "away", "player"].includes(x.mode)) return;
+  if (!allowedRooms(x).includes(player.room)) return;
+  freeNpc(x); x.mode = "confront"; x.task = { job, until: NOW + 60000 };
+}
+function updateConfront(n) {
+  const t = n.task;
+  if (NOW > t.until || state.phase !== "day") { n.mode = "idle"; n.task = null; state.confronts.shift(); return; }
+  if (n.path.length) return;
+  if (!allowedRooms(n).includes(player.room)) return;
+  if (!travel(n, player.room) || n.path.length) return;
+  if (dist(n, player) > 1.6) {
+    if (player.moving) return;
+    const r = ROOMS[n.room];
+    const pth = findPath(r, Math.round(n.x), Math.round(n.y), nearGoal(r, Math.round(player.x), Math.round(player.y)));
+    if (pth && pth.length) n.path = pth;
+    return;
+  }
+  if (dlg || !$("modal").hidden) return;
+  state.confronts.shift();
+  openConfront(n, t.job);
+}
+function openConfront(n, job) {
+  n.task = null; n.prevMode = "idle"; n.mode = "player"; n.path = [];
+  setFace(n, player.x - n.x, player.y - n.y); setFace(player, n.x - player.x, n.y - player.y);
+  dlg = { n, opposite: true, confront: true, onDone: null };
+  $("dlg-name").textContent = n.def.name + " · hesap soruyor";
+  $("dlg-avatar").textContent = n.def.name.slice(0, 1);
+  $("dlg-avatar").style.background = n.def.top;
+  $("dialog").classList.remove("bordo");
+  $("dialog").hidden = false;
+  stage.classList.add("talking");
+  const q = job.reason === "reject" ? "Davetimi reddettin. Bunu hak etmedim." : "Neden beni değil de " + job.rival.def.name + " ile Bordo Oda'ya gittin?";
+  say(n, q, 4200, true);
+  const answers = shuffle(CONFRONT_ANSWERS).slice(0, 3).map(([label, tag]) => ({ label, fn: () => answerConfront(n, label, tag) }));
+  showDlg("Kırgın", q, answers);
+}
+function answerConfront(n, label, tag) {
+  say(player, label, 2600);
+  const d = n.def, kind = d.likes.includes(tag) ? "like" : d.dislikes.includes(tag) ? "dislike" : "neutral";
+  let line;
+  if (kind === "like") { setChem(player, n, getChem(player, n) + 1); state.grudges.delete(n.id + ">" + player.id); line = "Peki... Bu sefer affediyorum."; }
+  else if (kind === "neutral") { setChem(player, n, getChem(player, n) - 1); line = "Anladım. Ama hâlâ kırgınım."; }
+  else { setChem(player, n, getChem(player, n) - 2); state.grudges.set(n.id + ">" + player.id, state.day + 1); line = "Bunu unutmayacağım. Galada görüşürüz."; toast(n.def.name + " sana kırgın. Galada sana oy verebilir.", "bad", 5000); }
+  later(800, () => { if (dlg && dlg.n === n) say(n, line, 3200); });
+  showDlg(pick(d[kind]), line, okBtn());
+}
+function crushHints() {
+  if (NOW < state.nextHint) return;
+  state.nextHint = NOW + 3000;
+  for (const n of npcs) if (crushOf(n) === player && !state.hinted.has(n.id)) {
+    state.hinted.add(n.id);
+    toast(n.def.name + " seninle konuşurken gözleri parlıyor. Senden hoşlanıyor olabilir.", "love", 5500);
+    return;
   }
 }
 function fadeSwap(fn) {
@@ -1466,7 +1592,7 @@ function npcInvitesPlayer() {
     <button class="btn bordo" type="button" id="b-go">Git</button>
     <button class="btn ghost" type="button" id="b-no">Reddet</button>`, "bordo");
   $("b-go").addEventListener("click", () => { closeModal(); playerBordo(n, false); });
-  $("b-no").addEventListener("click", () => { closeModal(); setChem(player, n, getChem(player, n) - 2); toast(n.def.name + " reddedildiği için kırıldı. Uyum -2", "bad"); });
+  $("b-no").addEventListener("click", () => { closeModal(); setChem(player, n, getChem(player, n) - 2); toast(n.def.name + " reddedildiği için kırıldı. Uyum -2", "bad"); later(9000, () => confront(n, player, n, "reject")); });
 }
 function npcBordo() {
   state.bordoNpcDone = true;
@@ -1751,6 +1877,8 @@ function galaGroupsTargets() {
 function npcVote(v) {
   const opp = house().filter(c => c.def.g !== v.def.g && !state.immune.has(c.id));
   if (!opp.length) return null;
+  const angry = opp.filter(c => grudge(v, c));
+  if (angry.length && Math.random() < 0.85) return pick(angry);
   const gr = groupOf(v.id);
   if (gr && gr.target && opp.includes(gr.target) && state.matchOf[v.id] !== gr.target.id && Math.random() < 0.9) return gr.target;
   let pool = opp.filter(c => state.matchOf[v.id] !== c.id);
@@ -1771,6 +1899,7 @@ function playerVotePanel() {
         state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : "",
         gr && gr.target === c ? `<span class="tag gold">Grubunun seçimi</span>` : "",
         imm ? `<span class="tag ok">Dokunulmaz</span>` : "",
+        grudge(c, player) ? `<span class="tag">Sana kırgın</span>` : "",
       ].join("");
       return `<button class="row pick" type="button" data-id="${c.id}" ${imm ? "disabled" : ""}><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}<small>Uyumunuz ${getChem(player, c)}/10</small></span>${tags}</button>`;
     }).join("");
@@ -2126,6 +2255,8 @@ function openHouse() {
     if (ROOMS[c.room]) bits.push(ROOMS[c.room].name);
     if (groupOf(c.id)) bits.push(groupOf(c.id).name);
     if (state.immune.has(c.id)) bits.push("dokunulmaz");
+    if (!me && grudge(c, player)) bits.push("sana kırgın");
+    if (!me && state.hinted.has(c.id) && crushOf(c) === player) bits.push("gözü sende");
     if (c.arrivedDay === state.day && state.day > 1) bits.push("yeni geldi");
     if (shownMatch(c) && !me && state.matchOf[c.id] !== player.id && byId[state.matchOf[c.id]]) bits.push(byId[state.matchOf[c.id]].def.name + " ile match");
     return `<div class="row"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}${bits.length ? `<small>${esc(bits.join(" · "))}</small>` : ""}</span>${right}</div>`;
@@ -2684,6 +2815,11 @@ function drawLabels(chars) {
     let cx = lx + 6;
     if (gr) { circle(cx + 1, headTop - 9, 2.6, gr.color); cx += 9; }
     if (hasHeart) heart(cx + 2, headTop - 9.2, 3.4, c === player ? "#FFFFFF" : "#FF2E7E");
+    if (c !== player && state.phase === "day") {
+      const mx = lx + nw + 2, my = headTop - 15;
+      if (grudge(c, player)) { ctx.fillStyle = "#FF2E7E"; ctx.fillRect(mx, my, 10, 12); ctx.fillStyle = "#FFFFFF"; ctx.fillText("!", mx + 5, my + 6.4); }
+      else if (state.hinted.has(c.id) && crushOf(c) === player) { ctx.fillStyle = "#FFFFFF"; ctx.fillRect(mx, my, 11, 12); heart(mx + 5.5, my + 6.2, 3, "#FF2E7E"); }
+    }
     ctx.fillStyle = isNew ? "#0C0C0E" : "#FFFFFF";
     ctx.fillText(label, p.x + extra / 2, headTop - 8.6);
     const b = c.bubble;
@@ -2821,6 +2957,8 @@ function frame(ts) {
         else if (!state.gameDone && k >= 0.5 && !player.path.length) startGame();
         else if (!state.bordoInviteDone && k >= 0.4) npcInvitesPlayer();
         else if (!state.bordoNpcDone && k >= 0.6) npcBordo();
+        processConfronts();
+        crushHints();
       }
     }
     updateChips(ts);
@@ -2857,6 +2995,7 @@ function beginGame(gender, name, look) {
   state.room = "havuz"; state.day = 1; state.phase = "day";
   state.talked = new Set(); state.chem = new Map(); state.matchOf = {}; state.revealed = new Set(); state.metPlayer = new Set();
   state.immune = new Set(); state.gameDone = false; state.eventDone = false;
+  state.grudges = new Map(); state.confronts = []; state.hinted = new Set();
   state.pool = { F: NEWCOMERS.F.slice(), M: NEWCOMERS.M.slice() };
   state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500; state.spots = []; state.hearts = []; state.flyCards = [];
   state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false; state.dancers = [];
@@ -2872,7 +3011,7 @@ function beginGame(gender, name, look) {
 }
 function newGame() {
   closeDialog(); endGalaUI(); closeModal();
-  state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
+  state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.grudges = new Map(); state.confronts = []; state.hinted = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
   state.visit = null; state.timer = null; state.dancers = [];
   state.day = 1;
   buildCast("F", "Deniz");
@@ -2889,6 +3028,8 @@ window.__villa = {
   pending() { return housePairs().filter(([a, b]) => !talked(a, b)).map(([a, b]) => a.id + "-" + b.id); },
   pos(id) { const c = byId[id]; return c ? { x: c.x, y: c.y, room: c.room, mode: c.mode } : null; },
   debugImmune() { state.immune.add(player.id); },
+  debugChem(a, b, v) { setChem(byId[a], byId[b], v); },
+  emo() { return { confronts: state.confronts.map(j => j.x.id + "/" + j.x.mode), crushNehir: crushOf(byId.nehir) && crushOf(byId.nehir).id, grudges: [...state.grudges.keys()], hinted: [...state.hinted] }; },
   debugTalkAll() { for (const [a, b] of housePairs()) state.talked.add(pairKey(a.id, b.id)); },
 };
 

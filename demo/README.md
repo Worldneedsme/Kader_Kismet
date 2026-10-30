@@ -51,6 +51,12 @@ tüm görseller kodla çizilmiş geçici şekiller.
    - Bordo Oda'ya geçip iki kişiyi sırayla baş başa konuşmaya çağırır; sen çağrılırsan konuşma sana açılır.
    - Sonra herkes evine döner. Konuşmalar, oyun, Bordo hakkı ve dokunulmazlık sıfırlanır.
 
+## Duygular
+- **Hoşlanma:** Her yarışmacı, karşı cinsten uyumunun en yüksek olduğu kişiye ilgi duyar (uyum 6 ve üstü). O kişi sensen "gözleri parlıyor" ipucu gelir, isim etiketinde kalp çıkar.
+- **Hesap sorma:** Hoşlandığı kişi başkasıyla Bordo Oda'ya giderse ona hesap sorar. Sensen yanına yürüyüp konuşmayı açar: cevabı beğenirse affeder (+1), beğenmezse kırgın kalır (-2) ve galada büyük ihtimalle sana oy verir. Bordo Oda davetini reddedersen de hesap sorar.
+- **Arkadan iş çevirme:** Hoşlandığı kişiyi biri Bordo Oda'ya götürürse o rakibin arkasından konuşur; rakibin diğerleriyle uyumu düşer. Hedef sensen uyarı gelir.
+- Kırgın olanların etiketinde "!" görünür. Evdekiler ve oylama ekranında "sana kırgın" yazar.
+
 ## Görsel
 - Arayüz realite şovu yayın grafiği dilinde: Anton başlıklar, Barlow Condensed etiketler, siyah-beyaz zemin ve tek vurgu rengi fuşya; keskin köşeli alt bantlar, "CANLI" rozeti, sahnenin altında kayan villa haberleri bandı.
 - Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; evlerdeki ışık zincirleri akşama doğru parlar.
