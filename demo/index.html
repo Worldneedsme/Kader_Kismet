@@ -177,6 +177,17 @@ body {
   pointer-events: none;
 }
 .bug b { color: var(--fusya); font-weight: 400; margin: 0 3px; }
+.creator { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; }
+.creator canvas { width: 140px; height: 170px; border: 2px solid var(--cizgi); display: block; }
+.creator-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.creator-side .btn { padding: 9px; font-size: 14px; }
+.opt { display: flex; flex-direction: column; gap: 5px; }
+.opt-label { font: 700 12px var(--f-etiket); letter-spacing: .12em; text-transform: uppercase; color: var(--gri); }
+.sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.sw .color { width: 28px; height: 28px; padding: 0; border: 2px solid var(--siyah); box-shadow: 0 0 0 1px var(--cizgi); cursor: pointer; }
+.sw .color[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fusya); }
+.sw .txt { padding: 5px 9px; background: transparent; border: 2px solid var(--cizgi); color: var(--beyaz); font: 700 13px var(--f-etiket); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.sw .txt[aria-pressed="true"] { background: var(--beyaz); border-color: var(--beyaz); color: var(--siyah); }
 .logo { display: flex; align-items: baseline; gap: 6px; font: 400 40px/.9 var(--f-baslik); text-transform: uppercase; letter-spacing: .005em; }
 .logo b { color: var(--fusya); font-weight: 400; }
 .speed-btn {
@@ -788,7 +799,7 @@ function joinGroup(id, gr) { leaveGroup(id); if (!state.groups.includes(gr)) sta
 /* ---------- Canvas ---------- */
 const stage = document.getElementById("stage");
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+let ctx = canvas.getContext("2d");
 let cw = 0, ch = 0, dpr = 1, z = 1;
 function resize() {
   const r = stage.getBoundingClientRect();
@@ -1993,26 +2004,91 @@ const RULES = `
     <li>Konuşmaların yarısı bitince villa oyunu başlar. Kazananlar galada dokunulmazlık kazanır.</li>
     <li>Her kız her erkekle konuşmadan gala açılmaz. Galada herkes karşı takımdan birini eler; en çok oyu alan gider, yerine yeni biri gelir.</li>
   </ul>`;
+/* ---------- Kostüm ekranı ---------- */
+const LOOK_OPTS = [
+  { k: "skin", label: "Ten", type: "color", v: ["#F3D2B3", "#E3B892", "#CFA07E", "#B98463", "#94623F", "#6A452D"] },
+  { k: "hs", label: "Saç", type: "text", v: [["short", "Kısa"], ["buzz", "Kazıma"], ["wavy", "Dalgalı"], ["long", "Uzun"], ["bun", "Topuz"], ["pony", "At kuyruğu"], ["curly", "Kıvırcık"]] },
+  { k: "hair", label: "Saç rengi", type: "color", v: ["#17120F", "#3B2418", "#6B3E22", "#B5562B", "#D2AE62", "#8E1F3A", "#EDEBE6"] },
+  { k: "top", label: "Üst", type: "color", v: ["#FF2E7E", "#F3F2EE", "#1E1E22", "#2BB3A3", "#F2C14E", "#4F79A8", "#7A8B5A", "#B04A7A"] },
+  { k: "legs", label: "Alt", type: "text", v: [["shorts", "Şort"], ["pants", "Pantolon"], ["dress", "Elbise"]] },
+  { k: "bottom", label: "Alt rengi", type: "color", v: ["#1E1E22", "#2B4C7E", "#E8DCC6", "#5B6B8A", "#8E1F3A", "#F3F2EE", "#2BB3A3"] },
+  { k: "shoe", label: "Ayakkabı", type: "color", v: ["#F3F2EE", "#1E1E22", "#C46A3D", "#FF2E7E", "#F2C14E"] },
+  { k: "beard", label: "Sakal", type: "text", v: [[false, "Yok"], [true, "Var"]] },
+];
+let preview = null;
+function renderPreview(t) {
+  const cv = $("avatar-preview");
+  if (!cv || !preview) return;
+  const pc = cv.getContext("2d");
+  pc.setTransform(1, 0, 0, 1, 0, 0);
+  pc.fillStyle = "#151518"; pc.fillRect(0, 0, cv.width, cv.height);
+  const g = pc.createRadialGradient(cv.width / 2, cv.height * 0.86, 4, cv.width / 2, cv.height * 0.86, cv.width * 0.5);
+  g.addColorStop(0, "rgba(255,46,126,.35)"); g.addColorStop(1, "rgba(255,46,126,0)");
+  pc.fillStyle = g; pc.fillRect(0, 0, cv.width, cv.height);
+  preview.right = Math.floor(t / 2600) % 2 === 0;
+  const saved = ctx;
+  ctx = pc;
+  pc.setTransform(3.3, 0, 0, 3.3, cv.width / 2, cv.height * 0.88);
+  drawChar(preview, t);
+  ctx = saved;
+}
 function openStart() {
   let gender = "F";
+  const look = Object.assign({ beard: false }, PLAYER_LOOK.F);
+  preview = mkChar("onizleme", withDefaults(Object.assign({ name: "", g: gender }, look)), "havuz", 0, 0, { face: [1, 1] });
+  const optHtml = LOOK_OPTS.map(o => `
+    <div class="opt"><span class="opt-label">${o.label}</span><div class="sw" role="group" aria-label="${o.label}">
+      ${o.type === "color"
+        ? o.v.map(v => `<button type="button" class="color" data-k="${o.k}" data-v="${v}" style="background:${v}" aria-label="${o.label} ${v}"></button>`).join("")
+        : o.v.map(([v, l]) => `<button type="button" class="txt" data-k="${o.k}" data-v="${v}">${l}</button>`).join("")}
+    </div></div>`).join("");
   openModal(`
     <div class="logo" aria-label="Kader ve Kısmet"><span>Kader</span><b>&amp;</b><span>Kısmet</span></div>
-    <span class="eyebrow">Alanya · yaz villası</span>
-    <h2>Villaya giriş</h2>
-    <p>Karakterini seç. Çizimler geçici; bu demo oyun sistemini denemek için.</p>
-    <div class="seg" role="group" aria-label="Karakter">
-      <button type="button" id="g-f" aria-pressed="true">Kız</button>
-      <button type="button" id="g-m" aria-pressed="false">Erkek</button>
+    <span class="eyebrow">Karakterini yarat</span>
+    <div class="creator">
+      <canvas id="avatar-preview" width="280" height="340" aria-label="Avatar önizlemesi"></canvas>
+      <div class="creator-side">
+        <div class="seg" role="group" aria-label="Takım">
+          <button type="button" id="g-f" aria-pressed="true">Kız</button>
+          <button type="button" id="g-m" aria-pressed="false">Erkek</button>
+        </div>
+        <label class="field" for="player-name">Adın
+          <input id="player-name" maxlength="14" value="Deniz" autocomplete="off">
+        </label>
+        <button class="btn ghost" type="button" id="c-rand">Rastgele</button>
+      </div>
     </div>
-    <label class="field" for="player-name">Adın
-      <input id="player-name" maxlength="14" value="Deniz" autocomplete="off">
-    </label>
-    ${RULES}
+    ${optHtml}
     <button class="btn" type="button" id="s-go">Villaya gir</button>`);
-  const set = g => { gender = g; $("g-f").setAttribute("aria-pressed", String(g === "F")); $("g-m").setAttribute("aria-pressed", String(g === "M")); };
-  $("g-f").addEventListener("click", () => set("F"));
-  $("g-m").addEventListener("click", () => set("M"));
-  const go = () => { const name = ($("player-name").value.trim() || "Deniz").slice(0, 14); closeModal(); beginGame(gender, name); };
+  const body = $("modal-body");
+  const sync = () => {
+    Object.assign(preview.def, look, { g: gender, blush: gender === "F" });
+    body.querySelectorAll("[data-k]").forEach(b => b.setAttribute("aria-pressed", String(String(look[b.dataset.k]) === b.dataset.v)));
+    $("g-f").setAttribute("aria-pressed", String(gender === "F"));
+    $("g-m").setAttribute("aria-pressed", String(gender === "M"));
+  };
+  body.querySelectorAll("[data-k]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k, v = b.dataset.v;
+    look[k] = k === "beard" ? v === "true" : v;
+    sync();
+  }));
+  const setGender = g => { gender = g; Object.assign(look, PLAYER_LOOK[g], { beard: false }); sync(); };
+  $("g-f").addEventListener("click", () => setGender("F"));
+  $("g-m").addEventListener("click", () => setGender("M"));
+  $("c-rand").addEventListener("click", () => {
+    for (const o of LOOK_OPTS) { const v = pick(o.v); look[o.k] = Array.isArray(v) ? v[0] : v; }
+    if (gender === "F") look.beard = false;
+    if (look.top === look.bottom) look.bottom = "#1E1E22";
+    sync();
+  });
+  sync();
+  const go = () => {
+    const name = ($("player-name").value.trim() || "Deniz").slice(0, 14);
+    closeModal(); preview = null;
+    beginGame(gender, name, Object.assign({}, look, { blush: gender === "F" }));
+    openModal(`<span class="eyebrow">Nasıl oynanır</span><h2>Kurallar</h2>${RULES}<button class="btn" type="button" id="m-ok">Başla</button>`);
+    $("m-ok").addEventListener("click", closeModal);
+  };
   $("s-go").addEventListener("click", go);
   $("player-name").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
 }
@@ -2560,8 +2636,16 @@ function wrap(text, maxW) {
   if (cur) lines.push(cur);
   return lines;
 }
+/* Ekran dolmasın: tam metin yalnızca sen, konuştuğun kişi ve sana en yakın iki konuşmacı için */
+function bubbleFocus(chars) {
+  const live = chars.filter(c => c.bubble && NOW <= c.bubble.until);
+  if (state.phase !== "day") return new Set(live);
+  const keep = new Set(live.filter(c => c === player || (dlg && dlg.n === c)));
+  if (!dlg) live.filter(c => !keep.has(c) && dist(c, player) <= 4.5).sort((a, b) => dist(a, player) - dist(b, player)).slice(0, 2).forEach(c => keep.add(c));
+  return keep;
+}
 function drawLabels(chars) {
-  const placed = [];
+  const placed = [], focus = bubbleFocus(chars);
   const viewL = state.cam.x - cw / (2 * z) + 6, viewR = state.cam.x + cw / (2 * z) - 6;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   for (const c of chars) {
@@ -2582,6 +2666,16 @@ function drawLabels(chars) {
     ctx.fillText(label, p.x + extra / 2, headTop - 8.6);
     const b = c.bubble;
     if (!b || NOW > b.until) continue;
+    if (!focus.has(c)) {
+      // uzaktaki konuşmalar: sadece "konuşuyor" göstergesi
+      const ix = p.x - 9, iy = headTop - 29;
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#FFFFFF"; ctx.fillRect(ix, iy, 18, 10);
+      ctx.beginPath(); ctx.moveTo(p.x - 3, iy + 10); ctx.lineTo(p.x, iy + 13); ctx.lineTo(p.x + 3, iy + 10); ctx.fill();
+      for (let i = 0; i < 3; i++) circle(ix + 4.5 + i * 4.5, iy + 5, 1.2 + (Math.floor(NOW / 300) % 3 === i ? 0.5 : 0), "#0C0C0E");
+      ctx.globalAlpha = 1;
+      continue;
+    }
     ctx.font = "600 11.5px Barlow, system-ui, sans-serif";
     const lines = wrap(b.text, 138);
     const lw = Math.max(...lines.map(l => ctx.measureText(l).width));
@@ -2711,19 +2805,20 @@ function frame(ts) {
     updateCamera(dt);
     updateHud();
     render(ts);
+    if (preview && !$("modal").hidden) renderPreview(ts);
   }
   requestAnimationFrame(frame);
 }
 
 /* ---------- Oyun kurulumu ---------- */
-function buildCast(gender, name) {
+function buildCast(gender, name, look) {
   npcs = []; byId = {};
   for (const id in BASE) {
     const [rm, x, y, sit, face] = START_POS[id];
     const c = mkChar(id, withDefaults(BASE[id]), rm, x, y, { sit, face });
     npcs.push(c); byId[id] = c;
   }
-  player = mkChar("sen", withDefaults(Object.assign({ name, g: gender, likes: [], dislikes: [] }, PLAYER_LOOK[gender])), "havuz", 5, 11, { face: [1, 1], speed: 3.1 });
+  player = mkChar("sen", withDefaults(Object.assign({ name, g: gender, likes: [], dislikes: [] }, look || PLAYER_LOOK[gender])), "havuz", 5, 11, { face: [1, 1], speed: 3.1 });
   byId.sen = player;
   // başlangıç ilişkileri: karakter dokümanındaki haritaya göre
   setChem(byId.bora, byId.nehir, 6); setChem(byId.tolga, byId.defne, 6);
@@ -2733,7 +2828,7 @@ function buildCast(gender, name) {
   newGroup("M", ["kaan", "tolga"]);
   for (const [a, b] of [["nehir", "defne"], ["nehir", "ece"], ["defne", "ece"], ["kaan", "tolga"]]) setChem(byId[a], byId[b], 7);
 }
-function beginGame(gender, name) {
+function beginGame(gender, name, look) {
   state.room = "havuz"; state.day = 1; state.phase = "day";
   state.talked = new Set(); state.chem = new Map(); state.matchOf = {}; state.revealed = new Set(); state.metPlayer = new Set();
   state.immune = new Set(); state.gameDone = false; state.eventDone = false;
@@ -2741,7 +2836,7 @@ function beginGame(gender, name) {
   state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500; state.spots = []; state.hearts = []; state.flyCards = [];
   state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false; state.dancers = [];
   state.nextVisit = NOW + 35000;
-  buildCast(gender, name);
+  buildCast(gender, name, look);
   sendHome(player); player.x = 5; player.y = 6;
   state.room = player.room;
   $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;

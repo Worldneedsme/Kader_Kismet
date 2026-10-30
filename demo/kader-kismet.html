@@ -1,0 +1,2880 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html, body { margin: 0; } body { font-size: 14px; }</style>
+<title>Kader &amp; Kısmet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700&family=Barlow:wght@500;600;700&display=swap">
+<style>
+/* Layout: yayın ekranı gibi tek dikey sütun; üstte canlı yayın künyesi, ortada sahne, altta alt bant ve kontroller */
+:root {
+  --siyah: #0C0C0E;
+  --panel: #151518;
+  --panel-2: #1E1E22;
+  --cizgi: #34343A;
+  --beyaz: #F3F2EE;
+  --gri: #9A9AA2;
+  --fusya: #FF2E7E;
+  --fusya-koyu: #C2185B;
+  --f-baslik: "Anton", "Impact", "Arial Narrow", sans-serif;
+  --f-etiket: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-metin: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kesik: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body {
+  background: var(--siyah);
+  color: var(--beyaz);
+  font-family: var(--f-metin);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  height: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Künye */
+.hud { display: flex; align-items: stretch; gap: 8px; }
+.me { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.portrait {
+  width: 40px; height: 40px; flex: none;
+  background: var(--fusya); color: var(--siyah);
+  display: grid; place-items: center;
+  font: 400 22px var(--f-baslik);
+}
+.me-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.me-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.live {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  padding: 2px 6px; background: var(--fusya); color: var(--beyaz);
+  font: 700 11px/1.2 var(--f-etiket); letter-spacing: .1em; text-transform: uppercase;
+}
+.live i { width: 6px; height: 6px; border-radius: 50%; background: var(--beyaz); animation: blink 1.2s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+.me-name { font: 400 19px/1 var(--f-baslik); text-transform: uppercase; letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-sub { font: 600 13px/1.2 var(--f-etiket); letter-spacing: .06em; text-transform: uppercase; color: var(--gri); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-sub b { color: var(--fusya); font-weight: 700; }
+.me-sub em { color: var(--beyaz); font-style: normal; font-weight: 700; background: var(--fusya-koyu); padding: 0 4px; }
+.gala-btn {
+  flex: none;
+  display: flex; flex-direction: column; justify-content: center; gap: 5px;
+  min-width: 122px;
+  background: var(--panel); border: 2px solid var(--cizgi);
+  padding: 6px 12px;
+  color: var(--beyaz); text-align: left;
+  cursor: not-allowed;
+}
+.gala-title { font: 400 18px/1 var(--f-baslik); text-transform: uppercase; letter-spacing: .03em; }
+.gala-progress { display: flex; align-items: center; gap: 6px; font: 600 12px var(--f-etiket); letter-spacing: .04em; color: var(--gri); font-variant-numeric: tabular-nums; }
+.gala-bar { flex: 1; height: 4px; background: var(--cizgi); overflow: hidden; }
+.gala-bar i { display: block; height: 100%; width: 0; background: var(--beyaz); transition: width .3s ease; }
+.gala-btn.ready { background: var(--fusya); border-color: var(--fusya); cursor: pointer; animation: pulse-edge 1.4s ease-in-out infinite; }
+.gala-btn.ready .gala-progress { color: var(--beyaz); }
+.gala-btn.ready .gala-bar { background: rgba(0, 0, 0, .3); }
+@keyframes pulse-edge { 50% { box-shadow: 0 0 0 3px rgba(255, 46, 126, .35); } }
+
+/* Sahne */
+.stage { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--siyah); border: 2px solid var(--cizgi); }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer; }
+.chip {
+  position: absolute; top: 8px; left: 8px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 14px 4px 8px;
+  background: var(--siyah); color: var(--beyaz);
+  font: 700 13px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase;
+  clip-path: var(--kesik);
+  pointer-events: none;
+}
+.chip i { width: 8px; height: 8px; background: var(--fusya); }
+.timer-chip { top: 36px; background: var(--fusya); font-variant-numeric: tabular-nums; }
+.timer-chip i { background: var(--beyaz); }
+
+/* Alt bant bildirimleri */
+.toasts {
+  position: absolute; left: 8px; right: 8px; top: 64px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  pointer-events: none; z-index: 3;
+}
+.toast {
+  display: flex; align-items: stretch; max-width: 100%; box-sizing: border-box;
+  background: var(--beyaz); color: var(--siyah);
+  font: 600 14px/1.3 var(--f-metin);
+  animation: wipe-in .3s ease;
+}
+.toast::before {
+  content: attr(data-label);
+  flex: none; display: flex; align-items: center;
+  padding: 0 8px; background: var(--siyah); color: var(--beyaz);
+  font: 700 11px var(--f-etiket); letter-spacing: .1em; text-transform: uppercase;
+}
+.toast span { padding: 6px 10px; }
+.toast.good::before, .toast.love::before, .toast.news::before { background: var(--fusya); }
+.toast.bad::before { background: var(--fusya-koyu); }
+.toast b { font-weight: 700; }
+@keyframes wipe-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* Kayan haber bandı */
+.ticker {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26px; z-index: 2;
+  display: flex; align-items: stretch;
+  background: var(--siyah); border-top: 2px solid var(--fusya);
+  font: 600 13px/26px var(--f-etiket); letter-spacing: .05em; text-transform: uppercase;
+  overflow: hidden; pointer-events: none;
+}
+.ticker-label { flex: none; padding: 0 10px; background: var(--fusya); color: var(--beyaz); font-weight: 700; letter-spacing: .1em; }
+.ticker-track { flex: 1; overflow: hidden; white-space: nowrap; position: relative; }
+.ticker-track span { display: inline-block; padding-left: 100%; animation: ticker 28s linear infinite; color: var(--beyaz); }
+@keyframes ticker { to { transform: translateX(-100%); } }
+.fade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 4; }
+.fade.on { opacity: 1; }
+
+/* Açılış kartı ve sinematik altyazılar */
+.title-card {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  padding: 0 24px;
+  background: var(--siyah);
+  opacity: 0; transition: opacity .5s ease; pointer-events: none;
+}
+.title-card.on { opacity: 1; }
+.title-card .eyebrow { align-self: flex-start; background: var(--fusya); color: var(--beyaz); padding: 3px 8px; }
+.title-card h1 { margin: 0; font: 400 58px/.92 var(--f-baslik); text-transform: uppercase; letter-spacing: .005em; color: var(--beyaz); }
+.title-card.on h1 { animation: slide-up .6s ease both; }
+.title-card .rule { width: 64px; height: 6px; background: var(--fusya); }
+.title-card p { margin: 0; font: 600 15px var(--f-etiket); letter-spacing: .12em; text-transform: uppercase; color: var(--gri); }
+@keyframes slide-up { from { transform: translateY(18px); opacity: 0; } }
+.caption {
+  position: absolute; left: 8px; right: 8px; top: 40px; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0;
+  pointer-events: none;
+}
+.cap-main {
+  max-width: 100%; box-sizing: border-box;
+  background: var(--beyaz); color: var(--siyah);
+  padding: 6px 12px; font: 400 22px/1.1 var(--f-baslik); text-transform: uppercase;
+}
+.cap-sub {
+  max-width: 100%; box-sizing: border-box;
+  background: var(--siyah); color: var(--beyaz);
+  padding: 4px 12px; font: 600 14px/1.3 var(--f-etiket); letter-spacing: .05em; text-transform: uppercase;
+}
+.cap-sub:empty { display: none; }
+.cap-in .cap-main, .cap-in .cap-sub { animation: wipe-in .35s ease; }
+.bug {
+  position: absolute; right: 8px; top: 8px; z-index: 1;
+  font: 400 15px/1 var(--f-baslik); text-transform: uppercase; letter-spacing: .02em;
+  color: rgba(243, 242, 238, .88); text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
+  pointer-events: none;
+}
+.bug b { color: var(--fusya); font-weight: 400; margin: 0 3px; }
+.creator { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; }
+.creator canvas { width: 140px; height: 170px; border: 2px solid var(--cizgi); display: block; }
+.creator-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.creator-side .btn { padding: 9px; font-size: 14px; }
+.opt { display: flex; flex-direction: column; gap: 5px; }
+.opt-label { font: 700 12px var(--f-etiket); letter-spacing: .12em; text-transform: uppercase; color: var(--gri); }
+.sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.sw .color { width: 28px; height: 28px; padding: 0; border: 2px solid var(--siyah); box-shadow: 0 0 0 1px var(--cizgi); cursor: pointer; }
+.sw .color[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fusya); }
+.sw .txt { padding: 5px 9px; background: transparent; border: 2px solid var(--cizgi); color: var(--beyaz); font: 700 13px var(--f-etiket); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.sw .txt[aria-pressed="true"] { background: var(--beyaz); border-color: var(--beyaz); color: var(--siyah); }
+.logo { display: flex; align-items: baseline; gap: 6px; font: 400 40px/.9 var(--f-baslik); text-transform: uppercase; letter-spacing: .005em; }
+.logo b { color: var(--fusya); font-weight: 400; }
+.speed-btn {
+  position: absolute; right: 8px; top: 30px; z-index: 3;
+  border: 2px solid var(--beyaz); padding: 3px 10px;
+  background: var(--siyah); color: var(--beyaz);
+  font: 700 12px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+}
+.tally-live {
+  position: absolute; left: 8px; right: 8px; bottom: 34px; z-index: 2;
+  background: var(--siyah); border: 2px solid var(--beyaz);
+  padding: 8px 10px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center;
+  font: 700 14px var(--f-etiket); letter-spacing: .05em; text-transform: uppercase;
+}
+.tally-live .bar { height: 10px; background: var(--panel-2); overflow: hidden; }
+.tally-live .bar i { display: block; height: 100%; width: 0; background: var(--beyaz); transition: width .4s ease; }
+.tally-live .n { font: 400 18px var(--f-baslik); min-width: 1.2em; text-align: right; }
+.tally-live .hot { color: var(--fusya); }
+.tally-live .hot + .bar i { background: var(--fusya); }
+
+/* Konuşma alt bandı */
+.dialog {
+  position: absolute; left: 8px; right: 8px; bottom: 34px;
+  max-height: 72%; overflow: auto; box-sizing: border-box;
+  background: var(--siyah); border: 2px solid var(--beyaz);
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 0 12px 12px;
+  animation: wipe-in .25s ease; z-index: 2;
+}
+.dialog.bordo { border-color: var(--fusya); }
+.dlg-head { display: flex; align-items: stretch; gap: 0; margin: 0 -12px; }
+.dlg-avatar { width: 38px; flex: none; display: grid; place-items: center; font: 400 20px var(--f-baslik); color: var(--siyah); }
+.dlg-who { display: flex; flex-direction: column; justify-content: center; gap: 3px; min-width: 0; flex: 1; padding: 6px 10px; background: var(--beyaz); color: var(--siyah); }
+.dlg-name { font: 400 18px/1 var(--f-baslik); text-transform: uppercase; }
+.dlg-chem { display: flex; align-items: center; gap: 6px; font: 700 12px var(--f-etiket); letter-spacing: .06em; text-transform: uppercase; color: #55555C; }
+.dlg-chem .bar { width: 80px; height: 5px; background: #D6D5D0; overflow: hidden; }
+.dlg-chem .bar i { display: block; height: 100%; background: var(--fusya); transition: width .3s ease; }
+.dlg-chem.trust .bar i { background: var(--siyah); }
+.dlg-leave { border: 0; background: var(--siyah); color: var(--beyaz); font: 700 12px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; padding: 0 12px; }
+.dlg-react { margin: 0; font: 600 13px var(--f-etiket); letter-spacing: .05em; text-transform: uppercase; color: var(--fusya); }
+.dlg-text { margin: 0; font: 500 16px/1.4 var(--f-metin); }
+.dlg-choices { display: flex; flex-direction: column; gap: 6px; }
+.choice {
+  text-align: left; padding: 9px 12px;
+  background: transparent; border: 2px solid var(--cizgi);
+  color: var(--beyaz); font: 600 15px/1.3 var(--f-metin); cursor: pointer;
+}
+.choice:hover { border-color: var(--beyaz); }
+.choice.main { background: var(--fusya); border-color: var(--fusya); color: var(--beyaz); font-family: var(--f-etiket); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Kontroller */
+.chat { display: flex; gap: 6px; }
+.chat input {
+  flex: 1; min-width: 0;
+  background: var(--panel); border: 2px solid var(--cizgi);
+  padding: 9px 12px;
+  color: var(--beyaz); font: 500 15px var(--f-metin);
+}
+.chat input::placeholder { color: var(--gri); }
+.send {
+  flex: none; border: 0; padding: 0 16px;
+  background: var(--beyaz); color: var(--siyah);
+  font: 700 14px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+}
+.actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.act {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--panel); border: 2px solid var(--cizgi);
+  padding: 7px 2px;
+  color: var(--beyaz); font: 700 12px var(--f-etiket); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+  cursor: pointer;
+}
+.act svg { width: 20px; height: 20px; }
+.act:hover { border-color: var(--beyaz); }
+.act.bordo { border-color: var(--fusya); color: var(--fusya); }
+.act:active, .send:active, .choice:active, .btn:active { transform: translateY(1px); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--fusya); outline-offset: 2px; }
+
+/* Pencereler */
+.modal-back {
+  position: fixed; inset: 0; z-index: 10;
+  background: rgba(0, 0, 0, .78);
+  display: grid; place-items: center;
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.modal-back.soft { background: rgba(0, 0, 0, .4); }
+.modal {
+  width: 100%; max-width: 400px; max-height: 100%; overflow: auto; box-sizing: border-box;
+  background: var(--siyah); border: 2px solid var(--beyaz);
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.modal.gold, .modal.bordo { border-color: var(--fusya); }
+.modal h2 { margin: 0; font: 400 30px/1 var(--f-baslik); text-transform: uppercase; text-wrap: balance; }
+.modal p { margin: 0; color: #C9C9CE; font: 500 15px/1.5 var(--f-metin); }
+.modal ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font: 500 15px/1.45 var(--f-metin); }
+.modal ul b { color: var(--fusya); }
+.eyebrow {
+  align-self: flex-start;
+  font: 700 12px var(--f-etiket); letter-spacing: .12em; text-transform: uppercase;
+  background: var(--fusya); color: var(--beyaz); padding: 2px 8px;
+}
+.btn {
+  border: 0; padding: 12px 14px;
+  background: var(--fusya); color: var(--beyaz);
+  font: 700 16px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--beyaz); border: 2px solid var(--cizgi); }
+.btn.ghost:hover { border-color: var(--beyaz); }
+.btn.gold, .btn.bordo { background: var(--fusya); color: var(--beyaz); }
+.btn:disabled { opacity: .4; cursor: default; }
+.field { display: flex; flex-direction: column; gap: 6px; font: 700 12px var(--f-etiket); letter-spacing: .1em; text-transform: uppercase; color: var(--gri); }
+.field input {
+  background: var(--panel); border: 2px solid var(--cizgi);
+  padding: 10px 12px; color: var(--beyaz); font: 600 16px var(--f-metin); text-transform: none; letter-spacing: 0;
+}
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.seg button { padding: 11px; background: transparent; border: 2px solid var(--cizgi); color: var(--beyaz); font: 700 16px var(--f-etiket); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--beyaz); border-color: var(--beyaz); color: var(--siyah); }
+.list { display: flex; flex-direction: column; gap: 4px; }
+.row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--panel); border: 2px solid transparent;
+  font: 400 17px var(--f-baslik); text-transform: uppercase; letter-spacing: .01em; color: var(--beyaz);
+}
+.row .dot { width: 10px; height: 26px; flex: none; }
+.row .grow { flex: 1; min-width: 0; }
+.row small { display: block; font: 600 12px var(--f-etiket); letter-spacing: .05em; color: var(--gri); margin-top: 1px; }
+.row .tag { font: 700 11px var(--f-etiket); letter-spacing: .08em; padding: 2px 6px; background: var(--panel-2); color: var(--gri); white-space: nowrap; }
+.row .tag.ok { background: var(--beyaz); color: var(--siyah); }
+.row .tag.love { background: var(--fusya); color: var(--beyaz); }
+.row .tag.gold { background: transparent; color: var(--fusya); border: 1px solid var(--fusya); }
+.row.pick { cursor: pointer; text-align: left; }
+.row.pick:hover { border-color: var(--fusya); }
+.row.pick:disabled { opacity: .4; cursor: default; }
+.row.win { border-color: var(--fusya); }
+.row .score { min-width: 90px; display: flex; align-items: center; gap: 6px; font: 400 15px var(--f-baslik); font-variant-numeric: tabular-nums; }
+.row .score .bar { flex: 1; height: 6px; background: var(--panel-2); overflow: hidden; }
+.row .score .bar i { display: block; height: 100%; width: 0; background: var(--beyaz); transition: width .8s ease; }
+.row.win .score .bar i { background: var(--fusya); }
+.group-title { font: 700 12px var(--f-etiket); letter-spacing: .14em; text-transform: uppercase; color: var(--gri); margin-top: 4px; border-bottom: 1px solid var(--cizgi); padding-bottom: 3px; }
+.gchip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--panel); font: 700 13px var(--f-etiket); letter-spacing: .05em; text-transform: uppercase; }
+.gchip i { width: 8px; height: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Mini oyunlar */
+.track { position: relative; height: 34px; background: var(--panel); border: 2px solid var(--cizgi); overflow: hidden; }
+.track .zone { position: absolute; top: 0; bottom: 0; background: rgba(243, 242, 238, .16); border-left: 2px solid var(--beyaz); border-right: 2px solid var(--beyaz); }
+.track .marker { position: absolute; top: 3px; bottom: 3px; width: 6px; margin-left: -3px; background: var(--fusya); }
+.rounds { display: flex; gap: 4px; }
+.rounds span { flex: 1; text-align: center; padding: 6px; background: var(--panel); font: 400 16px var(--f-baslik); font-variant-numeric: tabular-nums; }
+.rope { position: relative; height: 14px; background: var(--panel); border: 2px solid var(--cizgi); overflow: hidden; }
+.rope i { position: absolute; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: var(--fusya); left: 50%; transition: left .12s linear; }
+.tap-big { font: 400 30px var(--f-baslik); padding: 20px; letter-spacing: .02em; }
+.big-num { font: 400 48px var(--f-baslik); text-align: center; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  .toast, .dialog, .gala-btn.ready, .cap-in .cap-main, .cap-in .cap-sub, .title-card.on h1, .live i { animation: none; }
+  .ticker-track span { animation: none; padding-left: 0; }
+  .fade, .gala-bar i, .dlg-chem .bar i, .title-card, .tally-live .bar i, .row .score .bar i { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="app" lang="tr">
+  <header class="hud">
+    <div class="me">
+      <div class="portrait" id="portrait" aria-hidden="true">D</div>
+      <div class="me-info">
+        <span class="me-top"><span class="live"><i></i>Canlı</span><span class="me-name" id="me-name">Deniz</span></span>
+        <span class="me-sub" id="me-sub">Gün 1 · Match yok</span>
+      </div>
+    </div>
+    <button class="gala-btn" id="gala-btn" type="button" aria-disabled="true">
+      <span class="gala-title">Gala</span>
+      <span class="gala-progress"><span class="gala-bar"><i id="gala-fill"></i></span><span id="gala-count">0/0</span></span>
+    </button>
+  </header>
+
+  <main class="stage" id="stage">
+    <canvas id="game" aria-label="Villa oyun alanı. Zemine dokunarak yürü, birine dokunarak konuş."></canvas>
+    <div class="chip" id="room-chip"><i></i><span id="room-name">Havuz Başı</span></div>
+    <div class="chip timer-chip" id="timer-chip" hidden></div>
+    <div class="bug" aria-hidden="true">Kader<b>&amp;</b>Kısmet</div>
+    <div class="caption" id="caption" hidden><div class="cap-main" id="cap-main"></div><div class="cap-sub" id="cap-sub"></div></div>
+    <button class="speed-btn" id="speed-btn" type="button" hidden>Hızlandır ×3</button>
+    <div class="tally-live" id="tally-live" hidden></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <div class="ticker" aria-hidden="true"><span class="ticker-label">Villa</span><div class="ticker-track"><span id="ticker-text">Alanya villasında yeni gün · Galaya kadar her kız her erkekle konuşmalı · Bordo Oda hakkın hazır</span></div></div>
+    <div class="dialog" id="dialog" hidden>
+      <div class="dlg-head">
+        <div class="dlg-avatar" id="dlg-avatar">N</div>
+        <div class="dlg-who">
+          <span class="dlg-name" id="dlg-name">Nehir</span>
+          <span class="dlg-chem" id="dlg-chem"><span id="dlg-chem-label">Uyum</span> <span class="bar"><i id="dlg-chem-fill"></i></span> <span id="dlg-chem-val">3/10</span></span>
+        </div>
+        <button class="dlg-leave" id="dlg-leave" type="button">Ayrıl</button>
+      </div>
+      <p class="dlg-react" id="dlg-react" hidden></p>
+      <p class="dlg-text" id="dlg-text"></p>
+      <div class="dlg-choices" id="dlg-choices"></div>
+    </div>
+    <div class="title-card" id="title-card" hidden>
+      <span class="eyebrow" id="tc-eyebrow">Gün 1</span>
+      <h1 id="tc-title">Gala Gecesi</h1>
+      <span class="rule"></span>
+      <p id="tc-sub">Kader &amp; Kısmet</p>
+    </div>
+    <div class="fade" id="fade"></div>
+  </main>
+
+  <form class="chat" id="chat" autocomplete="off">
+    <input id="chat-input" maxlength="80" placeholder="Bir şey söyle..." aria-label="Mesaj">
+    <button class="send" type="submit">Gönder</button>
+  </form>
+
+  <nav class="actions">
+    <button class="act" type="button" id="btn-wave">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6a1.5 1.5 0 0 1 3 0v7a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15.5L3 12a1.5 1.5 0 0 1 2.7-1.2L8 14"/></svg>
+      Selam
+    </button>
+    <button class="act bordo" type="button" id="btn-bordo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M3 21h18"/><path d="M12 15.5s-3.2-1.9-3.2-4a1.7 1.7 0 0 1 3.2-.8 1.7 1.7 0 0 1 3.2.8c0 2.1-3.2 4-3.2 4z" fill="currentColor"/></svg>
+      Bordo Oda
+    </button>
+    <button class="act" type="button" id="btn-map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>
+      Harita
+    </button>
+    <button class="act" type="button" id="btn-house">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg>
+      Evdekiler
+    </button>
+    <button class="act" type="button" id="btn-help">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4"/><path d="M12 16.8v.1"/></svg>
+      Kurallar
+    </button>
+  </nav>
+</div>
+
+<div class="modal-back" id="modal" lang="tr" hidden>
+  <div class="modal" id="modal-body" role="dialog" aria-modal="true"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+document.documentElement.lang = "tr";
+
+/* ---------- Sabitler ---------- */
+const TW = 64, TH = 32, WALL_H = 96;
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Haritalar ----------
+   .  zemin   D kapı    ~ havuz   L şezlong   U şemsiye   T turunç ağacı   P saksı
+   K  masa    C sandalye   B bar tezgâhı   H gala koltuğu   S oy sandığı
+   O  kanepe  V bordo koltuk   R mumlu sehpa                                        */
+const HOUSE_SEAT = () => [0, 1];
+const ROOMS = {
+  havuz: {
+    name: "Havuz Başı", floor: "stone", public: true, entry: [5, 11],
+    map: [
+      "P....D.....P",
+      ".........T..",
+      "D........T..",
+      ".........T..",
+      ".........P..",
+      ".L~~~~~U....",
+      "..~~~~~L....",
+      ".L~~~~~L....",
+      "..~~~~~U....",
+      ".L~~~~~.....",
+      "............",
+      "............",
+      "............",
+      "P....P.....P",
+    ],
+    doors: { "0,2": { to: "kizlar", at: [1, 4], label: "Kızlar Evi" }, "5,0": { to: "erkekler", at: [1, 4], label: "Erkekler Evi" } },
+    windows: { y: [2, 9], x: [6, 9, 12] },
+    loungerBack: { "7,7": 1 },
+    floats: [{ x: 3.6, y: 7.2, c: "#FF6B8B" }, { x: 5.3, y: 5.6, c: "#F2C14E" }],
+  },
+  kizlar: {
+    name: "Kızlar Evi", floor: "wood", public: true, home: "F", entry: [1, 4],
+    map: [
+      "P.BBB...P.",
+      "..........",
+      "..CKC.....",
+      "..........",
+      "D.....OO..",
+      "..........",
+      "..........",
+      "..P.......",
+      "..........",
+      "P.......P.",
+    ],
+    doors: { "0,4": { to: "havuz", at: [1, 2], label: "Havuz Başı" } },
+    windows: { y: [6], x: [1, 7] },
+    lights: true, loungerBack: {}, seatFace: HOUSE_SEAT,
+    wood: ["#CDA683", "#C49C78"],
+    walls: { a: "#F7E6E4", b: "#EBD3D1", base: "#D9B9B6", trim: "#D98E9E", trim2: "#B86F80" },
+    sofa: ["#E07A93", "#B5566F", "#C96680"], chair: ["#F2C14E", "#C99A2E", "#DDAE3C"],
+  },
+  erkekler: {
+    name: "Erkekler Evi", floor: "wood", public: true, home: "M", entry: [1, 4],
+    map: [
+      "P....BBB.P",
+      "..........",
+      "......CKC.",
+      "..........",
+      "D.OO......",
+      "..........",
+      "..........",
+      ".......P..",
+      "..........",
+      "P........P",
+    ],
+    doors: { "0,4": { to: "havuz", at: [5, 1], label: "Havuz Başı" } },
+    windows: { y: [2, 7], x: [7] },
+    lights: true, loungerBack: {}, seatFace: HOUSE_SEAT,
+    wood: ["#8E6A4E", "#86634A"],
+    walls: { a: "#E4EBF2", b: "#CDD7E2", base: "#B3C0CE", trim: "#5B7FA6", trim2: "#46668A" },
+    sofa: ["#4F79A8", "#375A82", "#436A96"], chair: ["#2BB3A3", "#1C8584", "#23A093"],
+  },
+  bordo: {
+    name: "Bordo Oda", floor: "carpet", night: true, entry: [3, 4],
+    map: [
+      ".......",
+      "..V....",
+      ".VR....",
+      ".......",
+      ".......",
+      "D......",
+      ".......",
+    ],
+    doors: { "0,5": { to: null, at: [0, 0], label: "" } },
+    windows: { y: [], x: [] },
+    loungerBack: {},
+    seatFace: (x, y) => (y === 1 ? [0, 1] : [1, 0]),
+    walls: { a: "#5A1424", b: "#46101C", base: "#2E0A12", trim: "#C9A24A", trim2: "#9C7A2E" },
+  },
+  gala: {
+    name: "Gala Salonu", floor: "gala", night: true,
+    map: [
+      "............",
+      "..HHHHHHH...",
+      ".H..........",
+      ".H..........",
+      ".H..........",
+      ".H..........",
+      ".H....S.....",
+      ".H..........",
+      ".H..........",
+      "............",
+      "D...........",
+      "............",
+    ],
+    doors: { "0,10": { to: null, at: [0, 0], label: "Çıkış" } },
+    windows: { y: [], x: [] },
+    loungerBack: {},
+    seatFace: (x, y) => (y === 1 ? [0, 1] : [1, 0]),
+    walls: { a: "#2B2F55", b: "#232747", base: "#1B1E38", trim: "#C9A24A", trim2: "#9C7A2E" },
+  },
+};
+for (const id in ROOMS) {
+  const r = ROOMS[id];
+  r.id = id; r.h = r.map.length; r.w = r.map[0].length;
+  r.objects = [];
+  for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
+    const ch = r.map[y][x];
+    if ("LUTPKCBHSOVR".includes(ch)) r.objects.push({ x, y, k: ch });
+  }
+}
+const WALK = new Set([".", "D"]);
+const SIT = new Set(["L", "C", "H", "O", "V"]);
+const BORDO_SEATS = { host: [2, 1], guest: [1, 2] };
+const homeOf = c => (c.def.g === "F" ? "kizlar" : "erkekler");
+const otherHouse = c => (c.def.g === "F" ? "erkekler" : "kizlar");
+const VISIT_MS = 90000, BORDO_MS = 45000;
+const tileAt = (r, x, y) => (x < 0 || y < 0 || x >= r.w || y >= r.h) ? null : r.map[y][x];
+const GALA_SEATS = { F: [[2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1]], M: [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8]] };
+const SANDIK = { x: 6, y: 6, stand: [6, 7] };
+
+/* ---------- İçerik ---------- */
+const QUESTIONS = [
+  { q: "Villaya alışabildin mi?", a: [["Alıştım, özellikle seni görünce.", "flort"], ["Açıkçası biraz gerginim, herkes çok net.", "durust"], ["Havuz, güneş, müzik... Tatil gibi!", "eglence"]] },
+  { q: "Burada ne arıyorsun sence?", a: [["Gerçekten birini tanımak istiyorum.", "derin"], ["Sonuna kadar kalmak. Bir planım var.", "strateji"], ["Akışına bırakıyorum, bakalım.", "eglence"]] },
+  { q: "Galada kimin yanında duracaksın?", a: [["Senin, eğer sen de istersen.", "flort"], ["Bana dürüst olanın.", "durust"], ["Henüz karar vermedim, herkesi tanıyorum.", "strateji"]] },
+  { q: "Hayatında seni en çok ne değiştirdi?", a: [["Bir kayıp. O günden beri her şeye başka bakıyorum.", "derin"], ["Hiçbir şey, ben hep aynıyım!", "eglence"], ["Yanıldığımı kabul etmeyi öğrenmek.", "durust"]] },
+  { q: "Evde kime güveniyorsun?", a: [["Şu an sadece kendime.", "strateji"], ["Sana güvenmek isterim.", "flort"], ["Tam olarak kimseye, ama herkese şans veriyorum.", "durust"]] },
+  { q: "Bu akşam ne yapalım?", a: [["Terasta oturup sadece konuşalım.", "derin"], ["Havuza atlayalım, kim önce!", "eglence"], ["Biraz sen, biraz ben. Gün batımı bizim.", "flort"]] },
+  { q: "Sence burada kim oyun oynuyor?", a: [["Herkes biraz oynuyor, ben de.", "strateji"], ["Bilmiyorum, dedikoduya girmem.", "durust"], ["Sen mi yoksa? Gözlerinden belli.", "flort"]] },
+  { q: "İlk buluşmada nereye giderdin?", a: [["Sahilde yürüyüş, sadece ikimiz.", "flort"], ["Kalabalık bir konsere!", "eglence"], ["Sakin bir yerde uzun bir yemek.", "derin"]] },
+  { q: "Kıskanç biri misin?", a: [["Biraz, saklamayacağım.", "durust"], ["Hayır, ama gözüm açıktır.", "strateji"], ["Sen yanımdaysan neden kıskanayım?", "flort"]] },
+  { q: "Burada en çok neyi özledin?", a: [["Ailemi.", "derin"], ["Telefonumu, haha!", "eglence"], ["Kendime ait bir köşeyi.", "durust"]] },
+  { q: "Galadan sonra ne olacak sence?", a: [["Ne olursa olsun, seni tanımaya devam etmek istiyorum.", "flort"], ["Kimse emin olamaz, plan önemli.", "strateji"], ["Birileri ağlayacak, orası kesin.", "eglence"]] },
+  { q: "Sana yalan söylesem anlar mısın?", a: [["Anlarım ve affetmem.", "durust"], ["Gözlerinden anlarım.", "flort"], ["Belki anlarım, belki anlamam. Oyun bu.", "strateji"]] },
+];
+const TRUST_QUESTIONS = [
+  { q: "Bu evde sırtını kime dayıyorsun?", a: [["Kimseye, ama sana şans vermeye hazırım.", "durust"], ["Güçlü olanın yanında dururum.", "strateji"], ["Bilmem, eğlenceli kim varsa!", "eglence"]] },
+  { q: "Galada oyları birlikte mi verelim?", a: [["Olur, plan yapalım.", "strateji"], ["Önce birbirimizi tanıyalım.", "derin"], ["Oy kalpten verilir, plandan değil.", "flort"]] },
+  { q: "Sence karşı takımda kim tehlikeli?", a: [["Fazla planlı olanlar.", "durust"], ["Söylemem... tamam, söylerim, ama aramızda.", "eglence"], ["Herkes. Kartlarımızı iyi oynamalıyız.", "strateji"]] },
+  { q: "Bir sırrını benimle paylaşır mısın?", a: [["Bazen burada çok yalnız hissediyorum.", "derin"], ["Sırrım yok, açık kitabım.", "durust"], ["Sırlarımı galadan sonra anlatırım.", "strateji"]] },
+  { q: "Biri seni arkadan vursa ne yaparsın?", a: [["Yüzüne söylerim.", "durust"], ["Unutmam. Zamanı gelince öderim.", "strateji"], ["Gülüp geçerim, hayat kısa.", "eglence"]] },
+  { q: "Akşam ekip olarak ne yapalım?", a: [["Havuz başında müzik, dans!", "eglence"], ["Terasta uzun bir sohbet.", "derin"], ["Kimin kime oy vereceğini konuşalım.", "strateji"]] },
+  { q: "Match'in olsa bile bize sadık kalır mısın?", a: [["Arkadaşlık her şeyden önce gelir.", "durust"], ["Kalbim nereye derse...", "flort"], ["Duruma göre, oyun bu.", "strateji"]] },
+];
+const SMALLTALK = [
+  ["Nasıl gidiyor, alışabildin mi?", "Yavaş yavaş. Sen?", "Ben seni tanımak için buradayım."],
+  ["Bu akşam havuz başında oturalım mı?", "Olabilir, bakarız.", "Bakarız mı? Peki."],
+  ["Seninle konuşmak iyi geliyor.", "Bana da, itiraf edeyim.", "O zaman galada görüşürüz."],
+  ["Bana karşı dürüst ol, tamam mı?", "Her zaman.", "Göreceğiz."],
+  ["Galada kimin yanında olacaksın?", "Henüz bilmiyorum.", "Bence biliyorsun."],
+  ["Havuzda seni izledim, iyi yüzüyorsun.", "Sen de iyi izliyorsun.", "Haha, yakalandım."],
+  ["Dün gece neden erken kalktın masadan?", "Yoruldum sadece.", "Emin misin?"],
+  ["Sabah kahveni ben yapayım mı?", "Şekersiz, unutma.", "Unutmam, not aldım."],
+  ["Oyunda iyiydin bugün.", "Sen de fena değildin.", "Bir dahaki sefere aynı takım?"],
+  ["Bazen seni anlamıyorum.", "Sormak yeter.", "Peki, soruyorum: ne düşünüyorsun?"],
+];
+const BORDO_QUESTIONS = [
+  { q: "Burada kimse bizi duymuyor. Bana gerçekten ne hissediyorsun?", a: [["Seni ilk gördüğüm andan beri aklımdasın.", "flort"], ["Henüz emin değilim ama merak ediyorum.", "durust"], ["Bunu galadan sonra konuşalım.", "strateji"]] },
+  { q: "Neden beni seçtin?", a: [["Çünkü seninle konuşurken zaman duruyor.", "flort"], ["Seninle derin bir şey paylaşabileceğimi hissettim.", "derin"], ["Galada yanımda olmanı istiyorum.", "strateji"]] },
+  { q: "Evde biri senin hakkında konuşuyor. Bilmek ister misin?", a: [["Hayır, ben sana inanıyorum.", "durust"], ["Tabii, her şeyi bilmek isterim.", "strateji"], ["Boş ver, şu an sadece biz varız.", "flort"]] },
+  { q: "Bu oda bitince ne olacak sence?", a: [["Herkes dedikodu yapacak, haha!", "eglence"], ["Bir şey değişecek, hissediyorum.", "derin"], ["Hiçbir şey, bu aramızda kalacak.", "durust"]] },
+  { q: "Bir sırrını söyle, ben de söyleyeyim.", a: [["Bazen kendimi burada çok yalnız hissediyorum.", "derin"], ["Sırrım şu: seni kıskanıyorum.", "flort"], ["Sır vermem, ama seninle başka.", "strateji"]] },
+];
+const BORDO_TALK = [
+  ["Buraya seni neden çağırdığımı biliyorsun.", "Tahmin ediyorum...", "O zaman söyle bakalım."],
+  ["Evde herkes bizi konuşacak.", "Konuşsunlar.", "Sen hiç böyle değildin."],
+  ["Seninle baş başa kalmak istedim.", "Ben de bunu bekliyordum.", "Süremiz az, iyi kullanalım."],
+  ["Bana karşı açık ol.", "Her zaman öyleydim.", "Güzel. Ben de öyle olacağım."],
+];
+const MEET_LINES = ["Hoş geldin, ben {n}.", "Selam, ben {n}. Memnun oldum.", "Hoş geldin! {n} ben."];
+
+/* ---------- Karakterler ---------- */
+const BASE = {
+  nehir: { name: "Nehir", g: "F", skin: "#C99A76", hair: "#3B2418", hs: "wavy", top: "#F3E9DC", bottom: "#2BB3A3", legs: "shorts", shoe: "#C46A3D", blush: true,
+    likes: ["durust", "derin"], dislikes: ["strateji"],
+    open: "Selam! Seninle konuşmayı bekliyordum.",
+    like: ["Bunu duymak güzel.", "Tam da böyle birini arıyordum."], neutral: ["Hmm, anladım.", "Olabilir."], dislike: ["Bu biraz hesaplı geldi bana.", "Emin değilim..."],
+    talk: ["Burada herkes bir şey saklıyor gibi.", "Seramik atölyemi özledim."], bye: "Kısa ama güzeldi. Hepinizi özleyeceğim." },
+  selin: { name: "Selin", g: "F", skin: "#E0B48F", hair: "#17120F", hs: "long", top: "#4A3A5E", bottom: "#4A3A5E", legs: "dress", shoe: "#17120F",
+    likes: ["strateji", "durust"], dislikes: ["flort"],
+    open: "Konuşalım. Ama kısa ve net.",
+    like: ["Net. Sevdim.", "Bunu aklımda tutacağım."], neutral: ["Peki.", "Anladım."], dislike: ["Bu replikleri başkasına sakla.", "Ciddi misin?"],
+    talk: ["Ben beklemem.", "Burada kimseye borcum yok."], bye: "Oyunu oynadım, kaybettim. Saygı duyuyorum." },
+  defne: { name: "Defne", g: "F", skin: "#EBC3A0", hair: "#B5562B", hs: "bun", top: "#F2C14E", bottom: "#2B4C7E", legs: "shorts", shoe: "#FFFFFF", blush: true,
+    likes: ["eglence", "flort"], dislikes: ["derin"],
+    open: "Durun durun, sonunda sen! Anlat bakalım!",
+    like: ["Aaa bayıldım!", "Bunu herkese anlatacağım!"], neutral: ["Hmm, tamam.", "Peki peki."], dislike: ["Ay çok ciddisin...", "Biraz eğlen ya!"],
+    talk: ["Durun durun, size bir şey anlatmam lazım!", "Ben bir şey demedim ama... herkes biliyor."], bye: "Podcast'te hepinizi anlatacağım, haberiniz olsun!" },
+  ece: { name: "Ece", g: "F", skin: "#D8A784", hair: "#5A3A24", hs: "pony", top: "#E4572E", bottom: "#F3E9DC", legs: "pants", shoe: "#2A2420",
+    likes: ["durust"], dislikes: ["flort", "strateji"],
+    open: "Merhaba. Lafı dolandırmadan konuşalım.",
+    like: ["Dürüstlüğün için teşekkürler.", "İşte bu, açık konuş."], neutral: ["Tamam.", "Anladım."], dislike: ["Yüzüme karşı oynama.", "Bu bana göre değil."],
+    talk: ["Yüzüme söyle, arkamdan değil.", "Dedikoduyla insan harcanmaz."], bye: "En azından kimseye yalan söylemedim." },
+  bora: { name: "Bora", g: "M", skin: "#B98463", hair: "#2A1D14", hs: "short", top: "#2D5D7B", bottom: "#E8DCC6", legs: "shorts", shoe: "#F3E9DC",
+    likes: ["eglence", "flort"], dislikes: ["derin"],
+    open: "Hey! Gel, otur biraz.",
+    like: ["Haha, işte bu!", "Seninle iyi anlaşacağız."], neutral: ["Bakarız.", "Olabilir."], dislike: ["Çok ağır oldu bu...", "Biraz rahatla bence."],
+    talk: ["Aramızda yelken bilen var mı?", "Acele etmeyelim, daha yeni başladık."], bye: "Rüzgâr bu sefer ters esti. Görüşürüz!" },
+  kaan: { name: "Kaan", g: "M", skin: "#A8724F", hair: "#1A1410", hs: "buzz", top: "#7A8B5A", bottom: "#2B2F3A", legs: "pants", shoe: "#2A2420", beard: true,
+    likes: ["derin", "durust"], dislikes: ["eglence"],
+    open: "Gel bakalım. Nasılsın, gerçekten?",
+    like: ["İşte böyle konuşmayı severim.", "Sende bir derinlik var."], neutral: ["Hı hı.", "Olabilir."], dislike: ["Her şeyi şakaya vurma.", "Biraz ciddi ol."],
+    talk: ["Herkesin bir hikâyesi var.", "Sakin ol, her şey yoluna girer."], bye: "Herkesin bir hikâyesi var. Benimki burada bitti." },
+  tolga: { name: "Tolga", g: "M", skin: "#D2A07D", hair: "#3A2A20", hs: "short", top: "#FFFFFF", bottom: "#5B6B8A", legs: "pants", shoe: "#6B412A",
+    likes: ["strateji", "eglence"], dislikes: ["derin"],
+    open: "Selam! Planını merak ediyorum.",
+    like: ["Sen bu işi biliyorsun.", "Haha, sevdim seni."], neutral: ["Mantıklı.", "Olabilir."], dislike: ["Felsefeye gerek yok.", "Çok ağır oldu bu."],
+    talk: ["Oyun değil bu, ama kurallarını bilmek lazım.", "Herkesin bir planı var."], bye: "Bu sefer yarım bıraktığım için değil, oyun böyle." },
+  arda: { name: "Arda", g: "M", skin: "#B07A55", hair: "#2A1C12", hs: "curly", top: "#2BB3A3", bottom: "#3B3B3B", legs: "pants", shoe: "#F3E9DC",
+    likes: ["derin", "flort"], dislikes: ["eglence"],
+    open: "Ah... selam. Konuşmak ister misin?",
+    like: ["Bunu söylemen... çok güzel.", "Ben de aynı şeyi düşünüyordum."], neutral: ["Belki.", "Hmm."], dislike: ["Pek bana göre değil.", "Anladım..."],
+    talk: ["Bazı şeyler söylenince bozuluyor.", "Deniz bu saatte en güzel hâlinde."], bye: "Deniz hep burada olacak. Ben gidiyorum." },
+};
+const NEWCOMERS = {
+  F: [
+    { name: "Lara", skin: "#E2B896", hair: "#C9A15A", hs: "long", top: "#B04A7A", bottom: "#1E2A3A", legs: "pants", likes: ["eglence", "strateji"], dislikes: ["durust"], open: "Merhaba! Ben yeniyim, beni tanımak ister misin?" },
+    { name: "Ceren", skin: "#C48E6A", hair: "#2B1A12", hs: "bun", top: "#6C8EBF", bottom: "#F3E9DC", legs: "shorts", likes: ["derin", "durust"], dislikes: ["eglence"], open: "Selam. Dışarıdan izlerken hep seninle konuşmak istemiştim." },
+    { name: "Melis", skin: "#EAC7A8", hair: "#7A3B1E", hs: "pony", top: "#3F7D5C", bottom: "#2B2F3A", legs: "pants", likes: ["flort", "eglence"], dislikes: ["strateji"], open: "Hey! Sonunda tanışıyoruz." },
+  ],
+  M: [
+    { name: "Mert", skin: "#C99470", hair: "#2A1D14", hs: "short", top: "#B5452E", bottom: "#E8DCC6", legs: "shorts", likes: ["flort", "eglence"], dislikes: ["derin"], open: "Selam! Yeni geldim, ilk sen konuş istedim." },
+    { name: "Emre", skin: "#A06A48", hair: "#151010", hs: "curly", top: "#F3E9DC", bottom: "#2B4C7E", legs: "pants", likes: ["durust", "strateji"], dislikes: ["flort"], open: "Merhaba. Açık konuşayım, seni merak ediyordum." },
+    { name: "Can", skin: "#D9AA86", hair: "#3B2A1C", hs: "buzz", top: "#2B2F3A", bottom: "#7A8B5A", legs: "pants", beard: true, likes: ["derin", "flort"], dislikes: ["strateji"], open: "Selam. Biraz konuşalım mı?" },
+  ],
+};
+const GENERIC = {
+  like: ["Bunu sevdim.", "Güzel cevap."], neutral: ["Anladım.", "Olabilir."], dislike: ["Hmm, emin değilim.", "Pek bana göre değil."],
+  talk: ["Yeni geldim, herkesi tanımaya çalışıyorum.", "Villa göründüğünden daha hareketli."],
+  bye: "Kısa sürdü ama değdi. Hoşça kalın!",
+  greet: ["Selam!", "Hey, merhaba."], replies: ["Haha, olabilir.", "Anlıyorum.", "Bunu aklımda tutacağım."],
+  shoe: "#2A2420",
+};
+const withDefaults = d => Object.assign({}, GENERIC, d);
+const PLAYER_LOOK = {
+  F: { skin: "#CFA07E", hair: "#3A2418", hs: "long", top: "#FF2E7E", bottom: "#1E1E22", legs: "shorts", shoe: "#F3E9DC", blush: true },
+  M: { skin: "#C7976F", hair: "#4A2F1F", hs: "short", top: "#FF2E7E", bottom: "#1E1E22", legs: "pants", shoe: "#F3E9DC" },
+};
+const START_POS = {
+  nehir: ["havuz", 7, 6, true, [0, 1]], selin: ["havuz", 10, 2, false, [1, 1]],
+  defne: ["kizlar", 4, 6, false, [1, 0]], ece: ["kizlar", 2, 2, true, [1, 0]],
+  bora: ["havuz", 9, 8, false, [-1, 0]], arda: ["havuz", 3, 11, false, [1, 0]],
+  kaan: ["erkekler", 4, 6, false, [1, 1]], tolga: ["erkekler", 8, 2, true, [-1, 0]],
+};
+const GROUP_NAMES = { F: ["Havuz Kızları", "Gün Batımı", "Kum Saati"], M: ["Teras Ekibi", "İskele Çetesi", "Rüzgâr Ekibi"] };
+const GROUP_COLORS = { F: ["#FF6B8B", "#B48CFF", "#F2C14E"], M: ["#4FA3FF", "#E9C46A", "#7AD3A0"] };
+
+function mkChar(id, def, room, x, y, o = {}) {
+  const c = { id, def, room, x, y, path: [], speed: o.speed || 2.2, right: true, front: true, sit: !!o.sit, walkT: 0, moving: false,
+    bubble: null, mode: "idle", task: null, chat: null, after: null, hold: 0, nextWander: 3000 + Math.random() * 4000,
+    nextAmbient: 12000 + Math.random() * 12000, talkI: 0, arrivedDay: o.arrivedDay || 0, seed: Math.random() * 10, alpha: 1, onArrive: null };
+  if (o.face) setFace(c, o.face[0], o.face[1]);
+  return c;
+}
+function setFace(c, dx, dy) {
+  if (Math.abs(dx) < 1e-4 && Math.abs(dy) < 1e-4) return;
+  c.right = (dx - dy) >= -1e-4;
+  if (Math.abs(dx + dy) > 1e-3) c.front = (dx + dy) > 0;
+}
+
+/* ---------- Durum ---------- */
+let NOW = 0;
+let player, npcs = [], byId = {};
+const state = {
+  room: "havuz", day: 1, phase: "start",
+  talked: new Set(), chem: new Map(), matchOf: {}, revealed: new Set(), metPlayer: new Set(),
+  groups: [], immune: new Set(), gameDone: false, eventDone: false,
+  visit: null, nextVisit: 0, timer: null, bordoUsed: false, bordoInviteDone: false, bordoNpcDone: false, dancers: [],
+  cam: { x: 0, y: 0, follow: true }, camFocus: null, hover: null, target: null,
+  pool: { F: [], M: [] }, nextSchedule: 0, galaReadyShown: false,
+  spots: [], hearts: [], flyCards: [],
+};
+const room = () => ROOMS[state.room];
+const house = () => npcs.concat(player);
+const pairKey = (a, b) => (a < b ? a + "|" + b : b + "|" + a);
+const talked = (a, b) => state.talked.has(pairKey(a.id, b.id));
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const later = (ms, fn) => setTimeout(fn, ms);
+const nm = c => (c === player ? c.def.name + " (sen)" : c.def.name);
+
+function getChem(a, b) {
+  const k = pairKey(a.id, b.id);
+  if (!state.chem.has(k)) {
+    let v;
+    if (a === player || b === player) v = 3;
+    else {
+      const overlap = a.def.likes.filter(t => b.def.likes.includes(t)).length;
+      v = Math.min(8, 2 + overlap * 2 + Math.floor(Math.random() * 3));
+    }
+    state.chem.set(k, v);
+  }
+  return state.chem.get(k);
+}
+function setChem(a, b, v) { state.chem.set(pairKey(a.id, b.id), Math.max(0, Math.min(10, Math.round(v)))); }
+function unmatch(id) { const m = state.matchOf[id]; if (!m) return; delete state.matchOf[id]; delete state.matchOf[m]; }
+function makeMatch(a, b) {
+  for (const c of [a, b]) {
+    const old = state.matchOf[c.id];
+    if (old && old !== (c === a ? b.id : a.id)) {
+      if (c === player) toast(byId[old].def.name + " ile match'in bitti.", "bad");
+      unmatch(c.id);
+    }
+  }
+  state.matchOf[a.id] = b.id; state.matchOf[b.id] = a.id;
+  if (a === player || b === player) toast((a === player ? b : a).def.name + " ile match oldun!", "love");
+  updateHud(true);
+}
+function shownMatch(c) {
+  const m = state.matchOf[c.id];
+  if (!m) return false;
+  if (c === player || m === player.id) return true;
+  return state.revealed.has(pairKey(c.id, m));
+}
+function housePairs() {
+  const h = house(), out = [];
+  for (const a of h) for (const b of h) if (a.def.g === "F" && b.def.g === "M") out.push([a, b]);
+  return out;
+}
+function talkProgress() {
+  const p = housePairs();
+  return { done: p.filter(([a, b]) => talked(a, b)).length, total: p.length };
+}
+
+/* ---------- Gruplar ---------- */
+const groupOf = id => state.groups.find(g => g.members.includes(id)) || null;
+function newGroup(g, members) {
+  const used = state.groups.filter(x => x.g === g).map(x => x.name);
+  const i = GROUP_NAMES[g].findIndex(n => !used.includes(n));
+  const idx = i < 0 ? used.length : i;
+  const gr = { g, name: GROUP_NAMES[g][idx] || ("Grup " + (idx + 1)), color: GROUP_COLORS[g][idx % 3], members: members.slice(), target: null };
+  state.groups.push(gr);
+  return gr;
+}
+function leaveGroup(id) {
+  const gr = groupOf(id);
+  if (!gr) return;
+  gr.members = gr.members.filter(m => m !== id);
+  if (gr.members.length < 2) state.groups = state.groups.filter(x => x !== gr);
+}
+function joinGroup(id, gr) { leaveGroup(id); if (!state.groups.includes(gr)) state.groups.push(gr); if (!gr.members.includes(id)) gr.members.push(id); }
+
+/* ---------- Canvas ---------- */
+const stage = document.getElementById("stage");
+const canvas = document.getElementById("game");
+let ctx = canvas.getContext("2d");
+let cw = 0, ch = 0, dpr = 1, z = 1;
+function resize() {
+  const r = stage.getBoundingClientRect();
+  cw = Math.max(1, r.width); ch = Math.max(1, r.height);
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  z = Math.max(48, Math.min(80, cw / 7)) / TW;
+}
+new ResizeObserver(resize).observe(stage);
+resize();
+
+const iso = (x, y) => ({ x: (x - y) * TW / 2, y: (x + y) * TH / 2 });
+function screenToWorld(px, py) {
+  const bx = (px - cw / 2) / z + state.cam.x;
+  const by = (py - ch / 2) / z + state.cam.y;
+  return { bx, by, wx: (bx / (TW / 2) + by / (TH / 2)) / 2, wy: (by / (TH / 2) - bx / (TW / 2)) / 2 };
+}
+
+/* ---------- Yol bulma (Dijkstra, 8 yön, köşe kesmeden) ---------- */
+function findPath(r, sx, sy, isGoal) {
+  const W = r.w, H = r.h, N = W * H;
+  if (sx < 0 || sy < 0 || sx >= W || sy >= H) return null;
+  const walk = (x, y) => WALK.has(tileAt(r, x, y));
+  const dist = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), done = new Uint8Array(N);
+  const s = sy * W + sx;
+  dist[s] = 0;
+  for (;;) {
+    let u = -1, best = Infinity;
+    for (let i = 0; i < N; i++) if (!done[i] && dist[i] < best) { best = dist[i]; u = i; }
+    if (u < 0) return null;
+    done[u] = 1;
+    const ux = u % W, uy = (u / W) | 0;
+    if (isGoal(ux, uy)) {
+      const out = [];
+      for (let v = u; v !== s; v = prev[v]) out.push([v % W, (v / W) | 0]);
+      return out.reverse();
+    }
+    if (u !== s && !walk(ux, uy)) continue;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (!dx && !dy) continue;
+      const nx = ux + dx, ny = uy + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      if (!walk(nx, ny) && !isGoal(nx, ny)) continue;
+      if (dx && dy && (!walk(ux + dx, uy) || !walk(ux, uy + dy))) continue;
+      const v = ny * W + nx, nd = dist[u] + (dx && dy ? 1.414 : 1);
+      if (nd < dist[v]) { dist[v] = nd; prev[v] = u; }
+    }
+  }
+}
+const nearGoal = (r, tx, ty) => (x, y) => Math.max(Math.abs(x - tx), Math.abs(y - ty)) === 1 && tileAt(r, x, y) === ".";
+function seatTaken(roomId, x, y, except) {
+  return house().some(c => c !== except && c.room === roomId && ((c.sit && Math.round(c.x) === x && Math.round(c.y) === y) || (c.after && c.after.x === x && c.after.y === y)));
+}
+
+/* ---------- Balonlar, UI yardımcıları ---------- */
+const cine = () => state.phase === "gala" || state.phase === "ceremony";
+function say(c, text, ms = 3200, alert = false) { c.bubble = { text, until: NOW + ms / (cine() ? speed : 1), alert }; }
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[m]));
+const TOAST_LABEL = { good: "Villa", bad: "Dikkat", love: "Kalp", news: "Son dakika", "": "Bilgi" };
+const feed = [];
+function toast(text, kind = "", ms = 3600, html = false) {
+  const el = document.createElement("div");
+  el.className = "toast " + kind;
+  el.dataset.label = TOAST_LABEL[kind] || "Bilgi";
+  const span = document.createElement("span");
+  if (html) span.innerHTML = text; else span.textContent = text;
+  el.appendChild(span);
+  if (kind) {
+    feed.push((html ? span.textContent : text).replace(/\s+/g, " "));
+    if (feed.length > 6) feed.shift();
+    $("ticker-text").textContent = feed.slice().reverse().join("   ·   ");
+  }
+  $("toasts").appendChild(el);
+  setTimeout(() => el.remove(), ms);
+  const all = $("toasts").children;
+  if (all.length > 3) all[0].remove();
+}
+let lastHud = "";
+function updateHud(force) {
+  const { done, total } = talkProgress();
+  const m = state.matchOf[player.id], gr = groupOf(player.id), imm = state.immune.has(player.id);
+  const sig = [done, total, m, state.day, state.phase, player.def.name, gr && gr.name, imm, state.gameDone].join(",");
+  if (sig === lastHud && !force) return;
+  lastHud = sig;
+  $("me-name").textContent = player.def.name;
+  $("portrait").textContent = player.def.name.slice(0, 1).toLocaleUpperCase("tr");
+  $("me-sub").innerHTML = "Gün " + state.day + " · " + (m && byId[m] ? "Match: <b>" + esc(byId[m].def.name) + "</b>" : "Match yok") + (imm ? " · <em>Dokunulmaz</em>" : "");
+  $("gala-count").textContent = done + "/" + total;
+  $("gala-fill").style.width = (total ? done / total * 100 : 0) + "%";
+  const ready = done === total && total > 0 && state.phase === "day" && state.gameDone;
+  $("gala-btn").classList.toggle("ready", ready);
+  $("gala-btn").setAttribute("aria-disabled", String(!ready));
+  if (ready && !state.galaReadyShown) { state.galaReadyShown = true; toast("Herkes konuştu. Gala hazır!", "good"); }
+}
+
+/* ---------- Oyuncu hareketi ---------- */
+function goTo(isGoal, action) {
+  const r = room();
+  const sx = Math.round(player.x), sy = Math.round(player.y);
+  const p = findPath(r, sx, sy, isGoal);
+  if (!p) { toast("Oraya yol yok."); return false; }
+  player.sit = false;
+  player.x = sx; player.y = sy;
+  player.path = p; player.action = action || null;
+  const end = p.length ? p[p.length - 1] : [sx, sy];
+  state.target = { x: end[0], y: end[1] };
+  state.cam.follow = true;
+  if (!p.length) playerArrive();
+  return true;
+}
+function playerArrive() {
+  state.target = null;
+  const a = player.action; player.action = null;
+  if (!a) return;
+  if (a.type === "sit") sitDown(player, a.x, a.y);
+  else if (a.type === "door") { if (canEnter(player, a.door.to)) changeRoom(a.door.to, a.door.at); }
+  else if (a.type === "talk") {
+    const n = a.npc;
+    setFace(player, n.x - player.x, n.y - player.y);
+    if (!npcs.includes(n) || n.room !== state.room || dist(player, n) > 2 || n.mode === "chat" || n.mode === "meet") {
+      n.hold = 0;
+      toast(n.def.name + " şu an müsait değil.");
+      return;
+    }
+    openDialog(n);
+  }
+}
+function sitDown(c, x, y) {
+  const r = ROOMS[c.room], k = tileAt(r, x, y);
+  c.x = x; c.y = y; c.sit = true; c.path = [];
+  if (k === "L") { const back = r.loungerBack[x + "," + y] || -1; setFace(c, 0, -back); }
+  else if (k === "H" || k === "O" || k === "V") { const [fx, fy] = r.seatFace(x, y); setFace(c, fx, fy); }
+  else for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { setFace(c, dx, dy); break; }
+}
+function changeRoom(to, at) {
+  if (!to) return;
+  const f = $("fade");
+  f.classList.add("on");
+  setTimeout(() => {
+    state.room = to;
+    player.room = to; player.x = at[0]; player.y = at[1]; player.path = []; player.sit = false; player.bubble = null;
+    state.target = null; state.hover = null; state.cam.follow = true;
+    snapCamera();
+    $("room-name").textContent = ROOMS[to].name;
+    f.classList.remove("on");
+  }, 300);
+}
+function nearestTalker(maxD) {
+  let best = null, bd = maxD;
+  for (const n of npcs) {
+    if (n.room !== state.room || n.mode === "chat") continue;
+    const d = dist(n, player);
+    if (d < bd) { bd = d; best = n; }
+  }
+  return best;
+}
+function playerSays(text) {
+  const filtered = text.replace(/(\+?\d[\d\s-]{6,}\d)|(@[\w.]+)|\b(instagram|insta|whatsapp|telegram)\b/gi, "***");
+  if (filtered !== text) toast("İletişim bilgisi paylaşımı engellendi.", "bad");
+  say(player, filtered, 3600);
+  const n = nearestTalker(3.3);
+  if (!n) return;
+  const greet = /\b(selam|merhaba|hey|naber|slm)\b/i.test(text);
+  later(900, () => { setFace(n, player.x - n.x, player.y - n.y); say(n, pick(greet ? n.def.greet : n.def.replies), 3200); });
+}
+
+/* ---------- Konuşma (oyuncu ↔ yarışmacı) ---------- */
+let dlg = null;
+function showDlg(react, text, choices) {
+  $("dlg-react").hidden = !react;
+  $("dlg-react").textContent = react || "";
+  $("dlg-text").textContent = text;
+  const box = $("dlg-choices");
+  box.innerHTML = "";
+  choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "choice" + (c.main ? " main" : "");
+    b.textContent = c.label;
+    b.addEventListener("click", c.fn);
+    box.appendChild(b);
+    if (i === 0) setTimeout(() => b.focus({ preventScroll: true }), 0);
+  });
+  refreshChem();
+}
+function refreshChem() {
+  if (!dlg) return;
+  const v = getChem(player, dlg.n);
+  $("dlg-chem").classList.toggle("trust", !dlg.opposite);
+  $("dlg-chem-label").textContent = dlg.opposite ? "Uyum" : "Güven";
+  $("dlg-chem-fill").style.width = v * 10 + "%";
+  $("dlg-chem-val").textContent = v + "/10";
+}
+const okBtn = () => [{ label: "Görüşürüz", fn: closeDialog, main: true }];
+function openDialog(n, opts = {}) {
+  const bordo = !!opts.bordo;
+  const opposite = bordo || n.def.g !== player.def.g;
+  n.prevMode = n.mode === "wait" ? "wait" : "idle";
+  n.mode = "player"; n.path = []; n.after = null; n.hold = 0;
+  n.x = Math.round(n.x); n.y = Math.round(n.y);
+  if (!bordo) setFace(n, player.x - n.x, player.y - n.y);
+  dlg = { n, opposite, bordo, onDone: opts.onDone || null, qs: shuffle(bordo ? BORDO_QUESTIONS : opposite ? QUESTIONS : TRUST_QUESTIONS).slice(0, 3), i: 0, first: !state.metPlayer.has(n.id) };
+  $("dlg-name").textContent = n.def.name + (bordo ? " · Bordo Oda" : groupOf(n.id) ? " · " + groupOf(n.id).name : "");
+  $("dlg-avatar").textContent = n.def.name.slice(0, 1);
+  $("dlg-avatar").style.background = n.def.top;
+  $("dialog").classList.toggle("bordo", bordo);
+  $("dialog").hidden = false;
+  if (bordo) {
+    const q = dlg.qs[0];
+    say(n, q.q, 4200);
+    showDlg("Bordo Oda · baş başa, 45 saniye", "Sonunda baş başayız. " + q.q, choicesFor(q));
+    return;
+  }
+  if (talked(player, n)) {
+    const line = opposite ? "Bugün konuştuk zaten. Galada görüşürüz." : "Bugün konuştuk. Akşam yine bakarız.";
+    say(n, line, 3000);
+    showDlg(null, line, okBtn());
+    return;
+  }
+  const q = dlg.qs[0];
+  say(n, q.q, 4200);
+  const open = opposite ? n.def.open : (groupOf(n.id) && groupOf(n.id) === groupOf(player.id) ? "Ekibimden biri! Gel." : "Biraz kafa dinleyelim mi?");
+  showDlg(opposite ? null : "Takım arkadaşı sohbeti · güven", open + " " + q.q, choicesFor(q));
+}
+function choicesFor(q) { return shuffle(q.a).map(([label, tag]) => ({ label, fn: () => choose(label, tag) })); }
+function choose(label, tag) {
+  const n = dlg.n, d = n.def;
+  say(player, label, 2600);
+  const kind = d.likes.includes(tag) ? "like" : d.dislikes.includes(tag) ? "dislike" : "neutral";
+  const delta = dlg.bordo
+    ? (kind === "like" ? (dlg.first ? 3 : 2) : kind === "dislike" ? -2 : 1)
+    : (kind === "like" ? (dlg.first ? 2 : 1) : kind === "dislike" ? -1 : (dlg.first ? 1 : 0));
+  setChem(player, n, getChem(player, n) + delta);
+  const react = pick(d[kind]);
+  dlg.i++;
+  later(700, () => { if (dlg && dlg.n === n) say(n, react, 2200); });
+  if (dlg.i < dlg.qs.length) {
+    const q = dlg.qs[dlg.i];
+    later(2300, () => { if (dlg && dlg.n === n) say(n, q.q, 3800); });
+    showDlg(react, q.q, choicesFor(q));
+  } else if (dlg.opposite) finishTalk(react);
+  else finishTrust(react);
+}
+function finishTalk(react) {
+  const n = dlg.n;
+  state.talked.add(pairKey(player.id, n.id));
+  state.metPlayer.add(n.id);
+  updateHud(true);
+  const c = getChem(player, n), theirs = state.matchOf[n.id];
+  let line, choices = okBtn();
+  if (theirs === player.id) {
+    if (c < 4) { unmatch(n.id); updateHud(true); line = "Bence biz olmadık. Match'imizi bitirelim."; toast(n.def.name + " match'inizi bitirdi.", "bad"); }
+    else line = "Match'imiz devam ediyor. Galada yanındayım.";
+  } else if (c >= 7) {
+    if (theirs) line = "Seninle konuşmak güzeldi ama kalbim başka yerde. Galada görürsün.";
+    else {
+      line = "Seninle aramda bir şey var gibi. Match olalım mı?";
+      choices = [
+        { label: "Evet, match olalım", main: true, fn: () => { makeMatch(player, n); say(n, "O zaman galada yan yanayız.", 3000); showDlg(null, "O zaman galada yan yanayız.", okBtn()); } },
+        { label: "Şimdilik arkadaş kalalım", fn: () => { say(n, "Peki, anlıyorum.", 2500); showDlg(null, "Peki, anlıyorum.", okBtn()); } },
+      ];
+    }
+  } else line = c <= 3 ? "Pek anlaşamadık galiba. Galada görüşürüz." : "Güzel sohbetti. Galada görüşürüz.";
+  later(2300, () => { if (dlg && dlg.n === n) say(n, line, 3600); });
+  showDlg(react, line, choices);
+}
+function finishTrust(react) {
+  const n = dlg.n;
+  state.talked.add(pairKey(player.id, n.id));
+  state.metPlayer.add(n.id);
+  const t = getChem(player, n), myG = groupOf(player.id), theirG = groupOf(n.id);
+  let line, choices = okBtn();
+  if (myG && myG === theirG) {
+    if (t < 3) { leaveGroup(player.id); line = "Sana güvenemiyorum. Bence gruptan ayrılmalısın."; toast(myG.name + " grubundan çıkarıldın.", "bad"); }
+    else line = "Grubumuz sağlam. Galada aynı yerdeyiz.";
+  } else if (t >= 7) {
+    if (theirG) {
+      line = theirG.name + " grubuna katılmak ister misin? " + theirG.members.map(id => byId[id].def.name).join(", ") + " seni bekliyor.";
+      choices = [
+        { label: "Katılıyorum", main: true, fn: () => { joinGroup(player.id, theirG); toast(theirG.name + " grubuna katıldın.", "good"); updateHud(true); showDlg(null, "Hoş geldin. Galada birlikte oy vereceğiz.", okBtn()); } },
+        { label: "Şimdilik bağımsız kalayım", fn: () => showDlg(null, "Peki, kapımız açık.", okBtn()) },
+      ];
+    } else if (myG) {
+      line = "Senin grubuna katılabilirim, istersen.";
+      choices = [
+        { label: "Gel, bize katıl", main: true, fn: () => { joinGroup(n.id, myG); toast(n.def.name + " grubunuza katıldı.", "good"); showDlg(null, "Anlaştık. Galada birlikteyiz.", okBtn()); } },
+        { label: "Şimdilik değil", fn: () => showDlg(null, "Anladım.", okBtn()) },
+      ];
+    } else {
+      line = "Birlikte hareket edelim mi? Kendi grubumuzu kuralım.";
+      choices = [
+        { label: "Kuralım", main: true, fn: () => { const gr = newGroup(player.def.g, [player.id, n.id]); toast("Yeni grup kuruldu: " + gr.name, "good"); updateHud(true); showDlg(null, gr.name + " artık resmî. Galada aynı oyu vereceğiz.", okBtn()); } },
+        { label: "Şimdilik değil", fn: () => showDlg(null, "Peki, düşün bakalım.", okBtn()) },
+      ];
+    }
+  } else line = t <= 3 ? "Sana henüz güvenemiyorum." : "Seni biraz daha tanımam lazım.";
+  later(2300, () => { if (dlg && dlg.n === n) say(n, line, 3600); });
+  showDlg(react, line, choices);
+}
+function closeDialog() {
+  if (!dlg) return;
+  const n = dlg.n, cb = dlg.onDone;
+  if (n.mode === "player") n.mode = n.prevMode || "idle";
+  n.nextWander = NOW + 3000;
+  dlg = null;
+  $("dialog").hidden = true;
+  if (cb) cb();
+}
+$("dlg-leave").addEventListener("click", closeDialog);
+
+/* ---------- Dokunma / sürükleme ---------- */
+let down = null;
+canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId);
+  down = { x: e.clientX, y: e.clientY, cx: state.cam.x, cy: state.cam.y, drag: false };
+});
+canvas.addEventListener("pointermove", e => {
+  const rect = canvas.getBoundingClientRect();
+  if (down) {
+    const dx = e.clientX - down.x, dy = e.clientY - down.y;
+    if (!down.drag && Math.hypot(dx, dy) > 8) down.drag = true;
+    if (down.drag && state.phase === "day") { state.cam.follow = false; state.cam.x = down.cx - dx / z; state.cam.y = down.cy - dy / z; clampCamera(); }
+  } else if (e.pointerType === "mouse" && state.phase === "day") {
+    const w = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+    const tx = Math.round(w.wx), ty = Math.round(w.wy);
+    state.hover = tileAt(room(), tx, ty) ? { x: tx, y: ty } : null;
+  }
+});
+canvas.addEventListener("pointerup", e => {
+  if (!down) return;
+  const wasDrag = down.drag; down = null;
+  if (wasDrag) return;
+  const rect = canvas.getBoundingClientRect();
+  handleTap(e.clientX - rect.left, e.clientY - rect.top);
+});
+canvas.addEventListener("pointercancel", () => { down = null; });
+canvas.addEventListener("pointerleave", () => { state.hover = null; });
+
+function charHit(bx, by) {
+  const list = npcs.filter(n => n.room === state.room).sort((a, b) => (b.x + b.y) - (a.x + a.y));
+  for (const n of list) {
+    const p = iso(n.x, n.y), top = n.sit ? 52 : 66;
+    if (bx > p.x - 13 && bx < p.x + 13 && by > p.y - top && by < p.y + 5) return n;
+  }
+  return null;
+}
+function handleTap(px, py) {
+  if (dlg || state.phase !== "day" || !$("modal").hidden) return;
+  const r = room();
+  const w = screenToWorld(px, py);
+  const n = charHit(w.bx, w.by);
+  if (n) {
+    if (n.mode === "chat" || n.mode === "meet") {
+      const other = n.task ? n.task.partner : (n.chat ? n.chat.partner : null);
+      toast(n.def.name + " şu an" + (other ? " " + other.def.name + " ile" : "") + " konuşuyor.");
+      return;
+    }
+    n.hold = NOW + 9000;
+    if (n.path.length) n.path = n.path.slice(0, 1);
+    n.after = null;
+    const [tx, ty] = n.path.length ? n.path[0] : [Math.round(n.x), Math.round(n.y)];
+    if (Math.max(Math.abs(Math.round(player.x) - tx), Math.abs(Math.round(player.y) - ty)) === 1 && !player.path.length) {
+      player.action = { type: "talk", npc: n }; playerArrive(); return;
+    }
+    goTo(nearGoal(r, tx, ty), { type: "talk", npc: n });
+    return;
+  }
+  const tx = Math.round(w.wx), ty = Math.round(w.wy);
+  const k = tileAt(r, tx, ty);
+  if (!k) return;
+  if (WALK.has(k)) {
+    const door = k === "D" ? r.doors[tx + "," + ty] : null;
+    if (door && !canEnter(player, door.to)) { toast(ROOMS[door.to] ? ROOMS[door.to].name + " sadece misafirlikte açılır." : "Bu kapı kapalı."); return; }
+    goTo((x, y) => x === tx && y === ty, door ? { type: "door", door } : null);
+  } else if (SIT.has(k) && !seatTaken(r.id, tx, ty, player)) {
+    goTo((x, y) => x === tx && y === ty, { type: "sit", x: tx, y: ty });
+  } else goTo(nearGoal(r, tx, ty), null);
+}
+
+/* ---------- Yarışmacıların kendi arasındaki konuşmaları ---------- */
+function doorTo(from, to) {
+  const r = ROOMS[from];
+  for (const k in r.doors) if (r.doors[k].to === to) { const [x, y] = k.split(",").map(Number); return { x, y, door: r.doors[k] }; }
+  return null;
+}
+function canEnter(c, roomId) {
+  const r = ROOMS[roomId];
+  if (!r) return false;
+  if (r.home && r.home !== c.def.g) return !!(state.visit && state.visit.c === c && state.visit.room === roomId);
+  return true;
+}
+function allowedRooms(c) {
+  const out = [homeOf(c), "havuz"];
+  if (state.visit && state.visit.c === c) out.push(state.visit.room);
+  return out;
+}
+/* Kapı kapı hedef odaya yürür; vardıysa true döner */
+function travel(c, target) {
+  if (c.room === target) return true;
+  if (c.path.length) return false;
+  const d = doorTo(c.room, target) || doorTo(c.room, "havuz");
+  if (!d) { c.room = target; const e = ROOMS[target].entry; c.x = e[0]; c.y = e[1]; return true; }
+  if (Math.round(c.x) === d.x && Math.round(c.y) === d.y) {
+    c.room = d.door.to; c.x = d.door.at[0]; c.y = d.door.at[1]; c.sit = false;
+    return c.room === target;
+  }
+  const p = findPath(ROOMS[c.room], Math.round(c.x), Math.round(c.y), (x, y) => x === d.x && y === d.y);
+  if (p && p.length) { c.sit = false; c.path = p; }
+  else { c.room = d.door.to; c.x = d.door.at[0]; c.y = d.door.at[1]; }
+  return false;
+}
+function meetRoom(a, b) {
+  if (a.room === b.room && allowedRooms(a).includes(a.room) && allowedRooms(b).includes(a.room)) return a.room;
+  const v = state.visit;
+  if (v && v.c === a && allowedRooms(b).includes(v.room)) return v.room;
+  if (v && v.c === b && allowedRooms(a).includes(v.room)) return v.room;
+  return "havuz";
+}
+function freeNpc(n) {
+  if (n.mode === "meet" || n.mode === "wait") abortMeet(n);
+  if (n.mode === "chat" && n.chat) { const p = n.chat.partner; if (p) { p.mode = "idle"; p.chat = null; } n.chat = null; }
+  n.mode = "idle"; n.task = null; n.path = []; n.after = null;
+}
+function scheduleTalks() {
+  if (state.phase !== "day" || NOW < state.nextSchedule) return;
+  state.nextSchedule = NOW + 1200;
+  if (npcs.filter(n => n.mode === "meet").length >= 3) return;
+  const free = shuffle(npcs.filter(n => n.mode === "idle" && NOW > n.hold && NOW > (n.arrivedAt || 0) + 6000 && !n.goRoom));
+  const v = state.visit;
+  // misafir varsa önce misafirin ev sahipleriyle konuşması
+  if (v && v.c !== player && free.includes(v.c) && v.c.room === v.room) free.sort((a, b) => (b === v.c) - (a === v.c));
+  for (const a of free) for (const b of free) {
+    if (a === b || a.def.g === b.def.g || talked(a, b)) continue;
+    const room = meetRoom(a, b);
+    a.mode = "meet"; a.task = { partner: b, room }; a.after = null; a.sit = false;
+    b.mode = "wait"; b.task = { partner: a, room }; b.after = null; b.path = b.path.slice(0, 1);
+    return;
+  }
+}
+function npcArrive(n) {
+  if (n.after && n.after.type === "sit") {
+    const { x, y } = n.after; n.after = null;
+    if (!seatTaken(n.room, x, y, n)) sitDown(n, x, y);
+  }
+}
+function updateNPC(n, dt) {
+  step(n, dt);
+  if (state.phase !== "day") return;
+  if (n.mode === "away") {
+    if (NOW > n.awayUntil) { n.mode = "idle"; n.room = homeOf(n); const e = ROOMS[n.room].entry; n.x = e[0] + 1; n.y = e[1]; n.sit = false; }
+    return;
+  }
+  if (n.mode === "idle") {
+    if (n.goRoom) { if (travel(n, n.goRoom) && !n.path.length) n.goRoom = null; return; }
+    if (!allowedRooms(n).includes(n.room)) { n.goRoom = homeOf(n); return; }
+    if (n.path.length || NOW < n.nextWander || NOW < n.hold) return;
+    n.nextWander = NOW + 4500 + Math.random() * 6000;
+    if (Math.random() < 0.18) { const opts = allowedRooms(n).filter(x => x !== n.room); if (opts.length) { n.goRoom = pick(opts); n.sit = false; return; } }
+    const r = ROOMS[n.room];
+    if (Math.random() < 0.3) {
+      const seats = r.objects.filter(o => SIT.has(o.k) && !seatTaken(r.id, o.x, o.y, n));
+      const s = seats.length ? pick(seats) : null;
+      if (s) {
+        const p = findPath(r, Math.round(n.x), Math.round(n.y), (x, y) => x === s.x && y === s.y);
+        if (p && p.length) { n.sit = false; n.path = p; n.after = { type: "sit", x: s.x, y: s.y }; return; }
+      }
+    }
+    for (let tries = 0; tries < 12; tries++) {
+      const x = Math.round(n.x) + Math.floor(Math.random() * 9) - 4, y = Math.round(n.y) + Math.floor(Math.random() * 9) - 4;
+      if (tileAt(r, x, y) !== "." || (x === Math.round(n.x) && y === Math.round(n.y))) continue;
+      const p = findPath(r, Math.round(n.x), Math.round(n.y), (a, b) => a === x && b === y);
+      if (p) { n.sit = false; n.path = p; break; }
+    }
+    if (n.room === state.room && NOW > n.nextAmbient && dist(n, player) < 5 && !n.bubble) {
+      say(n, pick(n.def.talk), 3200);
+      n.nextAmbient = NOW + 15000 + Math.random() * 15000;
+    }
+  } else if (n.mode === "wait") {
+    const t = n.task;
+    if (!t || !npcs.includes(t.partner) || t.partner.mode !== "meet") { n.mode = "idle"; n.task = null; return; }
+    if (t.room && n.room !== t.room) travel(n, t.room);
+  } else if (n.mode === "meet") {
+    const p = n.task.partner;
+    if (!npcs.includes(p) || p.mode === "away") { abortMeet(n); return; }
+    if (n.path.length || p.mode === "player") return;
+    const target = n.task.room || "havuz";
+    if (!travel(n, target) || n.path.length) return;
+    if (p.room !== target || p.moving) return;
+    const r = ROOMS[n.room];
+    if (dist(n, p) > 1.6) {
+      const pth = findPath(r, Math.round(n.x), Math.round(n.y), nearGoal(r, Math.round(p.x), Math.round(p.y)));
+      if (pth && pth.length) n.path = pth; else if (!pth) abortMeet(n);
+      return;
+    }
+    n.mode = "chat"; p.mode = "chat";
+    setFace(n, p.x - n.x, p.y - n.y); setFace(p, n.x - p.x, n.y - p.y);
+    n.chat = { partner: p, lines: pick(SMALLTALK), i: 0, next: NOW + 300 };
+    p.chat = { partner: n };
+  } else if (n.mode === "chat" && n.chat && n.chat.lines) {
+    const c = n.chat;
+    if (NOW < c.next) return;
+    if (c.i < c.lines.length) { say(c.i % 2 ? c.partner : n, c.lines[c.i], 2400); c.i++; c.next = NOW + 2600; return; }
+    endNpcTalk(n, c.partner);
+  }
+}
+function abortMeet(n) {
+  const p = n.task && n.task.partner;
+  n.mode = "idle"; n.task = null;
+  if (p && p.mode === "wait") { p.mode = "idle"; p.task = null; }
+}
+function endNpcTalk(a, b) {
+  a.mode = "idle"; b.mode = "idle"; a.task = b.task = null; a.chat = b.chat = null;
+  a.nextWander = b.nextWander = NOW + 2500 + Math.random() * 2000;
+  state.talked.add(pairKey(a.id, b.id));
+  const overlap = a.def.likes.filter(t => b.def.likes.includes(t)).length;
+  setChem(a, b, getChem(a, b) + Math.floor(Math.random() * 3) - 1 + (overlap ? 1 : 0));
+  const nv = getChem(a, b);
+  if (nv >= 7 && !state.matchOf[a.id] && !state.matchOf[b.id]) makeMatch(a, b);
+  else if (nv < 4 && state.matchOf[a.id] === b.id) unmatch(a.id);
+  updateHud(true);
+}
+
+/* ---------- Günün olayı ---------- */
+const EVENTS = [
+  (a, b, g) => ({ text: `<b>${esc(g.def.name)}</b> dedikodu yaydı: ${esc(a.def.name)} ile ${esc(b.def.name)} gece havuz başında uzun uzun konuşmuş.`, fx: () => { setChem(a, b, getChem(a, b) + 1); const m = state.matchOf[a.id]; if (m && m !== b.id && byId[m]) setChem(a, byId[m], getChem(a, byId[m]) - 2); } }),
+  (a, b) => ({ text: `${esc(a.def.name)} ile ${esc(b.def.name)} sabah kahvaltıyı birlikte hazırladı.`, fx: () => setChem(a, b, getChem(a, b) + 1) }),
+  (a, b) => ({ text: `Havuz başında ${esc(a.def.name)} ile ${esc(b.def.name)} arasında tartışma çıktı.`, fx: () => setChem(a, b, getChem(a, b) - 2) }),
+  (a, b) => ({ text: `${esc(a.def.name)}, gece mutfakta ${esc(b.def.name)} için bir not bıraktı.`, fx: () => setChem(a, b, getChem(a, b) + 2) }),
+  (a, b) => ({ text: `${esc(a.def.name)}, ${esc(b.def.name)} için "bana göre değil" derken duyuldu.`, fx: () => setChem(a, b, getChem(a, b) - 1) }),
+  (a) => ({ text: `Villaya mektup geldi. ${esc(a.def.name)} ailesini özlediğini söyledi, herkes moral verdi.`, fx: () => { for (const c of house()) if (c !== a && c.def.g === a.def.g) setChem(a, c, getChem(a, c) + 1); } }),
+];
+function dayEvent() {
+  state.eventDone = true;
+  const cands = npcs.slice();
+  if (cands.length < 3) return;
+  const a = pick(cands), opp = cands.filter(c => c.def.g !== a.def.g), b = pick(opp.length ? opp : cands.filter(c => c !== a));
+  const g = pick(cands.filter(c => c !== a && c !== b));
+  const ev = pick(EVENTS)(a, b, g);
+  ev.fx();
+  toast("<b>Villa haberi</b> · " + ev.text, "news", 6500, true);
+}
+
+/* ---------- Misafirlik: biri belirli süre karşı eve geçer ---------- */
+function startVisit() {
+  const npcPool = npcs.filter(n => n.mode === "idle" && !n.goRoom && NOW > (n.arrivedAt || 0) + 6000);
+  const usePlayer = Math.random() < 0.3 || !npcPool.length;
+  const c = usePlayer ? player : pick(npcPool);
+  const room = otherHouse(c);
+  state.visit = { c, room, until: NOW + VISIT_MS };
+  if (c === player) {
+    closeDialog();
+    toast(ROOMS[room].name + "'ne 90 saniyeliğine misafir oldun! Oradakilerle konuşabilirsin.", "love", 5000);
+    changeRoom(room, ROOMS[room].entry);
+  } else {
+    freeNpc(c); c.goRoom = room;
+    toast(c.def.name + ", 90 saniyeliğine " + ROOMS[room].name + "'ne misafir oldu.", "news", 4500);
+  }
+}
+function endVisit() {
+  const v = state.visit;
+  state.visit = null;
+  state.nextVisit = NOW + 40000 + Math.random() * 25000;
+  if (!v) return;
+  if (v.c === player) {
+    if (player.room === v.room) { closeDialog(); toast("Misafirlik bitti, evine dönüyorsun."); changeRoom(homeOf(player), ROOMS[homeOf(player)].entry); }
+  } else if (npcs.includes(v.c)) {
+    if (v.c.mode === "meet" || v.c.mode === "wait") abortMeet(v.c);
+    v.c.goRoom = homeOf(v.c);
+  }
+}
+
+/* ---------- Bordo Oda: süreli, baş başa konuşma ---------- */
+function bordoGossip(a, b) {
+  toast(`<b>Bordo Oda</b> · ${esc(a.def.name)} ile ${esc(b.def.name)} baş başa. Herkes konuşuyor.`, "news", 5000, true);
+  for (const [x, y] of [[a, b], [b, a]]) {
+    const m = state.matchOf[x.id];
+    if (!m || m === y.id || !byId[m]) continue;
+    setChem(x, byId[m], getChem(x, byId[m]) - 2);
+    if (m === player.id) later(1300, () => toast("Match'in " + x.def.name + " Bordo Oda'ya geçti. Uyumunuz düştü.", "bad", 4500));
+    else if (x === player) later(1300, () => toast(byId[m].def.name + " bunu duydu ve kırıldı. Uyumunuz düştü.", "bad", 4500));
+  }
+}
+function fadeSwap(fn) {
+  return new Promise(res => {
+    const f = $("fade");
+    f.classList.add("on");
+    setTimeout(() => { fn(); f.classList.remove("on"); setTimeout(res, 320); }, 340);
+  });
+}
+function setTimer(label, ms, onEnd) { state.timer = { label, until: NOW + ms, onEnd }; }
+function enterBordo(host, guest) {
+  for (const [c, s] of [[host, BORDO_SEATS.host], [guest, BORDO_SEATS.guest]]) { c.room = "bordo"; c.path = []; c.goRoom = null; c.onArrive = null; sitDown(c, s[0], s[1]); }
+  if (host === player || guest === player) { state.room = "bordo"; $("room-name").textContent = ROOMS.bordo.name; snapCamera(); }
+}
+function sendHome(c) {
+  c.room = homeOf(c);
+  const e = ROOMS[c.room].entry, off = c === player ? 0 : 1;
+  c.x = e[0] + off; c.y = e[1] + off; c.sit = false; c.path = []; c.goRoom = null;
+  if (c !== player) { c.mode = "idle"; c.task = null; c.nextWander = NOW + 2500; }
+}
+/* oyuncunun Bordo Oda konuşması: bitince ya da süre dolunca çözülür */
+function bordoDialog(n) {
+  return new Promise(res => {
+    let done = false;
+    const finish = () => { if (done) return; done = true; state.timer = null; res(); };
+    openDialog(n, { bordo: true, onDone: finish });
+    setTimer("Bordo Oda", BORDO_MS, () => { if (dlg) { toast("Süre doldu."); closeDialog(); } finish(); });
+  });
+}
+async function playerBordo(n, hostIsPlayer) {
+  if (state.visit && state.visit.c === player) state.visit.until = NOW;
+  state.phase = "bordo";
+  closeDialog(); freeNpc(n);
+  const host = hostIsPlayer ? player : n, guest = hostIsPlayer ? n : player;
+  bordoGossip(host, guest);
+  await fadeSwap(() => enterBordo(host, guest));
+  await bordoDialog(n);
+  await fadeSwap(() => {
+    sendHome(player); sendHome(n);
+    state.room = player.room; $("room-name").textContent = ROOMS[state.room].name;
+    state.phase = "day"; snapCamera();
+  });
+  updateHud(true);
+}
+function openBordoPicker() {
+  if (state.bordoUsed) { toast("Bugünkü Bordo Oda hakkını kullandın."); return; }
+  const opp = npcs.filter(n => n.def.g !== player.def.g);
+  const busy = n => ["chat", "meet", "away", "player"].includes(n.mode);
+  openModal(`
+    <span class="eyebrow">Günde bir kez</span>
+    <h2>Bordo Oda'ya kimi çağırıyorsun?</h2>
+    <p>45 saniyelik baş başa konuşma. Etkisi normal sohbetten güçlü, ama herkes kimi çağırdığını görür. Match'i olanlar kıskanabilir.</p>
+    <div class="list">${opp.map(n => `<button class="row pick" type="button" data-id="${n.id}" ${busy(n) ? "disabled" : ""}><span class="dot" style="background:${n.def.top}"></span><span class="grow">${esc(n.def.name)}<small>Uyumunuz ${getChem(player, n)}/10${busy(n) ? " · şu an meşgul" : ""}</small></span>${state.matchOf[player.id] === n.id ? `<span class="tag love">Match'in</span>` : state.matchOf[n.id] ? `<span class="tag">Match'li</span>` : ""}</button>`).join("")}</div>
+    <button class="btn ghost" type="button" id="m-ok">Vazgeç</button>`, "bordo");
+  $("m-ok").addEventListener("click", closeModal);
+  $("modal-body").querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => {
+    closeModal(); state.bordoUsed = true; playerBordo(byId[b.dataset.id], true);
+  }));
+}
+function npcInvitesPlayer() {
+  state.bordoInviteDone = true;
+  const cands = npcs.filter(n => n.def.g !== player.def.g && n.mode !== "away" && getChem(player, n) >= 4);
+  if (!cands.length || Math.random() < 0.3) return;
+  const n = cands.sort((a, b) => getChem(player, b) - getChem(player, a))[0];
+  openModal(`
+    <span class="eyebrow">Bordo Oda daveti</span>
+    <h2>${esc(n.def.name)} seni Bordo Oda'ya çağırıyor</h2>
+    <p>45 saniye baş başa konuşacaksınız. Reddedersen ${esc(n.def.name)} kırılır.</p>
+    <button class="btn bordo" type="button" id="b-go">Git</button>
+    <button class="btn ghost" type="button" id="b-no">Reddet</button>`, "bordo");
+  $("b-go").addEventListener("click", () => { closeModal(); playerBordo(n, false); });
+  $("b-no").addEventListener("click", () => { closeModal(); setChem(player, n, getChem(player, n) - 2); toast(n.def.name + " reddedildiği için kırıldı. Uyum -2", "bad"); });
+}
+function npcBordo() {
+  state.bordoNpcDone = true;
+  const free = npcs.filter(n => n.mode === "idle" && !n.goRoom && NOW > (n.arrivedAt || 0) + 6000);
+  let best = null, bv = -1;
+  for (const a of free) for (const b of free) if (a.def.g === "F" && b.def.g === "M") { const v = getChem(a, b) + Math.random() * 2; if (v > bv) { bv = v; best = [a, b]; } }
+  if (!best) return;
+  const [a, b] = best;
+  enterBordo(a, b);
+  for (const c of best) { c.mode = "away"; c.awayUntil = NOW + 20000; }
+  setChem(a, b, getChem(a, b) + 2);
+  state.talked.add(pairKey(a.id, b.id));
+  bordoGossip(Math.random() < 0.5 ? a : b, Math.random() < 0.5 ? b : a);
+  if (getChem(a, b) >= 7 && !state.matchOf[a.id] && !state.matchOf[b.id]) makeMatch(a, b);
+  updateHud(true);
+}
+
+/* ---------- Yeni yarışmacı töreni ---------- */
+const CEREMONY_SPOTS = [[3, 6], [4, 6], [5, 6], [6, 6], [7, 6], [3, 7], [5, 7]];
+async function newcomerCeremony(nc) {
+  state.phase = "ceremony"; speed = 1;
+  $("speed-btn").hidden = false; $("speed-btn").textContent = "Hızlandır ×3";
+  $("room-chip").hidden = true;
+  const hostRoom = otherHouse(nc);
+  const hosts = house().filter(c => c.def.g !== nc.def.g);
+  for (const c of npcs) { c.mode = "idle"; c.task = null; c.chat = null; c.path = []; c.goRoom = null; c.bubble = null; }
+  $("tc-eyebrow").textContent = "Gün " + state.day;
+  $("tc-title").textContent = "Yeni Yarışmacı";
+  $("tc-sub").textContent = nc.def.name + " villaya geliyor";
+  const tc = $("title-card");
+  tc.hidden = false; void tc.offsetWidth; tc.classList.add("on");
+  await wait(900);
+  hosts.forEach((c, i) => { const [x, y] = CEREMONY_SPOTS[i % CEREMONY_SPOTS.length]; c.room = hostRoom; c.x = x; c.y = y; c.sit = false; setFace(c, 0, -1); });
+  nc.room = hostRoom; nc.x = 0; nc.y = 4; nc.sit = false;
+  state.room = hostRoom; state.camFocus = { x: 4, y: 5 }; snapCamera();
+  await wait(1800);
+  tc.classList.remove("on"); await wait(700); tc.hidden = true;
+  caption(nc.def.name + " " + ROOMS[hostRoom].name + "'ne giriyor", "Herkes yeni geleni karşılıyor.");
+  state.spots = [nc]; state.camFocus = nc;
+  await walkTo(nc, 5, 4); setFace(nc, 0, 1);
+  say(nc, "Merhaba! Ben " + nc.def.name + ".", 2600);
+  await wait(2200);
+  caption("Tanışma", "");
+  for (const h of hosts) {
+    state.spots = [h]; state.camFocus = h;
+    say(h, pick(MEET_LINES).replace("{n}", h.def.name), 2200);
+    getChem(nc, h);
+    await wait(1500);
+  }
+  // dans
+  state.spots = []; state.camFocus = { x: 4.5, y: 4 };
+  caption(nc.def.name + " dans için birini seçiyor...", "");
+  await wait(2200);
+  const partner = hosts.slice().sort((a, b) => (getChem(nc, b) + Math.random() * 3) - (getChem(nc, a) + Math.random() * 3))[0];
+  caption("Dans: " + nc.def.name + " ve " + nm(partner), partner === player ? "Seni seçti!" : "Diğerleri izliyor.");
+  await walkTo(partner, 4, 4);
+  setFace(partner, 1, 0); setFace(nc, -1, 0);
+  state.dancers = [nc, partner]; state.spots = [nc, partner];
+  setChem(nc, partner, getChem(nc, partner) + 2);
+  await wait(4500);
+  state.dancers = []; state.spots = [];
+  // bordo oda
+  caption(nc.def.name + " Bordo Oda'ya geçiyor", "İki kişiyi baş başa konuşmaya çağıracak.");
+  await wait(2400);
+  const guests = hosts.slice().sort((a, b) => (getChem(nc, b) - getChem(nc, a)) + (Math.random() - 0.5) * 3).slice(0, 2);
+  for (const g of guests) {
+    const back = [g.x, g.y];
+    await fadeSwap(() => { enterBordo(nc, g); state.room = "bordo"; state.camFocus = { x: 1.6, y: 1.6 }; snapCamera(); });
+    caption(nc.def.name + " ile " + nm(g), "Bordo Oda · baş başa");
+    if (g === player) { await wait(1200); caption(""); await bordoDialog(nc); }
+    else {
+      const lines = pick(BORDO_TALK);
+      for (let i = 0; i < lines.length; i++) { say(i % 2 ? g : nc, lines[i], 2400); await wait(2600); }
+      setChem(nc, g, getChem(nc, g) + 2);
+    }
+    state.talked.add(pairKey(nc.id, g.id));
+    g.room = hostRoom; g.x = back[0]; g.y = back[1]; g.sit = false;
+  }
+  caption("Herkes evine dönüyor", "Yeni gün başlıyor.");
+  await wait(1600);
+  await fadeSwap(() => {
+    for (const c of npcs) scatter(c);
+    sendHome(player); player.x = 5; player.y = 6;
+    state.room = player.room; $("room-name").textContent = ROOMS[state.room].name;
+    state.nextVisit = NOW + 30000;
+    endGalaUI(); state.phase = "day"; snapCamera();
+  });
+  $("room-chip").hidden = false;
+  updateHud(true);
+  toast("Gün " + state.day + " başladı. Herkes yeniden konuşmalı.", "good");
+}
+
+/* ---------- Toplu oyunlar ---------- */
+function startGame() {
+  state.gameDone = true;
+  closeDialog();
+  state.phase = "game";
+  for (const n of npcs) if (n.mode === "wait" || n.mode === "meet") { n.mode = "idle"; n.task = null; }
+  if (state.day % 2 === 1) pairGame(); else groupGame();
+}
+function pairTeams() {
+  const teams = [], used = new Set();
+  for (const c of house()) {
+    const m = state.matchOf[c.id];
+    if (m && !used.has(c.id) && byId[m]) { used.add(c.id); used.add(m); teams.push({ members: [c, byId[m]], match: true }); }
+  }
+  const free = house().filter(c => !used.has(c.id));
+  const girls = free.filter(c => c.def.g === "F"), boys = free.filter(c => c.def.g === "M");
+  const sorted = [];
+  for (const g of girls) for (const b of boys) sorted.push([getChem(g, b) + Math.random() * 0.5, g, b]);
+  sorted.sort((a, b) => b[0] - a[0]);
+  for (const [, g, b] of sorted) if (!used.has(g.id) && !used.has(b.id)) { used.add(g.id); used.add(b.id); teams.push({ members: [g, b], match: false }); }
+  for (const c of house()) if (!used.has(c.id)) teams.push({ members: [c], match: false });
+  return teams;
+}
+function teamRow(t, i, scoreHtml = "") {
+  const mine = t.members.includes(player);
+  const names = t.members.map(nm).join(" & ");
+  const label = t.label || names;
+  return `<div class="row ${t.win ? "win" : ""}"><span class="dot" style="background:${t.color || t.members[0].def.top}"></span><span class="grow">${esc(label)}${t.label ? `<small>${esc(names)}</small>` : t.match ? `<small>Match</small>` : ""}</span>${mine ? `<span class="tag gold">Takımın</span>` : ""}${scoreHtml}</div>`;
+}
+function pairGame() {
+  const teams = pairTeams();
+  openModal(`
+    <span class="eyebrow">Gün ${state.day} · villa oyunu</span>
+    <h2>Çift Yarışı: Tepsi Taşıma</h2>
+    <p>Çiftler takım oluyor. Match'ler birlikte, diğerleri en iyi anlaştığı kişiyle. Kazanan çift galada dokunulmaz olur.</p>
+    <div class="list">${teams.map((t, i) => teamRow(t, i)).join("")}</div>
+    <button class="btn" type="button" id="g-start">Oyna</button>`);
+  $("g-start").addEventListener("click", () => timingGame(score => finishGame(teams, score, "pair")));
+}
+function groupTeams() {
+  const teams = [];
+  for (const gr of state.groups) {
+    const members = gr.members.map(id => byId[id]).filter(Boolean);
+    if (members.length) teams.push({ members, label: gr.name, color: gr.color, group: gr });
+  }
+  for (const g of ["F", "M"]) {
+    const free = house().filter(c => c.def.g === g && !groupOf(c.id));
+    if (free.length) teams.push({ members: free, label: g === "F" ? "Bağımsız Kızlar" : "Bağımsız Erkekler", color: "#9AA7BC" });
+  }
+  return teams;
+}
+function groupGame() {
+  const teams = groupTeams();
+  openModal(`
+    <span class="eyebrow">Gün ${state.day} · villa oyunu</span>
+    <h2>Grup Mücadelesi: Halat Çekme</h2>
+    <p>Gruplar yarışıyor, gruba girmeyenler bağımsız takım oluyor. Kazanan grup galada karşı takımdan birini koruma altına alır.</p>
+    <div class="list">${teams.map((t, i) => teamRow(t, i)).join("")}</div>
+    <button class="btn" type="button" id="g-start">Oyna</button>`);
+  $("g-start").addEventListener("click", () => tapGame(score => finishGame(teams, score, "group")));
+}
+function timingGame(done) {
+  const scores = [];
+  let round = 0, raf = 0, pos = 0, dir = 1, t0 = 0;
+  const zones = [0.3, 0.22, 0.15], speeds = [0.8, 1.05, 1.3];
+  openModal(`
+    <span class="eyebrow">Tepsi taşıma · 3 tur</span>
+    <h2>Dengeyi yakala</h2>
+    <p>Turuncu çizgi yeşil alanın ortasındayken Bırak'a bas. Her turda alan daralır.</p>
+    <div class="track" id="tr"><div class="zone" id="zn"></div><div class="marker" id="mk"></div></div>
+    <div class="rounds" id="rd"><span>1. tur</span><span>2. tur</span><span>3. tur</span></div>
+    <button class="btn tap-big" type="button" id="g-hit">Bırak</button>`);
+  const zn = $("zn"), mk = $("mk");
+  const setup = () => { const w = zones[round]; zn.style.left = (50 - w * 50) + "%"; zn.style.width = (w * 100) + "%"; pos = Math.random() * 0.2; dir = 1; t0 = performance.now(); };
+  const tick = ts => {
+    const dt = Math.min(0.05, Math.max(0, (ts - t0) / 1000)); t0 = ts;
+    pos += dir * speeds[round] * dt;
+    if (pos > 1) { pos = 1; dir = -1; } if (pos < 0) { pos = 0; dir = 1; }
+    mk.style.left = (pos * 100) + "%";
+    raf = requestAnimationFrame(tick);
+  };
+  setup(); raf = requestAnimationFrame(tick);
+  $("g-hit").addEventListener("click", () => {
+    if (round >= 3) return;
+    const half = zones[round] / 2, d = Math.abs(pos - 0.5);
+    const s = d <= half ? Math.round(100 - d / half * 35) : Math.max(0, Math.round(55 - (d - half) * 260));
+    scores.push(s);
+    $("rd").children[round].textContent = s;
+    round++;
+    if (round >= 3) { cancelAnimationFrame(raf); $("g-hit").disabled = true; later(700, () => done(Math.round(scores.reduce((a, b) => a + b, 0) / 3))); }
+    else setup();
+  });
+}
+function tapGame(done) {
+  let taps = 0, started = false, end = 0, finished = false;
+  openModal(`
+    <span class="eyebrow">Halat çekme · 5 saniye</span>
+    <h2>Çek!</h2>
+    <p>Düğmeye olabildiğince hızlı dokun. İlk dokunuşla süre başlar.</p>
+    <div class="rope"><i id="rp"></i></div>
+    <div class="big-num" id="tp">0</div>
+    <button class="btn tap-big" type="button" id="g-tap">Çek!</button>`);
+  const tick = () => {
+    const left = Math.max(0, end - performance.now());
+    $("g-tap").textContent = "Çek! " + (left / 1000).toFixed(1) + " sn";
+    if (left <= 0) { if (!finished) { finished = true; $("g-tap").disabled = true; later(500, () => done(Math.min(100, Math.round(taps * 3.2)))); } return; }
+    requestAnimationFrame(tick);
+  };
+  $("g-tap").addEventListener("click", () => {
+    if (!started) { started = true; end = performance.now() + 5000; requestAnimationFrame(tick); }
+    if (performance.now() > end) return;
+    taps++;
+    $("tp").textContent = taps;
+    $("rp").style.left = Math.min(96, 50 + taps * 1.4) + "%";
+  });
+}
+function aiScore(t) {
+  const m = t.members;
+  if (m.length >= 2 && !t.label) return 38 + Math.random() * 34 + getChem(m[0], m[1]) * 3;
+  let trust = 0, n = 0;
+  for (let i = 0; i < m.length; i++) for (let j = i + 1; j < m.length; j++) { trust += getChem(m[i], m[j]); n++; }
+  return 40 + Math.random() * 30 + (n ? trust / n : 3) * 2.4 + (t.label && !t.group ? -6 : 0);
+}
+function finishGame(teams, myScore, kind) {
+  for (const t of teams) {
+    if (t.members.includes(player)) {
+      const others = t.members.length - 1;
+      t.score = others ? Math.round((myScore + aiScore(t) * others) / (others + 1)) : myScore;
+    } else t.score = Math.round(aiScore(t));
+    t.score = Math.max(0, Math.min(100, t.score));
+  }
+  const sorted = teams.slice().sort((a, b) => b.score - a.score);
+  const win = sorted[0]; win.win = true;
+  openModal(`
+    <span class="eyebrow">Sonuçlar</span>
+    <h2>${esc(win.label || win.members.map(c => c.def.name).join(" & "))} kazandı</h2>
+    <p>Senin skorun: ${myScore}</p>
+    <div class="list">${sorted.map((t, i) => teamRow(t, i, `<span class="score"><span class="bar"><i data-w="${t.score}"></i></span>${t.score}</span>`)).join("")}</div>
+    <div id="g-reward"></div>`);
+  later(60, () => $("modal-body").querySelectorAll("[data-w]").forEach(el => { el.style.width = el.dataset.w + "%"; }));
+  const box = $("g-reward");
+  const finish = msg => {
+    box.innerHTML = `<p>${msg}</p><button class="btn" type="button" id="g-back">Villaya dön</button>`;
+    $("g-back").addEventListener("click", () => { closeModal(); state.phase = "day"; updateHud(true); toast(msg.replace(/<[^>]+>/g, ""), "news", 5000); });
+  };
+  if (kind === "pair") {
+    win.members.forEach(c => state.immune.add(c.id));
+    finish(`<b style="color:var(--fusya)">${esc(win.members.map(nm).join(" ve "))}</b> galada dokunulmaz. Onlara oy verilemez.`);
+  } else {
+    const g = win.members[0].def.g;
+    const opp = house().filter(c => c.def.g !== g);
+    if (win.members.includes(player)) {
+      box.innerHTML = `<p>Grubun kazandı. Karşı takımdan kimi koruma altına alıyorsunuz?</p><div class="list">${opp.map(c => `<button class="row pick" type="button" data-id="${c.id}"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}<small>Uyumunuz ${getChem(player, c)}/10</small></span>${state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : ""}</button>`).join("")}</div>`;
+      box.querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => { const c = byId[b.dataset.id]; state.immune.add(c.id); finish(`<b style="color:var(--fusya)">${esc(c.def.name)}</b> grubunuzun koruması altında, galada dokunulmaz.`); }));
+    } else {
+      let chosen = null;
+      for (const m of win.members) { const mm = state.matchOf[m.id]; if (mm && opp.some(c => c.id === mm)) { chosen = byId[mm]; break; } }
+      if (!chosen && opp.length) chosen = opp.slice().sort((a, b) => win.members.reduce((s, m) => s + getChem(m, b), 0) - win.members.reduce((s, m) => s + getChem(m, a), 0))[0];
+      if (chosen) { state.immune.add(chosen.id); finish(`${esc(win.label)} grubu <b style="color:var(--fusya)">${esc(nm(chosen))}</b> kişisini koruma altına aldı. Galada dokunulmaz.`); }
+      else finish("Korunacak kimse kalmadı.");
+    }
+  }
+}
+
+/* ---------- Gala sineması ---------- */
+let speed = 1;
+const wait = ms => new Promise(res => setTimeout(res, REDUCE ? Math.min(ms, 300) : ms / speed));
+function walkTo(c, x, y) {
+  return new Promise(res => {
+    const p = findPath(ROOMS[c.room], Math.round(c.x), Math.round(c.y), (a, b) => a === x && b === y);
+    if (!p || !p.length) { res(); return; }
+    c.sit = false; c.path = p; c.onArrive = res;
+  });
+}
+function caption(main, sub = "") {
+  const box = $("caption");
+  box.hidden = !main;
+  $("cap-main").textContent = main; $("cap-sub").textContent = sub;
+  box.classList.remove("cap-in"); void box.offsetWidth; box.classList.add("cap-in");
+}
+function galaGroupsTargets() {
+  for (const gr of state.groups) {
+    const members = gr.members.map(id => byId[id]).filter(Boolean);
+    const opp = house().filter(c => c.def.g !== gr.g && !state.immune.has(c.id) && !members.some(m => state.matchOf[m.id] === c.id));
+    let best = null, min = Infinity;
+    for (const c of opp) { const s = members.reduce((a, m) => a + getChem(m, c), 0) / members.length + Math.random() * 0.6; if (s < min) { min = s; best = c; } }
+    gr.target = best;
+  }
+}
+function npcVote(v) {
+  const opp = house().filter(c => c.def.g !== v.def.g && !state.immune.has(c.id));
+  if (!opp.length) return null;
+  const gr = groupOf(v.id);
+  if (gr && gr.target && opp.includes(gr.target) && state.matchOf[v.id] !== gr.target.id && Math.random() < 0.9) return gr.target;
+  let pool = opp.filter(c => state.matchOf[v.id] !== c.id);
+  if (!pool.length) pool = opp;
+  let best = null, min = Infinity;
+  for (const c of pool) { const s = getChem(v, c) + Math.random() * 1.2; if (s < min) { min = s; best = c; } }
+  return best;
+}
+function playerVotePanel() {
+  return new Promise(res => {
+    const opp = house().filter(c => c.def.g !== player.def.g);
+    const valid = opp.filter(c => !state.immune.has(c.id));
+    if (!valid.length) { res(null); return; }
+    const gr = groupOf(player.id);
+    const rows = opp.map(c => {
+      const imm = state.immune.has(c.id);
+      const tags = [
+        state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : "",
+        gr && gr.target === c ? `<span class="tag gold">Grubunun seçimi</span>` : "",
+        imm ? `<span class="tag ok">Dokunulmaz</span>` : "",
+      ].join("");
+      return `<button class="row pick" type="button" data-id="${c.id}" ${imm ? "disabled" : ""}><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}<small>Uyumunuz ${getChem(player, c)}/10</small></span>${tags}</button>`;
+    }).join("");
+    openModal(`
+      <span class="eyebrow">Sandık başındasın</span>
+      <h2>Kimi eliyorsun?</h2>
+      <p>${gr && gr.target ? `${esc(gr.name)} grubu ${esc(gr.target.def.name)} için anlaştı. Farklı oy verirsen grubun bunu sayımda görür.` : "Oyun gizli. Sayımda herkes görecek."}</p>
+      <div class="list">${rows}</div>`, "gold soft");
+    $("modal-body").querySelectorAll("[data-id]").forEach(b => b.addEventListener("click", () => { closeModal(); res(byId[b.dataset.id]); }));
+  });
+}
+function renderTallyLive(counts, cands, hot) {
+  const max = Math.max(1, ...cands.map(c => counts.get(c) || 0));
+  $("tally-live").innerHTML = cands.map(c => {
+    const n = counts.get(c) || 0;
+    return `<span class="${c === hot ? "hot" : ""}">${esc(nm(c))}</span><span class="bar"><i style="width:${n / max * 100}%"></i></span><span class="n">${n}</span>`;
+  }).join("");
+}
+async function startGala() {
+  const { done, total } = talkProgress();
+  if (state.phase !== "day") return;
+  if (!state.gameDone) { toast("Önce bugünün villa oyunu oynanmalı."); return; }
+  if (done < total) {
+    const mine = npcs.filter(n => n.def.g !== player.def.g && !talked(player, n)).map(n => n.def.name);
+    toast(mine.length ? "Önce konuşman gerekenler: " + mine.join(", ") : "Diğer yarışmacılar hâlâ konuşuyor (" + done + "/" + total + ").");
+    return;
+  }
+  closeDialog(); closeModal();
+  state.phase = "gala"; speed = 1; state.visit = null; state.timer = null;
+  $("tc-title").textContent = "Gala Gecesi";
+  $("speed-btn").hidden = false; $("speed-btn").textContent = "Hızlandır ×3";
+  $("room-chip").hidden = true;
+  for (const c of house()) { c.mode = "idle"; c.task = null; c.chat = null; c.path = []; c.after = null; c.bubble = null; c.onArrive = null; }
+  state.target = null; state.hover = null; state.flyCards = [];
+  // açılış kartı
+  $("tc-eyebrow").textContent = "Gün " + state.day;
+  $("tc-sub").textContent = house().length + " yarışmacı · 1 veda";
+  const tc = $("title-card");
+  tc.hidden = false; void tc.offsetWidth; tc.classList.add("on");
+  await wait(900);
+  // salona geçiş: herkes koltuğuna
+  state.room = "gala";
+  for (const g of ["F", "M"]) {
+    const list = house().filter(c => c.def.g === g);
+    const seats = GALA_SEATS[g], off = Math.max(0, Math.floor((seats.length - list.length) / 2));
+    list.forEach((c, i) => { const [x, y] = seats[Math.min(seats.length - 1, off + i)]; c.room = "gala"; c.seat = [x, y]; sitDown(c, x, y); });
+  }
+  state.camFocus = { x: 4, y: 4 }; snapCamera();
+  await wait(2200);
+  tc.classList.remove("on");
+  await wait(700);
+  tc.hidden = true;
+  caption("Herkes yerini aldı", "Kızlar bir yanda, erkekler karşıda. Sandık ortada.");
+  await wait(2600);
+  // dokunulmazlar
+  const imm = house().filter(c => state.immune.has(c.id));
+  if (imm.length) {
+    state.spots = imm;
+    caption("Dokunulmaz: " + imm.map(c => c.def.name).join(" ve "), "Bu gece onlara oy verilemez.");
+    await wait(2600);
+  }
+  // match'ler
+  const couples = [], seen = new Set();
+  for (const c of house()) {
+    const m = state.matchOf[c.id];
+    if (!m || seen.has(c.id) || !byId[m]) continue;
+    seen.add(c.id); seen.add(m);
+    couples.push([c, byId[m]]);
+  }
+  state.spots = [];
+  caption("Match'ler açıklanıyor", couples.length ? "" : "Bu gece kimse match olmadı.");
+  await wait(1800);
+  for (const [a, b] of couples) {
+    state.revealed.add(pairKey(a.id, b.id));
+    state.spots = [a, b];
+    state.hearts.push({ c: a, t0: NOW }, { c: b, t0: NOW });
+    caption(a.def.name + " ♥ " + b.def.name, "Match'ler galada birbirine oy vermez.");
+    await wait(2400);
+  }
+  state.spots = [];
+  // grup kararları
+  galaGroupsTargets();
+  const pg = groupOf(player.id);
+  caption("Oylama başlıyor", "Herkes karşı takımdan birini seçecek. Oylar sayıma kadar gizli.");
+  await wait(2600);
+  if (pg && pg.target) { caption(pg.name + " fısıldaşıyor", "Grubun " + pg.target.def.name + " için anlaştı."); await wait(2400); }
+  // sandık yürüyüşü
+  const votes = [];
+  for (const v of shuffle(house())) {
+    state.camFocus = v; state.spots = [v];
+    caption(nm(v) + " sandığa yürüyor", "");
+    await wait(500);
+    await walkTo(v, SANDIK.stand[0], SANDIK.stand[1]);
+    setFace(v, 0, -1);
+    let t;
+    if (v === player) { caption("Sıra sende", ""); t = await playerVotePanel(); }
+    else { await wait(1100); t = npcVote(v); }
+    const from = iso(SANDIK.stand[0], SANDIK.stand[1]), to = iso(SANDIK.x, SANDIK.y);
+    state.flyCards.push({ x0: from.x + 6, y0: from.y - 34, x1: to.x, y1: to.y - 26, t0: NOW, dur: 650 / speed });
+    caption(nm(v) + " oyunu attı", "");
+    if (t) votes.push([v, t]);
+    await wait(900);
+    const back = v.seat;
+    walkTo(v, back[0], back[1]).then(() => sitDown(v, back[0], back[1]));
+    await wait(700);
+  }
+  state.spots = [];
+  state.camFocus = { x: SANDIK.x, y: SANDIK.y };
+  await wait(1400);
+  for (const c of house()) if (c.seat && !c.sit) sitDown(c, c.seat[0], c.seat[1]);
+  if (!votes.length) { endGalaUI(); state.phase = "day"; nextDay(null); return; }
+  // sayım
+  const cands = [...new Set(votes.map(([, t]) => t))];
+  const counts = new Map();
+  $("tally-live").hidden = false;
+  renderTallyLive(counts, cands, null);
+  caption("Oylar sayılıyor", "Sandık açıldı.");
+  await wait(2000);
+  const reveal = shuffle(votes);
+  for (let i = 0; i < reveal.length; i++) {
+    const [, t] = reveal[i];
+    counts.set(t, (counts.get(t) || 0) + 1);
+    const lastOnes = i >= reveal.length - 2;
+    caption((lastOnes ? (i === reveal.length - 1 ? "Son oy... " : "Bir oy daha... ") : "Bir oy: ") + nm(t), "");
+    state.spots = [t];
+    const top = Math.max(...counts.values());
+    renderTallyLive(counts, cands, [...counts.entries()].find(([, n]) => n === top)[0]);
+    await wait(lastOnes ? 2400 : 1300);
+  }
+  const rows = cands.map(c => ({ c, n: counts.get(c) || 0, chemSum: votes.filter(([v]) => v.def.g !== c.def.g).reduce((s, [v]) => s + getChem(v, c), 0), r: Math.random() }))
+    .sort((a, b) => b.n - a.n || a.chemSum - b.chemSum || a.r - b.r);
+  const out = rows[0].c, tie = rows[1] && rows[1].n === rows[0].n;
+  // grup ihaneti
+  if (pg && pg.target) {
+    const myVote = votes.find(([v]) => v === player);
+    if (myVote && myVote[1] !== pg.target) {
+      for (const id of pg.members) if (id !== player.id && byId[id]) setChem(player, byId[id], getChem(player, byId[id]) - 3);
+      later(400, () => toast(pg.name + " grubun farklı oy verdiğini gördü. Güven -3", "bad", 5000));
+      if (pg.members.some(id => id !== player.id && byId[id] && getChem(player, byId[id]) < 3)) { leaveGroup(player.id); later(2000, () => toast(pg.name + " grubundan çıkarıldın.", "bad", 5000)); }
+    }
+  }
+  state.spots = [out]; state.camFocus = out;
+  caption(tie ? "Oylar eşit..." : "Karar belli", tie ? "Karşı takımla uyumu en düşük olan ayrılıyor." : "");
+  await wait(2200);
+  $("tally-live").hidden = true;
+  caption(nm(out) + " villaya veda ediyor", "");
+  await wait(1200);
+  if (out === player) {
+    say(player, "Bu kadarmış. Hepinize teşekkürler.", 3500);
+    await wait(2500);
+    endGalaUI();
+    openModal(`
+      <span class="eyebrow">Gala · sonuç</span>
+      <h2>Villaya veda ettin</h2>
+      <p>Bu gece en çok oyu sen aldın. ${state.day}. günde elendin.</p>
+      <button class="btn gold" type="button" id="g-restart">Yeniden başla</button>`, "gold");
+    $("g-restart").addEventListener("click", () => newGame());
+    return;
+  }
+  say(out, out.def.bye, 3600);
+  await wait(3000);
+  out.sit = false;
+  await walkTo(out, 0, 10);
+  out.leaving = true;
+  await wait(900);
+  endGalaUI();
+  openModal(`
+    <span class="eyebrow">Gala · sonuç</span>
+    <h2>${esc(out.def.name)} villadan ayrıldı</h2>
+    <p>"${esc(out.def.bye)}"</p>
+    <p>Yarın sabah villaya yeni bir yarışmacı girecek.</p>
+    <button class="btn gold" type="button" id="g-day">Yeni güne geç</button>`, "gold");
+  $("g-day").addEventListener("click", () => { closeModal(); nextDay(out); });
+}
+function endGalaUI() {
+  caption("");
+  $("speed-btn").hidden = true;
+  $("tally-live").hidden = true;
+  state.spots = []; state.camFocus = null;
+}
+$("speed-btn").addEventListener("click", () => { speed = speed === 1 ? 3 : 1; $("speed-btn").textContent = speed === 1 ? "Hızlandır ×3" : "Normal hız"; });
+
+function scatter(c) {
+  const rm = Math.random() < 0.5 ? homeOf(c) : "havuz", r = ROOMS[rm];
+  for (let i = 0; i < 40; i++) {
+    const x = Math.floor(Math.random() * r.w), y = Math.floor(Math.random() * r.h);
+    if (tileAt(r, x, y) === "." && !(rm === "havuz" && x === 5 && y === 11)) { c.room = rm; c.x = x; c.y = y; c.sit = false; return; }
+  }
+  c.room = "havuz"; c.x = 6; c.y = 11;
+}
+function nextDay(out) {
+  if (out) {
+    const partner = state.matchOf[out.id];
+    if (partner) { unmatch(out.id); if (partner === player.id) later(1600, () => toast("Match'in villadan ayrıldı.", "bad")); }
+    leaveGroup(out.id);
+    npcs = npcs.filter(n => n !== out);
+    delete byId[out.id];
+  }
+  state.day++;
+  state.talked.clear(); state.immune.clear();
+  state.gameDone = false; state.eventDone = false; state.galaReadyShown = false; state.flyCards = [];
+  state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false;
+  state.nextVisit = NOW + 35000;
+  for (const n of npcs) { scatter(n); n.leaving = false; n.alpha = 1; n.mode = "idle"; n.seat = null; n.goRoom = null; n.nextWander = NOW + 2000 + Math.random() * 3000; }
+  sendHome(player); player.x = 5; player.y = 6; player.seat = null;
+  state.room = player.room; $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;
+  if (out) {
+    const g = out.def.g;
+    const tpl = state.pool[g].shift() || { name: (g === "F" ? "Yeni kız " : "Yeni erkek ") + state.day, skin: "#C99A76", hair: "#2A1D14", hs: g === "F" ? "long" : "short", top: "#6C8EBF", bottom: "#2B2F3A", legs: "pants", likes: ["durust"], dislikes: ["strateji"], open: "Merhaba!" };
+    const id = "y" + state.day + "_" + Math.floor(Math.random() * 1e6);
+    const def = withDefaults(Object.assign({ g }, tpl));
+    const nc = mkChar(id, def, otherHouse({ def }), 0, 4, { arrivedDay: state.day, face: [1, 0] });
+    nc.arrivedAt = NOW;
+    npcs.push(nc); byId[id] = nc;
+    updateHud(true);
+    newcomerCeremony(nc);
+    return;
+  }
+  state.phase = "day";
+  snapCamera();
+  updateHud(true);
+  toast("Gün " + state.day + " başladı. Herkes yeniden konuşmalı.", "good");
+}
+
+/* ---------- Pencereler ---------- */
+function openModal(html, cls = "") {
+  $("modal-body").className = "modal " + cls.split(" ").filter(c => c && c !== "soft").join(" ");
+  $("modal").classList.toggle("soft", cls.includes("soft"));
+  $("modal-body").innerHTML = html; $("modal").hidden = false;
+  const b = $("modal-body").querySelector("button:not([disabled]), input");
+  if (b) b.focus({ preventScroll: true });
+}
+function closeModal() { $("modal").hidden = true; }
+const canDismiss = () => state.phase === "day" && !$("modal-body").querySelector("#b-go");
+$("modal").addEventListener("click", e => { if (e.target.id === "modal" && canDismiss()) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && canDismiss()) { closeModal(); closeDialog(); } });
+
+const RULES = `
+  <ul>
+    <li>Kızlar Evi ve Erkekler Evi ayrı. Karşı cinsle Havuz Başı'nda buluşursun. Gün içinde rastgele biri 90 saniyeliğine karşı eve misafir olur.</li>
+    <li>Birine dokun, konuşma başlar. Karşı cinsle konuşma <b>uyumu</b>, kendi cinsinle konuşma <b>güveni</b> belirler.</li>
+    <li><b>Bordo Oda:</b> Günde bir kez birini 45 saniyelik baş başa konuşmaya çağırabilirsin; seni de çağırabilirler. Etkisi güçlü ama herkes duyar.</li>
+    <li>Yeni yarışmacı karşı cinsin evine girer, herkesle tanışır, birini dansa kaldırır ve Bordo Oda'ya iki kişi çağırır.</li>
+    <li>Uyum yüksekse match olabilirsiniz. Match'in galada sana oy vermez.</li>
+    <li>Güven yüksekse gruba katılırsın ya da grup kurarsın. Gruplar galada ortak hedefe oy verir; farklı oy vermek ihanettir.</li>
+    <li>Konuşmaların yarısı bitince villa oyunu başlar. Kazananlar galada dokunulmazlık kazanır.</li>
+    <li>Her kız her erkekle konuşmadan gala açılmaz. Galada herkes karşı takımdan birini eler; en çok oyu alan gider, yerine yeni biri gelir.</li>
+  </ul>`;
+/* ---------- Kostüm ekranı ---------- */
+const LOOK_OPTS = [
+  { k: "skin", label: "Ten", type: "color", v: ["#F3D2B3", "#E3B892", "#CFA07E", "#B98463", "#94623F", "#6A452D"] },
+  { k: "hs", label: "Saç", type: "text", v: [["short", "Kısa"], ["buzz", "Kazıma"], ["wavy", "Dalgalı"], ["long", "Uzun"], ["bun", "Topuz"], ["pony", "At kuyruğu"], ["curly", "Kıvırcık"]] },
+  { k: "hair", label: "Saç rengi", type: "color", v: ["#17120F", "#3B2418", "#6B3E22", "#B5562B", "#D2AE62", "#8E1F3A", "#EDEBE6"] },
+  { k: "top", label: "Üst", type: "color", v: ["#FF2E7E", "#F3F2EE", "#1E1E22", "#2BB3A3", "#F2C14E", "#4F79A8", "#7A8B5A", "#B04A7A"] },
+  { k: "legs", label: "Alt", type: "text", v: [["shorts", "Şort"], ["pants", "Pantolon"], ["dress", "Elbise"]] },
+  { k: "bottom", label: "Alt rengi", type: "color", v: ["#1E1E22", "#2B4C7E", "#E8DCC6", "#5B6B8A", "#8E1F3A", "#F3F2EE", "#2BB3A3"] },
+  { k: "shoe", label: "Ayakkabı", type: "color", v: ["#F3F2EE", "#1E1E22", "#C46A3D", "#FF2E7E", "#F2C14E"] },
+  { k: "beard", label: "Sakal", type: "text", v: [[false, "Yok"], [true, "Var"]] },
+];
+let preview = null;
+function renderPreview(t) {
+  const cv = $("avatar-preview");
+  if (!cv || !preview) return;
+  const pc = cv.getContext("2d");
+  pc.setTransform(1, 0, 0, 1, 0, 0);
+  pc.fillStyle = "#151518"; pc.fillRect(0, 0, cv.width, cv.height);
+  const g = pc.createRadialGradient(cv.width / 2, cv.height * 0.86, 4, cv.width / 2, cv.height * 0.86, cv.width * 0.5);
+  g.addColorStop(0, "rgba(255,46,126,.35)"); g.addColorStop(1, "rgba(255,46,126,0)");
+  pc.fillStyle = g; pc.fillRect(0, 0, cv.width, cv.height);
+  preview.right = Math.floor(t / 2600) % 2 === 0;
+  const saved = ctx;
+  ctx = pc;
+  pc.setTransform(3.3, 0, 0, 3.3, cv.width / 2, cv.height * 0.88);
+  drawChar(preview, t);
+  ctx = saved;
+}
+function openStart() {
+  let gender = "F";
+  const look = Object.assign({ beard: false }, PLAYER_LOOK.F);
+  preview = mkChar("onizleme", withDefaults(Object.assign({ name: "", g: gender }, look)), "havuz", 0, 0, { face: [1, 1] });
+  const optHtml = LOOK_OPTS.map(o => `
+    <div class="opt"><span class="opt-label">${o.label}</span><div class="sw" role="group" aria-label="${o.label}">
+      ${o.type === "color"
+        ? o.v.map(v => `<button type="button" class="color" data-k="${o.k}" data-v="${v}" style="background:${v}" aria-label="${o.label} ${v}"></button>`).join("")
+        : o.v.map(([v, l]) => `<button type="button" class="txt" data-k="${o.k}" data-v="${v}">${l}</button>`).join("")}
+    </div></div>`).join("");
+  openModal(`
+    <div class="logo" aria-label="Kader ve Kısmet"><span>Kader</span><b>&amp;</b><span>Kısmet</span></div>
+    <span class="eyebrow">Karakterini yarat</span>
+    <div class="creator">
+      <canvas id="avatar-preview" width="280" height="340" aria-label="Avatar önizlemesi"></canvas>
+      <div class="creator-side">
+        <div class="seg" role="group" aria-label="Takım">
+          <button type="button" id="g-f" aria-pressed="true">Kız</button>
+          <button type="button" id="g-m" aria-pressed="false">Erkek</button>
+        </div>
+        <label class="field" for="player-name">Adın
+          <input id="player-name" maxlength="14" value="Deniz" autocomplete="off">
+        </label>
+        <button class="btn ghost" type="button" id="c-rand">Rastgele</button>
+      </div>
+    </div>
+    ${optHtml}
+    <button class="btn" type="button" id="s-go">Villaya gir</button>`);
+  const body = $("modal-body");
+  const sync = () => {
+    Object.assign(preview.def, look, { g: gender, blush: gender === "F" });
+    body.querySelectorAll("[data-k]").forEach(b => b.setAttribute("aria-pressed", String(String(look[b.dataset.k]) === b.dataset.v)));
+    $("g-f").setAttribute("aria-pressed", String(gender === "F"));
+    $("g-m").setAttribute("aria-pressed", String(gender === "M"));
+  };
+  body.querySelectorAll("[data-k]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.k, v = b.dataset.v;
+    look[k] = k === "beard" ? v === "true" : v;
+    sync();
+  }));
+  const setGender = g => { gender = g; Object.assign(look, PLAYER_LOOK[g], { beard: false }); sync(); };
+  $("g-f").addEventListener("click", () => setGender("F"));
+  $("g-m").addEventListener("click", () => setGender("M"));
+  $("c-rand").addEventListener("click", () => {
+    for (const o of LOOK_OPTS) { const v = pick(o.v); look[o.k] = Array.isArray(v) ? v[0] : v; }
+    if (gender === "F") look.beard = false;
+    if (look.top === look.bottom) look.bottom = "#1E1E22";
+    sync();
+  });
+  sync();
+  const go = () => {
+    const name = ($("player-name").value.trim() || "Deniz").slice(0, 14);
+    closeModal(); preview = null;
+    beginGame(gender, name, Object.assign({}, look, { blush: gender === "F" }));
+    openModal(`<span class="eyebrow">Nasıl oynanır</span><h2>Kurallar</h2>${RULES}<button class="btn" type="button" id="m-ok">Başla</button>`);
+    $("m-ok").addEventListener("click", closeModal);
+  };
+  $("s-go").addEventListener("click", go);
+  $("player-name").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+}
+function openRules() {
+  openModal(`<span class="eyebrow">Nasıl oynanır</span><h2>Kurallar</h2>${RULES}<button class="btn" type="button" id="m-ok">Devam et</button>`);
+  $("m-ok").addEventListener("click", closeModal);
+}
+function openHouse() {
+  const { done, total } = talkProgress();
+  const pending = housePairs().filter(([a, b]) => !talked(a, b) && a !== player && b !== player).length;
+  const row = c => {
+    const me = c === player, opp = !me && c.def.g !== player.def.g;
+    let right = "";
+    if (me) right = `<span class="tag">Sen</span>`;
+    else if (opp) right = state.matchOf[player.id] === c.id ? `<span class="tag love">Match'in</span>` : talked(player, c) ? `<span class="tag ok">Konuştunuz</span>` : `<span class="tag">Konuşmadınız</span>`;
+    else right = groupOf(c.id) && groupOf(c.id) === groupOf(player.id) ? `<span class="tag gold">Grubunda</span>` : `<span class="tag">${talked(player, c) ? "Konuştunuz" : "Takım"}</span>`;
+    const bits = [];
+    if (!me) bits.push((opp ? "Uyum " : "Güven ") + getChem(player, c) + "/10");
+    if (ROOMS[c.room]) bits.push(ROOMS[c.room].name);
+    if (groupOf(c.id)) bits.push(groupOf(c.id).name);
+    if (state.immune.has(c.id)) bits.push("dokunulmaz");
+    if (c.arrivedDay === state.day && state.day > 1) bits.push("yeni geldi");
+    if (shownMatch(c) && !me && state.matchOf[c.id] !== player.id && byId[state.matchOf[c.id]]) bits.push(byId[state.matchOf[c.id]].def.name + " ile match");
+    return `<div class="row"><span class="dot" style="background:${c.def.top}"></span><span class="grow">${esc(c.def.name)}${bits.length ? `<small>${esc(bits.join(" · "))}</small>` : ""}</span>${right}</div>`;
+  };
+  const girls = house().filter(c => c.def.g === "F"), boys = house().filter(c => c.def.g === "M");
+  const groups = state.groups.map(g => `<span class="gchip"><i style="background:${g.color}"></i>${esc(g.name)}: ${esc(g.members.map(id => byId[id] ? byId[id].def.name : "").join(", "))}</span>`).join("");
+  openModal(`
+    <span class="eyebrow">Gün ${state.day} · konuşmalar ${done}/${total}</span>
+    <h2>Evdekiler</h2>
+    <p>${pending ? `Diğer yarışmacıların ${pending} konuşması daha var.` : "Diğer yarışmacılar konuşmalarını bitirdi."} ${state.gameDone ? "Bugünün oyunu oynandı." : "Villa oyunu konuşmaların yarısında başlar."} Yeni match'ler galada açıklanır.</p>
+    <span class="group-title">Gruplar</span><div class="chips">${groups || `<span class="gchip">Henüz grup yok</span>`}</div>
+    <span class="group-title">Kızlar</span><div class="list">${girls.map(row).join("")}</div>
+    <span class="group-title">Erkekler</span><div class="list">${boys.map(row).join("")}</div>
+    <button class="btn ghost" type="button" id="m-ok">Kapat</button>`);
+  $("m-ok").addEventListener("click", closeModal);
+}
+function openMap() {
+  const rows = Object.values(ROOMS).filter(r => r.public).map(r => {
+    const here = r.id === state.room, open = canEnter(player, r.id);
+    const note = here ? " · buradasın" : open ? "" : " · misafirlikte açılır";
+    return `<button class="btn ${here ? "" : "ghost"}" type="button" data-room="${r.id}" ${open ? "" : "disabled"}>${esc(r.name)}${note}</button>`;
+  }).join("");
+  openModal(`
+    <span class="eyebrow">Alanya · yaz villası</span>
+    <h2>Harita</h2>
+    <p>Kızlar ve erkekler ayrı evlerde kalıyor. Havuz Başı ortak alan; karşı eve sadece misafirlikte girilir.</p>
+    <div class="list">${rows}<button class="btn ghost" type="button" disabled>İskele · yakında</button></div>`);
+  $("modal-body").querySelectorAll("[data-room]").forEach(b => b.addEventListener("click", () => {
+    closeModal();
+    const to = b.dataset.room;
+    if (to === state.room || state.phase !== "day" || !canEnter(player, to)) return;
+    closeDialog();
+    changeRoom(to, ROOMS[to].entry);
+  }));
+}
+$("chat").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("chat-input").value.trim();
+  if (!v || state.phase !== "day") return;
+  playerSays(v);
+  $("chat-input").value = "";
+});
+$("btn-wave").addEventListener("click", () => { if (state.phase === "day") playerSays("Selam!"); });
+$("btn-house").addEventListener("click", () => { if (state.phase === "day") openHouse(); });
+$("btn-bordo").addEventListener("click", () => { if (state.phase === "day" && !dlg) openBordoPicker(); });
+$("btn-map").addEventListener("click", () => { if (state.phase === "day") openMap(); });
+$("btn-help").addEventListener("click", () => { if (state.phase === "day") openRules(); });
+$("gala-btn").addEventListener("click", startGala);
+
+/* ---------- Güncelleme ---------- */
+function step(c, dt) {
+  if (!c.path.length) { c.moving = false; return; }
+  const [tx, ty] = c.path[0];
+  const g = cine() ? speed : 1;
+  const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy), sp = c.speed * dt * (g === 1 ? 1 : g * 0.85);
+  setFace(c, dx, dy);
+  c.moving = true; c.walkT += dt * 11 * g;
+  if (d <= sp) {
+    c.x = tx; c.y = ty; c.path.shift();
+    if (!c.path.length) {
+      c.moving = false;
+      if (c.onArrive) { const f = c.onArrive; c.onArrive = null; f(); }
+      else if (c === player) playerArrive(); else npcArrive(c);
+    }
+  } else { c.x += dx / d * sp; c.y += dy / d * sp; }
+}
+function clampCamera() {
+  const r = room();
+  const minX = iso(0, r.h - 1).x - TW, maxX = iso(r.w - 1, 0).x + TW;
+  const minY = iso(0, 0).y - WALL_H - 30, maxY = iso(r.w - 1, r.h - 1).y + TH + 40;
+  const vw = cw / z, vh = ch / z, c = state.cam;
+  c.x = (maxX - minX) <= vw ? (minX + maxX) / 2 : Math.max(minX + vw / 2, Math.min(maxX - vw / 2, c.x));
+  c.y = (maxY - minY) <= vh ? (minY + maxY) / 2 : Math.max(minY + vh / 2, Math.min(maxY - vh / 2, c.y));
+}
+function camGoal() {
+  if (cine() && state.camFocus) { const p = iso(state.camFocus.x, state.camFocus.y); return { x: p.x, y: p.y - 30 }; }
+  const p = iso(player.x, player.y);
+  return { x: p.x, y: p.y + (dlg ? 60 : -20) };
+}
+function snapCamera() { const g = camGoal(); state.cam.x = g.x; state.cam.y = g.y; clampCamera(); }
+function updateCamera(dt) {
+  if (!state.cam.follow && !cine()) return;
+  const g = camGoal(), k = 1 - Math.pow(cine() ? 0.05 : 0.002, dt);
+  state.cam.x += (g.x - state.cam.x) * k;
+  state.cam.y += (g.y - state.cam.y) * k;
+  clampCamera();
+}
+
+/* ---------- Çizim yardımcıları ---------- */
+function poly(pts, fill, stroke, lw) {
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); }
+}
+function diamond(cx, cy, s = 1) { return [[cx, cy - TH / 2 * s], [cx + TW / 2 * s, cy], [cx, cy + TH / 2 * s], [cx - TW / 2 * s, cy]]; }
+function ellipse(x, y, rx, ry, fill) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); }
+function circle(x, y, r, fill) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); }
+function rrect(x, y, w, h, r, fill) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fillStyle = fill; ctx.fill(); }
+function hash(x, y) { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); }
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; }
+function shade(hex, f) { const [r, g, b] = hex2rgb(hex); const k = f < 0 ? 1 + f : 1, add = f > 0 ? f : 0; return "rgb(" + [r, g, b].map(v => Math.round(v * k + (255 - v * k) * add)).join(",") + ")"; }
+function heart(x, y, s, fill) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + s * 0.9);
+  ctx.bezierCurveTo(x - s * 1.3, y + s * 0.1, x - s * 0.9, y - s * 0.9, x, y - s * 0.3);
+  ctx.bezierCurveTo(x + s * 0.9, y - s * 0.9, x + s * 1.3, y + s * 0.1, x, y + s * 0.9);
+  ctx.fillStyle = fill; ctx.fill();
+}
+function isoBox(wx, wy, fx, fy, h, z0, top, left, right) {
+  const P = (dx, dy, up) => { const p = iso(wx + dx, wy + dy); return [p.x, p.y - up]; };
+  const A = u => P(-fx / 2, -fy / 2, u), B = u => P(fx / 2, -fy / 2, u), Cc = u => P(fx / 2, fy / 2, u), D = u => P(-fx / 2, fy / 2, u);
+  poly([D(z0), Cc(z0), Cc(z0 + h), D(z0 + h)], left);
+  poly([Cc(z0), B(z0), B(z0 + h), Cc(z0 + h)], right);
+  poly([A(z0 + h), B(z0 + h), Cc(z0 + h), D(z0 + h)], top);
+}
+
+/* ---------- Arka plan (gün içinde sabahtan gün batımına) ---------- */
+function timeOfDay() {
+  if (state.phase === "start") return 0.85;
+  const { done, total } = talkProgress();
+  return Math.min(1, 0.05 + (total ? done / total : 0) * 0.95);
+}
+function drawBackdrop(t, r) {
+  const hy = ch * 0.633;
+  if (r.night) {
+    const g = ctx.createLinearGradient(0, 0, 0, ch);
+    g.addColorStop(0, "#070A18"); g.addColorStop(0.6, "#161A3A"); g.addColorStop(1, "#241C3F");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+    for (let i = 0; i < 70; i++) {
+      const x = hash(i, 3) * cw, y = hash(i, 7) * ch * 0.7, tw = 0.4 + 0.6 * Math.abs(Math.sin(t / 900 + i));
+      circle(x, y, hash(i, 11) > 0.85 ? 1.4 : 0.8, "rgba(255,245,220," + (0.35 + 0.5 * tw) + ")");
+    }
+    circle(cw * 0.13, ch * 0.3, 14, "#F7EED6");
+    circle(cw * 0.13 + 5, ch * 0.3 - 4, 12, "#161A3A");
+    return;
+  }
+  const tod = timeOfDay();
+  const top = mix("#4C93C9", "#16223A", tod), mid = mix("#8FC6E3", "#3B3458", tod), low = mix("#CFE7EE", "#B65A3F", tod), hor = mix("#F6E7C8", "#F0913A", tod);
+  const sea1 = mix("#3AA0B5", "#2C7A86", tod), sea2 = mix("#17607A", "#0F3047", tod);
+  const g = ctx.createLinearGradient(0, 0, 0, ch);
+  g.addColorStop(0, top); g.addColorStop(0.38, mid); g.addColorStop(0.56, low); g.addColorStop(0.63, hor);
+  g.addColorStop(0.635, sea1); g.addColorStop(1, sea2);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+  const sx = cw * (0.55 + 0.19 * tod), sy = hy - (1 - tod) * ch * 0.42 + 6;
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, cw, hy); ctx.clip();
+  const sg = ctx.createRadialGradient(sx, sy, 4, sx, sy, 90);
+  sg.addColorStop(0, "rgba(255,220,150,.9)"); sg.addColorStop(1, "rgba(255,190,110,0)");
+  ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, hy);
+  circle(sx, sy, 20 + tod * 3, mix("#FFF4D6", "#FFC56B", tod));
+  ctx.fillStyle = mix("#7E8FA8", "#2A2440", tod);
+  const kx = cw * 0.1;
+  ctx.beginPath(); ctx.moveTo(kx - 30, hy); ctx.lineTo(kx - 18, hy - 22); ctx.lineTo(kx + 6, hy - 30); ctx.lineTo(kx + 34, hy - 18); ctx.lineTo(kx + 52, hy); ctx.fill();
+  ctx.fillRect(kx - 4, hy - 42, 7, 14); ctx.fillRect(kx + 14, hy - 38, 6, 12);
+  ctx.restore();
+  ctx.strokeStyle = tod > 0.5 ? "rgba(255,200,140,.35)" : "rgba(255,255,255,.3)"; ctx.lineWidth = 1.2;
+  for (let i = 0; i < 9; i++) {
+    const y = hy + 8 + i * 13, w = 26 - i * 1.5, x = sx + Math.sin(t / 900 + i) * 6 - w / 2;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.stroke();
+  }
+}
+
+/* ---------- Duvarlar ---------- */
+function lerpP(a, b, u) { return { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u }; }
+function wq(p1, p2, u0, u1, v0, v1) {
+  const a = lerpP(p1, p2, u0), b = lerpP(p1, p2, u1);
+  return [[a.x, a.y - v0 * WALL_H], [b.x, b.y - v0 * WALL_H], [b.x, b.y - v1 * WALL_H], [a.x, a.y - v1 * WALL_H]];
+}
+function drawWallSeg(r, p1, p2, side, feat, t) {
+  const W = r.walls;
+  const base = W ? (side ? W.a : W.b) : (side ? "#F1E4D3" : "#D9C7B2");
+  poly(wq(p1, p2, 0, 1, 0, 1), base);
+  poly(wq(p1, p2, 0, 1, 0, 0.07), W ? W.base : (side ? "#D8C8B2" : "#C0AE98"));
+  if (W) {
+    poly(wq(p1, p2, 0.12, 0.88, 0.18, 0.82), null, "rgba(201,162,74,.45)", 1);
+    const m = lerpP(p1, p2, 0.5), fl = 0.6 + 0.4 * Math.sin(t / 500 + p1.x);
+    const g = ctx.createRadialGradient(m.x, m.y - WALL_H * 0.62, 0, m.x, m.y - WALL_H * 0.62, 16);
+    g.addColorStop(0, "rgba(255,214,140," + 0.7 * fl + ")"); g.addColorStop(1, "rgba(255,214,140,0)");
+    ctx.fillStyle = g; ctx.fillRect(m.x - 16, m.y - WALL_H * 0.62 - 16, 32, 32);
+    circle(m.x, m.y - WALL_H * 0.62, 2.2, "#FFE3A6");
+  }
+  if (feat === "window") {
+    poly(wq(p1, p2, 0.1, 0.22, 0.3, 0.8), "#2B8F8A");
+    poly(wq(p1, p2, 0.78, 0.9, 0.3, 0.8), "#2B8F8A");
+    poly(wq(p1, p2, 0.24, 0.76, 0.3, 0.8), "#2E4A6B", "#F7EFE2", 2);
+    poly(wq(p1, p2, 0.3, 0.5, 0.36, 0.72), side ? "rgba(246,178,107,.55)" : "rgba(246,178,107,.3)");
+    poly(wq(p1, p2, 0.24, 0.76, 0.27, 0.31), "#F7EFE2");
+  } else if (feat === "door") {
+    poly(wq(p1, p2, 0.16, 0.84, 0, 0.8), W ? W.trim : "#F7EFE2");
+    poly(wq(p1, p2, 0.22, 0.78, 0, 0.74), W ? "#4A1D2E" : "#7E4F33");
+    poly(wq(p1, p2, 0.27, 0.48, 0.08, 0.66), W ? "#3A1524" : "#6B412A");
+    poly(wq(p1, p2, 0.52, 0.73, 0.08, 0.66), W ? "#3A1524" : "#6B412A");
+    const h = lerpP(p1, p2, 0.7); circle(h.x, h.y - 0.36 * WALL_H, 1.6, "#F2C14E");
+  }
+  poly(wq(p1, p2, 0, 1, 0.95, 1.05), W ? W.trim : "#C46A3D");
+  poly(wq(p1, p2, 0, 1, 1.05, 1.08), W ? W.trim2 : "#A9542F");
+}
+function drawWalls(r, t) {
+  for (let x = 0; x < r.w; x++) drawWallSeg(r, iso(x - 0.5, -0.5), iso(x + 0.5, -0.5), true, x > 0 && r.doors[x + ",0"] ? "door" : r.windows.y.includes(x) ? "window" : null, t);
+  for (let y = 0; y < r.h; y++) {
+    const feat = r.doors["0," + y] ? "door" : r.windows.x.includes(y) ? "window" : null;
+    drawWallSeg(r, iso(-0.5, y - 0.5), iso(-0.5, y + 0.5), false, feat, t);
+  }
+  if (r.lights) drawLights(r, t);
+}
+function drawLights(r, t) {
+  const runs = [[iso(-0.5, -0.5), iso(r.w - 0.5, -0.5), r.w], [iso(-0.5, -0.5), iso(-0.5, r.h - 0.5), r.h]];
+  const glow = 0.4 + timeOfDay() * 0.6;
+  for (const [a, b, n] of runs) {
+    const pts = [];
+    for (let i = 0; i <= n * 4; i++) { const u = i / (n * 4), p = lerpP(a, b, u), seg = (i % 4) / 4; pts.push([p.x, p.y - WALL_H * 0.9 + Math.sin(seg * Math.PI) * 9]); }
+    ctx.strokeStyle = "rgba(40,30,30,.7)"; ctx.lineWidth = 1;
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+    for (let i = 2; i < pts.length; i += 4) {
+      const [x, y] = pts[i], fl = (0.75 + 0.25 * Math.sin(t / 400 + i)) * glow;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, 10);
+      g.addColorStop(0, "rgba(255,200,110," + (0.85 * fl) + ")"); g.addColorStop(1, "rgba(255,200,110,0)");
+      ctx.fillStyle = g; ctx.fillRect(x - 10, y - 10, 20, 20);
+      circle(x, y + 1, 2, "#FFD58A");
+    }
+  }
+}
+
+/* ---------- Zemin ---------- */
+function drawPlatformSides(r) {
+  const T = 16;
+  const dark = r.floor === "gala" || r.floor === "carpet";
+  const c1 = r.floor === "wood" ? "#7A5136" : dark ? "#14172C" : "#B9A88F";
+  const c2 = r.floor === "wood" ? "#64412B" : dark ? "#0E1022" : "#A39177";
+  for (let y = 0; y < r.h; y++) { const a = iso(r.w - 0.5, y - 0.5), b = iso(r.w - 0.5, y + 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c1); }
+  for (let x = 0; x < r.w; x++) { const a = iso(x + 0.5, r.h - 0.5), b = iso(x - 0.5, r.h - 0.5); poly([[a.x, a.y], [b.x, b.y], [b.x, b.y + T], [a.x, a.y + T]], c2); }
+  if (r.floor === "gala") {
+    ctx.strokeStyle = "#C9A24A"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); let a = iso(r.w - 0.5, -0.5); ctx.moveTo(a.x, a.y); a = iso(r.w - 0.5, r.h - 0.5); ctx.lineTo(a.x, a.y); a = iso(-0.5, r.h - 0.5); ctx.lineTo(a.x, a.y); ctx.stroke();
+  }
+}
+const isCarpet = (r, x, y) => r.floor === "gala" && ((y === 10 && x <= 6) || (x === 6 && y >= 7 && y <= 10));
+function drawFloor(r, t) {
+  for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) {
+    const k = r.map[y][x], p = iso(x, y), d = diamond(p.x, p.y);
+    if (k === "~") { drawWater(r, x, y, p, t); continue; }
+    if (r.floor === "wood") {
+      const wd = r.wood || ["#B07B4F", "#A97449"];
+      poly(d, (x + y) % 2 ? wd[0] : wd[1]);
+      ctx.strokeStyle = "rgba(70,40,20,.25)"; ctx.lineWidth = 1;
+      for (let i = 1; i < 3; i++) { const a = iso(x - 0.5, y - 0.5 + i / 3), b = iso(x + 0.5, y - 0.5 + i / 3); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+      poly(d, null, "rgba(70,40,20,.3)", 1);
+    } else if (r.floor === "carpet") {
+      poly(d, (x + y) % 2 ? "#5E1626" : "#561321");
+      poly(diamond(p.x, p.y, 0.6), null, "rgba(233,196,106,.18)", 1);
+      if (hash(x, y) > 0.55) ellipse(p.x + (hash(y, x) - 0.5) * 30, p.y + (hash(x + 3, y) - 0.5) * 12, 2.2, 1.2, "#C4213F");
+    } else if (r.floor === "gala") {
+      poly(d, (x + y) % 2 ? "#262A48" : "#2D3254");
+      poly(d, null, "rgba(201,162,74,.22)", 1);
+      if (isCarpet(r, x, y)) { poly(diamond(p.x, p.y, 0.98), "#8E1F3A"); poly(diamond(p.x, p.y, 0.98), null, "rgba(233,196,106,.6)", 1); }
+    } else {
+      poly(d, (x + y) % 2 ? "#ECE0CD" : "#E3D5BF");
+      if (hash(x, y) > 0.7) poly(diamond(p.x, p.y, 0.5), "rgba(190,165,130,.18)");
+      poly(d, null, "rgba(120,100,80,.2)", 1);
+    }
+    if (k === "D" && r.public) { poly(diamond(p.x, p.y, 0.72), "#F28C28"); poly(diamond(p.x, p.y, 0.56), "#C9641A"); }
+  }
+  if (r.floats) for (const f of r.floats) {
+    const p = iso(f.x + Math.sin(t / 2100 + f.x) * 0.15, f.y + Math.cos(t / 1900 + f.y) * 0.12), bob = Math.sin(t / 500 + f.x) * 1.2;
+    ctx.lineWidth = 5; ctx.strokeStyle = f.c;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + bob, 11, 5.5, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,.7)";
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + bob - 1, 11, 5.5, 0, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke();
+  }
+}
+function drawWater(r, x, y, p, t) {
+  poly(diamond(p.x, p.y), "#2BB3A3");
+  const isW = (a, b) => tileAt(r, a, b) === "~";
+  const T = [p.x, p.y - TH / 2], R = [p.x + TW / 2, p.y], B = [p.x, p.y + TH / 2], L = [p.x - TW / 2, p.y];
+  if (!isW(x, y - 1)) poly([T, R, [R[0], R[1] + 7], [T[0], T[1] + 7]], "#1C8584");
+  if (!isW(x - 1, y)) poly([L, T, [T[0], T[1] + 7], [L[0], L[1] + 7]], "#187675");
+  for (let i = 0; i < 2; i++) {
+    const ph = t / 700 + hash(x, y) * 6 + i * 2.1, ox = Math.sin(ph) * 9, oy = Math.cos(ph * 0.8) * 3 + (i ? 4 : -2);
+    ctx.strokeStyle = "rgba(220,255,250," + (0.25 + 0.2 * Math.sin(ph * 1.3)) + ")"; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(p.x + ox - 7, p.y + oy); ctx.lineTo(p.x + ox + 7, p.y + oy); ctx.stroke();
+  }
+  ctx.strokeStyle = "#F7EFE2"; ctx.lineWidth = 3;
+  const edge = (a, b) => { ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
+  if (!isW(x, y - 1)) edge(T, R);
+  if (!isW(x + 1, y)) edge(R, B);
+  if (!isW(x, y + 1)) edge(B, L);
+  if (!isW(x - 1, y)) edge(L, T);
+}
+function drawOverlays(t) {
+  if (state.hover && !down && !dlg && state.phase === "day") { const p = iso(state.hover.x, state.hover.y); poly(diamond(p.x, p.y, 0.96), null, "rgba(255,255,255,.75)", 1.5); }
+  if (state.phase === "day") for (const [x, y] of player.path) { const p = iso(x, y); ellipse(p.x, p.y, 3, 1.6, "rgba(255,46,126,.85)"); }
+  if (state.target) {
+    const p = iso(state.target.x, state.target.y), s = 0.55 + 0.12 * Math.sin(t / 160);
+    ctx.lineWidth = 2; ctx.strokeStyle = "#FF2E7E";
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, 22 * s, 11 * s, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+  for (const c of state.spots) {
+    const p = iso(c.x, c.y), g = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 36);
+    g.addColorStop(0, "rgba(255,240,200,.55)"); g.addColorStop(1, "rgba(255,240,200,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p.x, p.y, 36, 18, 0, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawSpotCones() {
+  if (!state.spots.length) return;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (const c of state.spots) {
+    const p = iso(c.x, c.y), topY = state.cam.y - ch / (2 * z) - 10;
+    const g = ctx.createLinearGradient(0, topY, 0, p.y);
+    g.addColorStop(0, "rgba(255,240,200,0)"); g.addColorStop(1, "rgba(255,240,200,.16)");
+    poly([[p.x - 5, topY], [p.x + 5, topY], [p.x + 26, p.y], [p.x - 26, p.y]], g);
+  }
+  ctx.restore();
+}
+
+/* ---------- Objeler ---------- */
+function drawObject(r, o, t) {
+  const { x, y, k } = o, p = iso(x, y);
+  if (k === "L") {
+    const back = r.loungerBack[x + "," + y] || -1;
+    ellipse(p.x, p.y + 2, 20, 9, "rgba(30,20,20,.16)");
+    isoBox(x, y, 0.44, 0.86, 5, 2, "#FFFFFF", "#CFC6B8", "#E2DACD");
+    isoBox(x, y + back * 0.04, 0.38, 0.72, 3, 7, "#F28C28", "#C9641A", "#DD7A22");
+    isoBox(x, y + back * 0.34, 0.44, 0.16, 12, 7, "#FFFFFF", "#CFC6B8", "#E2DACD");
+  } else if (k === "U") {
+    ellipse(p.x, p.y, 8, 4, "rgba(30,20,20,.2)");
+    ctx.strokeStyle = "#EDE3D3"; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - 50); ctx.stroke();
+    const cy = p.y - 46, n = 10, segs = [];
+    for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2, a1 = (i + 1) / n * Math.PI * 2; segs.push({ a0, a1, s: Math.sin((a0 + a1) / 2), i }); }
+    segs.sort((a, b) => a.s - b.s);
+    for (const sg of segs) poly([[p.x, cy - 14], [p.x + Math.cos(sg.a0) * 30, cy + Math.sin(sg.a0) * 12], [p.x + Math.cos(sg.a1) * 30, cy + Math.sin(sg.a1) * 12]], sg.i % 2 ? "#F3E9DC" : "#F28C28");
+  } else if (k === "T") {
+    ellipse(p.x, p.y + 2, 22, 10, "rgba(30,20,20,.2)");
+    isoBox(x, y, 0.42, 0.42, 11, 0, "#B4613A", "#8E4527", "#A4532F");
+    ctx.fillStyle = "#6B4A2E"; ctx.fillRect(p.x - 2, p.y - 30, 4, 22);
+    const cy = p.y - 42, sway = Math.sin(t / 1400 + x) * 0.8;
+    circle(p.x - 11 + sway, cy + 4, 13, "#2F6B3A"); circle(p.x + 11 + sway, cy + 3, 13, "#2F6B3A");
+    circle(p.x + sway, cy - 8, 15, "#3B7F45"); circle(p.x - 5 + sway, cy + 7, 12, "#34763F"); circle(p.x + 6 + sway, cy - 2, 11, "#468D50");
+    circle(p.x - 3 + sway, cy - 13, 6, "rgba(255,255,255,.08)");
+    for (const [ox, oy] of [[-12, 2], [8, -10], [13, 6], [-4, -14], [-1, 9], [-15, -6]]) circle(p.x + ox + sway, cy + oy, 2.6, "#F28C28");
+  } else if (k === "P") {
+    ellipse(p.x, p.y + 1, 14, 6, "rgba(30,20,20,.18)");
+    isoBox(x, y, 0.42, 0.42, 13, 0, "#C46A3D", "#9A4C27", "#B05B32");
+    const cy = p.y - 20;
+    circle(p.x - 6, cy, 8, "#3B7F45"); circle(p.x + 6, cy, 8, "#34763F"); circle(p.x, cy - 7, 9, "#468D50");
+  } else if (k === "K") {
+    ellipse(p.x, p.y + 1, 18, 8, "rgba(30,20,20,.18)");
+    isoBox(x, y, 0.16, 0.16, 14, 0, "#6B4A2E", "#523822", "#5E4129");
+    isoBox(x, y, 0.72, 0.72, 3, 14, "#F3E9DC", "#C9BBA6", "#DCCEB8");
+    const a = iso(x - 0.12, y - 0.1); ctx.fillStyle = "rgba(242,140,40,.9)"; ctx.fillRect(a.x - 1.5, a.y - 24, 3, 6);
+  } else if (k === "C") {
+    let bx = 0, by = 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(r, x + dx, y + dy) === "K") { bx = -dx; by = -dy; }
+    const cc = r.chair || ["#2BB3A3", "#1C8584", "#23A093"];
+    ellipse(p.x, p.y + 1, 12, 5, "rgba(30,20,20,.16)");
+    isoBox(x, y, 0.36, 0.36, 8, 0, cc[0], cc[1], cc[2]);
+    isoBox(x + bx * 0.16, y + by * 0.16, bx ? 0.06 : 0.36, by ? 0.06 : 0.36, 12, 8, cc[0], cc[1], cc[2]);
+  } else if (k === "B") {
+    isoBox(x, y, 1, 0.7, 24, 0, "#F3E9DC", "#7E4F33", "#946040");
+    if (tileAt(r, x - 1, y) === "B" && tileAt(r, x + 1, y) === "B") for (const [ox, col] of [[-0.25, "#2BB3A3"], [0, "#F28C28"], [0.22, "#E4572E"]]) {
+      const a = iso(x + ox, y); ctx.fillStyle = col; ctx.fillRect(a.x - 2, a.y - 36, 4, 10); ctx.fillRect(a.x - 1, a.y - 39, 2, 3);
+    }
+  } else if (k === "H") {
+    const [fx, fy] = r.seatFace(x, y), bx = -fx, by = -fy;
+    ellipse(p.x, p.y + 2, 15, 7, "rgba(0,0,0,.3)");
+    isoBox(x, y, 0.5, 0.5, 9, 0, "#A8324F", "#6E1A30", "#8A2540");
+    isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 18, 9, "#A8324F", "#6E1A30", "#8A2540");
+    isoBox(x + bx * 0.2, y + by * 0.2, bx ? 0.1 : 0.5, by ? 0.1 : 0.5, 2, 27, "#E9C46A", "#B08A35", "#C9A24A");
+  } else if (k === "O") {
+    const sc = r.sofa;
+    ellipse(p.x, p.y + 2, 20, 9, "rgba(30,20,20,.18)");
+    isoBox(x, y, 0.86, 0.6, 8, 0, sc[0], sc[1], sc[2]);
+    isoBox(x, y - 0.25, 0.86, 0.14, 13, 8, sc[0], sc[1], sc[2]);
+    isoBox(x - 0.36, y, 0.14, 0.6, 5, 8, sc[0], sc[1], sc[2]);
+    circle(p.x + 4, p.y - 12, 3.2, "rgba(255,255,255,.35)");
+  } else if (k === "V") {
+    const [fx, fy] = r.seatFace(x, y), bx = -fx, by = -fy;
+    ellipse(p.x, p.y + 2, 15, 7, "rgba(0,0,0,.35)");
+    isoBox(x, y, 0.56, 0.56, 9, 0, "#8E1F3A", "#5A1022", "#741A30");
+    isoBox(x + bx * 0.22, y + by * 0.22, bx ? 0.12 : 0.56, by ? 0.12 : 0.56, 16, 9, "#8E1F3A", "#5A1022", "#741A30");
+    isoBox(x + bx * 0.22, y + by * 0.22, bx ? 0.12 : 0.56, by ? 0.12 : 0.56, 2, 25, "#E9C46A", "#B08A35", "#C9A24A");
+  } else if (k === "R") {
+    ellipse(p.x, p.y + 1, 14, 6, "rgba(0,0,0,.35)");
+    isoBox(x, y, 0.14, 0.14, 12, 0, "#3A1A12", "#2A120C", "#32160F");
+    isoBox(x, y, 0.5, 0.5, 2.5, 12, "#4A2418", "#2E140C", "#3B1C12");
+    for (const [ox, oy] of [[-6, -1], [5, 1]]) {
+      const fl = 0.7 + 0.3 * Math.sin(t / 120 + ox);
+      ctx.fillStyle = "#F7EEDC"; ctx.fillRect(p.x + ox - 1.5, p.y + oy - 22, 3, 7);
+      const g = ctx.createRadialGradient(p.x + ox, p.y + oy - 24, 0, p.x + ox, p.y + oy - 24, 14);
+      g.addColorStop(0, "rgba(255,190,100," + 0.75 * fl + ")"); g.addColorStop(1, "rgba(255,190,100,0)");
+      ctx.fillStyle = g; ctx.fillRect(p.x + ox - 14, p.y + oy - 38, 28, 28);
+      ellipse(p.x + ox, p.y + oy - 24.5, 1.3, 2.4 * fl, "#FFD27A");
+    }
+    circle(p.x, p.y - 19, 3, "#C4213F"); circle(p.x + 2, p.y - 20.5, 2.2, "#E03A57");
+  } else if (k === "S") {
+    const pulse = 0.5 + 0.5 * Math.sin(t / 450);
+    const g = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 44);
+    g.addColorStop(0, "rgba(233,196,106," + (0.25 + 0.15 * pulse) + ")"); g.addColorStop(1, "rgba(233,196,106,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p.x, p.y, 44, 22, 0, 0, Math.PI * 2); ctx.fill();
+    isoBox(x, y, 0.86, 0.86, 7, 0, "#2E2A4A", "#1C1A33", "#25223F");
+    isoBox(x, y, 0.86, 0.86, 1.5, 7, "#E9C46A", "#B08A35", "#C9A24A");
+    const cnt = Math.min(9, state.flyCards.filter(f => NOW - f.t0 > f.dur).length);
+    for (let i = 0; i < cnt; i++) { ctx.fillStyle = "#FFFDF6"; ctx.fillRect(p.x - 7 + (i % 3) * 4.5, p.y - 13 - Math.floor(i / 3) * 2.5, 4, 2); }
+    isoBox(x, y, 0.5, 0.5, 18, 8.5, "rgba(220,232,245,.5)", "rgba(170,190,215,.5)", "rgba(195,210,230,.5)");
+    isoBox(x, y, 0.54, 0.54, 2, 26.5, "#E9C46A", "#B08A35", "#C9A24A");
+    ctx.fillStyle = "#1B1E38"; ctx.fillRect(p.x - 6, p.y - 30, 12, 1.6);
+  }
+}
+function drawRailing(r) {
+  if (!r.railing) return;
+  const H = 20, run1 = [], run2 = [];
+  for (let y = 0; y <= r.h; y++) run1.push(iso(r.w - 0.5, y - 0.5));
+  for (let x = r.w; x >= 0; x--) run2.push(iso(x - 0.5, r.h - 0.5));
+  for (const run of [run1, run2]) {
+    ctx.strokeStyle = "#6B412A"; ctx.lineWidth = 2;
+    for (const p of run) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - H); ctx.stroke(); }
+    ctx.lineWidth = 3; ctx.strokeStyle = "#F3E9DC";
+    ctx.beginPath(); run.forEach((p, i) => i ? ctx.lineTo(p.x, p.y - H) : ctx.moveTo(p.x, p.y - H)); ctx.stroke();
+  }
+}
+
+/* ---------- Karakter çizimi (Sims'e yakın oranlar, geçici) ---------- */
+const OUTLINE = "rgba(25,16,18,.38)";
+function line(x1, y1, x2, y2, w, col) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+function limb(x1, y1, x2, y2, w, col) { line(x1, y1, x2, y2, w + 1.2, OUTLINE); line(x1, y1, x2, y2, w, col); }
+function hairBehind(d) {
+  ctx.fillStyle = d.hair;
+  if (d.hs === "long") { ctx.beginPath(); ctx.roundRect(-8, -60, 12.5, 25, 4); ctx.fill(); }
+  if (d.hs === "pony") { ctx.save(); ctx.translate(-8.5, -52); ctx.rotate(0.35); ellipse(0, 0, 2.6, 6.5, d.hair); ctx.restore(); }
+}
+function hairFront(d) {
+  const hc = d.hair;
+  ctx.fillStyle = hc;
+  ctx.beginPath(); ctx.arc(0, -57, d.hs === "buzz" ? 6.7 : 7, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill();
+  ellipse(-3.8, -55, 3.6, d.hs === "buzz" ? 3.5 : 5.2, hc);
+  if (d.hs === "short") ellipse(2.5, -62, 4.6, 2.3, hc);
+  if (d.hs === "wavy") { ellipse(-4.6, -51.5, 4, 7.5, hc); ellipse(6.1, -54, 1.6, 4, hc); circle(-6.2, -45, 2.6, hc); circle(-2.6, -45.6, 2.3, hc); }
+  if (d.hs === "long") ellipse(-4.4, -53, 3.6, 6.5, hc);
+  if (d.hs === "bun") circle(-3, -64.5, 3.4, hc);
+  if (d.hs === "curly") for (let i = 0; i <= 6; i++) { const a = Math.PI + i / 6 * Math.PI; circle(Math.cos(a) * 6.4, -57 + Math.sin(a) * 6.4, 2.7, hc); }
+  if (d.hs !== "buzz") { ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(0.5, -57.5, 5, Math.PI * 1.25, Math.PI * 1.6); ctx.stroke(); }
+}
+function hairBack(d) {
+  const hc = d.hair;
+  circle(0, -56, 6.9, hc);
+  ctx.fillStyle = hc;
+  if (d.hs === "long") { ctx.beginPath(); ctx.roundRect(-6.5, -57, 13, 20, 4); ctx.fill(); }
+  if (d.hs === "wavy") { ctx.beginPath(); ctx.roundRect(-7, -57, 14, 12, 5); ctx.fill(); }
+  if (d.hs === "bun") circle(0, -64, 3.4, hc);
+  if (d.hs === "pony") ellipse(0, -49, 2.6, 6, hc);
+  if (d.hs === "curly") for (let i = 0; i <= 8; i++) { const a = i / 8 * Math.PI * 2; circle(Math.cos(a) * 6.2, -56 + Math.sin(a) * 6.2, 2.6, hc); }
+}
+function drawChar(c, t) {
+  const d = c.def, p = iso(c.x, c.y);
+  const dancing = state.dancers.includes(c);
+  const swing = dancing ? Math.sin(t / 170) * 4.5 : c.moving ? Math.sin(c.walkT) * 3.2 : 0;
+  const bob = dancing ? Math.abs(Math.sin(t / 170)) * 3.5 : c.moving ? Math.abs(Math.sin(c.walkT)) * 1.2 : Math.sin(t / 650 + c.seed) * 0.35;
+  if (c.leaving) c.alpha = Math.max(0, c.alpha - 0.03);
+  if (c.alpha <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = c.alpha;
+  ctx.translate(p.x, p.y);
+  if (c === player && state.phase !== "gala") { const s = 1 + Math.sin(t / 300) * 0.06; ctx.strokeStyle = "rgba(255,46,126,.95)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 13 * s, 6 * s, 0, 0, Math.PI * 2); ctx.stroke(); }
+  else if (dlg && dlg.n === c) { ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 13, 6, 0, 0, Math.PI * 2); ctx.stroke(); }
+  if (state.immune.has(c.id) && state.phase === "gala") { ctx.strokeStyle = "rgba(233,196,106,.95)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 7, 0, 0, Math.PI * 2); ctx.stroke(); }
+  ellipse(0, 0, c.sit ? 13 : 10, c.sit ? 5 : 4, "rgba(20,15,30,.26)");
+  if (!c.right) ctx.scale(-1, 1);
+  const sitOff = c.sit ? 13 : 0;
+  const lower = d.legs === "pants" ? d.bottom : d.skin;
+  if (c.sit) {
+    for (const off of [-1.6, 1.6]) {
+      limb(-1, -12 + off, 7, -11 + off, 5, d.legs === "dress" ? d.skin : d.bottom);
+      limb(7, -11 + off, 10, -3 + off, 4.4, lower);
+      ellipse(11, -2 + off, 2.9, 1.7, d.shoe);
+    }
+  } else {
+    for (const [hx, fx] of [[-2.8, -2.8 + swing], [2.8, 2.8 - swing]]) {
+      limb(hx, -25, fx, -2, 5, lower);
+      if (d.legs === "shorts") line(hx, -25, hx + (fx - hx) * 0.4, -16, 5.4, d.bottom);
+      ellipse(fx + 1, -1.2, 3.3, 1.9, d.shoe);
+      ellipse(fx + 1, -1.8, 2.2, 0.8, "rgba(255,255,255,.18)");
+    }
+  }
+  ctx.translate(0, sitOff - bob);
+  if (d.legs === "dress") poly([[-6.5, -32], [6.5, -32], [9, -15], [-9, -15]], d.bottom, OUTLINE, 0.8);
+  const sh = c.front ? 1 : -1;
+  limb(-7.5 * sh, -43, (-8.8 - swing * 0.6) * sh, -27, 3.6, d.skin);
+  line(-7.5 * sh, -43, (-8.2 - swing * 0.25) * sh, -37, 4.4, d.top);
+  hairBehind(d);
+  ctx.beginPath(); ctx.roundRect(-7, -47, 14, 22, 4);
+  ctx.fillStyle = d.top; ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.lineWidth = 0.9; ctx.stroke();
+  rrect(c.front ? 0 : -7, -47, 7, 22, 3, "rgba(255,255,255,.09)");
+  rrect(c.front ? -7 : 0, -47, 7, 22, 3, "rgba(0,0,0,.06)");
+  if (c.front) poly([[-2.6, -47], [2.6, -47], [0, -43.6]], d.skin);
+  if (d.legs !== "dress") { ctx.fillStyle = shade(d.bottom, -0.25); ctx.fillRect(-7, -26.5, 14, 1.6); }
+  limb(7.5 * sh, -43, (8.8 + swing * 0.6) * sh, -27, 3.6, d.skin);
+  line(7.5 * sh, -43, (8.2 + swing * 0.25) * sh, -37, 4.4, d.top);
+  ctx.fillStyle = d.skin; ctx.fillRect(-2, -51, 4, 5);
+  ctx.beginPath(); ctx.arc(0, -56, 6.4, 0, Math.PI * 2); ctx.fillStyle = d.skin; ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.lineWidth = 0.8; ctx.stroke();
+  if (c.front) {
+    hairFront(d);
+    if (d.beard) { ctx.fillStyle = d.hair; ctx.globalAlpha = 0.85 * c.alpha; ctx.beginPath(); ctx.arc(0.8, -55.5, 6.2, 0.08 * Math.PI, 0.92 * Math.PI); ctx.closePath(); ctx.fill(); ctx.globalAlpha = c.alpha; }
+    const blink = ((t + c.seed * 977) % 4300) < 130;
+    if (blink) { line(0.3, -55.3, 2.1, -55.3, 0.8, "#2A1A14"); line(3.3, -55.3, 5.1, -55.3, 0.8, "#2A1A14"); }
+    else {
+      ellipse(1.2, -55.4, 1.35, 1.1, "#FFFFFF"); ellipse(4.2, -55.4, 1.35, 1.1, "#FFFFFF");
+      circle(1.5, -55.3, 0.8, "#2A1A14"); circle(4.5, -55.3, 0.8, "#2A1A14");
+    }
+    line(0.2, -57.4, 2.2, -57.7, 0.8, shade(d.hair, -0.1)); line(3.3, -57.7, 5.2, -57.4, 0.8, shade(d.hair, -0.1));
+    if (d.blush) ellipse(5, -53.5, 1.3, 0.7, "rgba(230,110,90,.4)");
+    ctx.strokeStyle = d.beard ? "#E9CFB8" : "#7A3F2E"; ctx.lineWidth = 0.9; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(2.8, -53.3, 1.5, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  } else hairBack(d);
+  ctx.restore();
+}
+
+/* ---------- Etiketler, balonlar, efektler ---------- */
+function wrap(text, maxW) {
+  const words = text.split(" "), lines = [];
+  let cur = "";
+  for (const w of words) { const t = cur ? cur + " " + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur);
+  return lines;
+}
+/* Ekran dolmasın: tam metin yalnızca sen, konuştuğun kişi ve sana en yakın iki konuşmacı için */
+function bubbleFocus(chars) {
+  const live = chars.filter(c => c.bubble && NOW <= c.bubble.until);
+  if (state.phase !== "day") return new Set(live);
+  const keep = new Set(live.filter(c => c === player || (dlg && dlg.n === c)));
+  if (!dlg) live.filter(c => !keep.has(c) && dist(c, player) <= 4.5).sort((a, b) => dist(a, player) - dist(b, player)).slice(0, 2).forEach(c => keep.add(c));
+  return keep;
+}
+function drawLabels(chars) {
+  const placed = [], focus = bubbleFocus(chars);
+  const viewL = state.cam.x - cw / (2 * z) + 6, viewR = state.cam.x + cw / (2 * z) - 6;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const c of chars) {
+    if (c.alpha <= 0.05) continue;
+    const p = iso(c.x, c.y), headTop = p.y - (c.sit ? 50 : 63);
+    ctx.font = '700 10px "Barlow Condensed", system-ui, sans-serif';
+    const isNew = c.arrivedDay && c.arrivedDay === state.day && state.day > 1;
+    const label = (c.def.name + (isNew ? " · yeni" : "")).toLocaleUpperCase("tr");
+    const hasHeart = shownMatch(c), gr = groupOf(c.id);
+    const extra = (hasHeart ? 11 : 0) + (gr ? 9 : 0);
+    const nw = ctx.measureText(label).width + 10 + extra;
+    const lx = p.x - nw / 2;
+    rrect(lx, headTop - 15, nw, 12, 0, c === player ? "#FF2E7E" : isNew ? "#F3F2EE" : "rgba(12,12,14,.86)");
+    let cx = lx + 6;
+    if (gr) { circle(cx + 1, headTop - 9, 2.6, gr.color); cx += 9; }
+    if (hasHeart) heart(cx + 2, headTop - 9.2, 3.4, c === player ? "#FFFFFF" : "#FF2E7E");
+    ctx.fillStyle = isNew ? "#0C0C0E" : "#FFFFFF";
+    ctx.fillText(label, p.x + extra / 2, headTop - 8.6);
+    const b = c.bubble;
+    if (!b || NOW > b.until) continue;
+    if (!focus.has(c)) {
+      // uzaktaki konuşmalar: sadece "konuşuyor" göstergesi
+      const ix = p.x - 9, iy = headTop - 29;
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#FFFFFF"; ctx.fillRect(ix, iy, 18, 10);
+      ctx.beginPath(); ctx.moveTo(p.x - 3, iy + 10); ctx.lineTo(p.x, iy + 13); ctx.lineTo(p.x + 3, iy + 10); ctx.fill();
+      for (let i = 0; i < 3; i++) circle(ix + 4.5 + i * 4.5, iy + 5, 1.2 + (Math.floor(NOW / 300) % 3 === i ? 0.5 : 0), "#0C0C0E");
+      ctx.globalAlpha = 1;
+      continue;
+    }
+    ctx.font = "600 11.5px Barlow, system-ui, sans-serif";
+    const lines = wrap(b.text, 138);
+    const lw = Math.max(...lines.map(l => ctx.measureText(l).width));
+    const bw = lw + 16, bh = lines.length * 14 + 10;
+    let bx = Math.max(viewL, Math.min(viewR - bw, p.x - bw / 2)), by = headTop - 20 - bh;
+    for (let guard = 0; guard < 6; guard++) {
+      const hit = placed.find(q => bx < q.x + q.w && bx + bw > q.x && by < q.y + q.h && by + bh > q.y);
+      if (!hit) break;
+      by = hit.y - bh - 4;
+    }
+    placed.push({ x: bx, y: by, w: bw, h: bh });
+    const tx = bx + bw / 2, tailX = Math.max(bx + 10, Math.min(bx + bw - 10, p.x));
+    ctx.globalAlpha = Math.min(1, (b.until - NOW) / 250);
+    ctx.beginPath(); ctx.rect(bx, by, bw, bh);
+    if (by + bh > headTop - 24) { ctx.moveTo(tailX - 5, by + bh); ctx.lineTo(tailX, by + bh + 6); ctx.lineTo(tailX + 5, by + bh); }
+    ctx.fillStyle = "#FFFFFF"; ctx.fill();
+    if (c === player || b.alert) { ctx.fillStyle = "#FF2E7E"; ctx.fillRect(bx, by, 3, bh); }
+    ctx.strokeStyle = "rgba(12,12,14,.2)"; ctx.lineWidth = 1; ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = "#0C0C0E";
+    lines.forEach((l, i) => ctx.fillText(l, tx, by + 12 + i * 14));
+    ctx.globalAlpha = 1;
+  }
+}
+function drawEffects() {
+  state.hearts = state.hearts.filter(h => NOW - h.t0 < 2600);
+  for (const h of state.hearts) {
+    const k = (NOW - h.t0) / 2600, p = iso(h.c.x, h.c.y);
+    ctx.globalAlpha = 1 - k;
+    for (let i = 0; i < 3; i++) heart(p.x + Math.sin(k * 6 + i * 2) * 8 + (i - 1) * 7, p.y - 60 - k * 40 - i * 8, 4.5 - i, "#FF2E7E");
+    ctx.globalAlpha = 1;
+  }
+  for (const c of state.dancers) {
+    if (c.room !== state.room) continue;
+    const p = iso(c.x, c.y);
+    ctx.font = "700 12px Barlow, system-ui, sans-serif"; ctx.textAlign = "center";
+    for (let i = 0; i < 3; i++) {
+      const k = ((NOW / 1400) + i / 3 + c.seed) % 1;
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = i % 2 ? "#FFFFFF" : "#FF2E7E";
+      ctx.fillText(i % 2 ? "♫" : "♪", p.x + Math.sin(k * 6 + i) * 10 + (i - 1) * 8, p.y - 70 - k * 30);
+    }
+    ctx.globalAlpha = 1;
+  }
+  for (const f of state.flyCards) {
+    const k = Math.min(1, (NOW - f.t0) / f.dur);
+    if (k >= 1) continue;
+    const x = f.x0 + (f.x1 - f.x0) * k, y = f.y0 + (f.y1 - f.y0) * k - Math.sin(k * Math.PI) * 18;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(k * 2.2);
+    ctx.fillStyle = "#FFFDF6"; ctx.fillRect(-4, -2.5, 8, 5);
+    ctx.strokeStyle = "#C9A24A"; ctx.lineWidth = 0.8; ctx.strokeRect(-4, -2.5, 8, 5);
+    ctx.restore();
+  }
+}
+function drawDoorTags(r, t) {
+  if (!r.public) return;
+  ctx.font = '700 10px "Barlow Condensed", system-ui, sans-serif'; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const key in r.doors) {
+    const dr = r.doors[key], open = canEnter(player, dr.to);
+    const [x, y] = key.split(",").map(Number), p = iso(x, y), label = (dr.label + (open ? " ›" : " · kapalı")).toLocaleUpperCase("tr");
+    const w = ctx.measureText(label).width + 12, yy = p.y - 16 + Math.sin(t / 400) * 1.5;
+    rrect(p.x - w / 2, yy - 7, w, 14, 0, open ? "#0C0C0E" : "#55555C");
+    if (open) { ctx.fillStyle = "#FF2E7E"; ctx.fillRect(p.x - w / 2, yy - 7, 3, 14); }
+    ctx.fillStyle = "#FFFFFF"; ctx.fillText(label, p.x + 1, yy);
+  }
+}
+
+/* ---------- Ana döngü ---------- */
+function worldTransform() { ctx.setTransform(dpr * z, 0, 0, dpr * z, dpr * (cw / 2 - state.cam.x * z), dpr * (ch / 2 - state.cam.y * z)); }
+function render(t) {
+  const r = room();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawBackdrop(t, r);
+  worldTransform();
+  drawWalls(r, t);
+  drawPlatformSides(r);
+  drawFloor(r, t);
+  drawOverlays(t);
+  const chars = house().filter(c => c.room === state.room);
+  const items = r.objects.map(o => ({ d: o.x + o.y, f: () => drawObject(r, o, t) }))
+    .concat(chars.map(c => ({ d: c.x + c.y + 0.05 + (c.sit ? 0.05 : 0), f: () => drawChar(c, t) })));
+  items.sort((a, b) => a.d - b.d);
+  for (const it of items) it.f();
+  drawRailing(r);
+  drawSpotCones();
+  drawEffects();
+  drawDoorTags(r, t);
+  if (!r.night) {
+    const tod = timeOfDay();
+    if (tod > 0.4) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = "rgba(255,130,60," + ((tod - 0.4) * 0.12) + ")"; ctx.fillRect(0, 0, cw, ch); worldTransform(); }
+  }
+  drawLabels(chars.sort((a, b) => (a.x + a.y) - (b.x + b.y)));
+}
+let chipTick = 0;
+function updateChips(ts) {
+  if (ts - chipTick < 250) return;
+  chipTick = ts;
+  const el = $("timer-chip"), fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+  let text = "";
+  if (state.timer) text = state.timer.label + " · " + fmt(state.timer.until - NOW);
+  else if (state.visit && state.phase === "day") {
+    const v = state.visit;
+    text = v.c === player ? ROOMS[v.room].name + "'nde misafirsin · " + fmt(v.until - NOW) : "Misafir: " + v.c.def.name + " → " + ROOMS[v.room].name + " · " + fmt(v.until - NOW);
+  }
+  el.hidden = !text;
+  if (text) el.innerHTML = "<i></i>" + esc(text);
+}
+let last = 0;
+function frame(ts) {
+  const dt = Math.min(0.05, (ts - last) / 1000 || 0);
+  last = ts; NOW = ts;
+  if (player) {
+    step(player, dt);
+    for (const n of npcs.slice()) updateNPC(n, dt);
+    scheduleTalks();
+    if (state.timer && NOW > state.timer.until) { const f = state.timer.onEnd; state.timer = null; f(); }
+    if (state.phase === "day") {
+      if (state.visit && NOW > state.visit.until) endVisit();
+      if (!dlg && $("modal").hidden) {
+        const { done, total } = talkProgress(), k = total ? done / total : 0;
+        if (!state.visit && NOW > state.nextVisit) startVisit();
+        else if (!state.eventDone && k >= 0.25) dayEvent();
+        else if (!state.gameDone && k >= 0.5 && !player.path.length) startGame();
+        else if (!state.bordoInviteDone && k >= 0.4) npcInvitesPlayer();
+        else if (!state.bordoNpcDone && k >= 0.6) npcBordo();
+      }
+    }
+    updateChips(ts);
+    updateCamera(dt);
+    updateHud();
+    render(ts);
+    if (preview && !$("modal").hidden) renderPreview(ts);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Oyun kurulumu ---------- */
+function buildCast(gender, name, look) {
+  npcs = []; byId = {};
+  for (const id in BASE) {
+    const [rm, x, y, sit, face] = START_POS[id];
+    const c = mkChar(id, withDefaults(BASE[id]), rm, x, y, { sit, face });
+    npcs.push(c); byId[id] = c;
+  }
+  player = mkChar("sen", withDefaults(Object.assign({ name, g: gender, likes: [], dislikes: [] }, look || PLAYER_LOOK[gender])), "havuz", 5, 11, { face: [1, 1], speed: 3.1 });
+  byId.sen = player;
+  // başlangıç ilişkileri: karakter dokümanındaki haritaya göre
+  setChem(byId.bora, byId.nehir, 6); setChem(byId.tolga, byId.defne, 6);
+  setChem(byId.arda, byId.ece, 5); setChem(byId.kaan, byId.selin, 4);
+  state.groups = [];
+  newGroup("F", ["nehir", "defne", "ece"]);
+  newGroup("M", ["kaan", "tolga"]);
+  for (const [a, b] of [["nehir", "defne"], ["nehir", "ece"], ["defne", "ece"], ["kaan", "tolga"]]) setChem(byId[a], byId[b], 7);
+}
+function beginGame(gender, name, look) {
+  state.room = "havuz"; state.day = 1; state.phase = "day";
+  state.talked = new Set(); state.chem = new Map(); state.matchOf = {}; state.revealed = new Set(); state.metPlayer = new Set();
+  state.immune = new Set(); state.gameDone = false; state.eventDone = false;
+  state.pool = { F: NEWCOMERS.F.slice(), M: NEWCOMERS.M.slice() };
+  state.galaReadyShown = false; state.target = null; state.nextSchedule = NOW + 2500; state.spots = []; state.hearts = []; state.flyCards = [];
+  state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false; state.dancers = [];
+  state.nextVisit = NOW + 35000;
+  buildCast(gender, name, look);
+  sendHome(player); player.x = 5; player.y = 6;
+  state.room = player.room;
+  $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;
+  updateHud(true);
+  snapCamera();
+  const opp = npcs.filter(n => n.def.g !== gender).map(n => n.def.name);
+  later(500, () => toast(ROOMS[state.room].name + "'ndesin. Karşı cinsle Havuz Başı'nda buluşabilirsin. Galadan önce konuşman gerekenler: " + opp.join(", "), "", 6000));
+}
+function newGame() {
+  closeDialog(); endGalaUI(); closeModal();
+  state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
+  state.visit = null; state.timer = null; state.dancers = [];
+  buildCast("F", "Deniz");
+  sendHome(player); player.x = 5; player.y = 6; state.room = player.room;
+  $("room-chip").hidden = false; $("room-name").textContent = ROOMS[state.room].name;
+  snapCamera();
+  openStart();
+}
+
+/* Otomatik testler için küçük kanca */
+window.__villa = {
+  tileToScreen(x, y, up = 0) { const p = iso(x, y); return { x: (p.x - state.cam.x) * z + cw / 2, y: (p.y - up - state.cam.y) * z + ch / 2 }; },
+  info() { const tp = talkProgress(); return { visit: state.visit ? state.visit.c.id + "->" + state.visit.room : null, proom: player.room, room: state.room, day: state.day, phase: state.phase, match: state.matchOf[player.id] || null, done: tp.done, total: tp.total, game: state.gameDone, immune: [...state.immune], groups: state.groups.map(g => g.name + ":" + g.members.join("+")), dialog: !!dlg, n: npcs.length }; },
+  pending() { return housePairs().filter(([a, b]) => !talked(a, b)).map(([a, b]) => a.id + "-" + b.id); },
+  pos(id) { const c = byId[id]; return c ? { x: c.x, y: c.y, room: c.room, mode: c.mode } : null; },
+  debugImmune() { state.immune.add(player.id); },
+  debugTalkAll() { for (const [a, b] of housePairs()) state.talked.add(pairKey(a.id, b.id)); },
+};
+
+newGame();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

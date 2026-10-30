@@ -4,8 +4,10 @@ Tarayıcıda çalışan, tek dosyalık bir prototip. Amaç **hareketi ve oyun si
 tüm görseller kodla çizilmiş geçici şekiller.
 
 ## Çalıştırma
-`index.html` dosyasını herhangi bir tarayıcıda aç. Kurulum, sunucu veya bağımlılık yok
-(fontlar Google Fonts'tan gelir, internet yoksa sistem fontuna düşer).
+- **Paylaşmak için:** `kader-kismet.html` tek dosyalık tam sürümdür. Arkadaşına gönder, çift tıklayıp tarayıcıda açsın.
+  Kurulum yok; fontlar Google Fonts'tan gelir, internet yoksa sistem fontuna düşer.
+- `index.html` geliştirme kaynağıdır. Değiştirdikten sonra paylaşılabilir dosyayı yeniden üret:
+  `python3 demo/build_standalone.py`
 
 ## Mekân
 - **Kızlar Evi** ve **Erkekler Evi** ayrı. **Havuz Başı** ortak alan; karşı cinsle orada buluşulur.
@@ -13,7 +15,7 @@ tüm görseller kodla çizilmiş geçici şekiller.
 - **Bordo Oda:** Baş başa konuşma odası (mumlu sehpa, bordo koltuklar). Sadece çağrıyla girilir.
 
 ## Günlük döngü
-1. **Giriş:** Kız ya da erkek karakter seçilir, isim girilir. Oyuncu kendi evinde başlar.
+1. **Kostüm ekranı:** Kız/erkek, isim, ten rengi, saç modeli ve rengi, üst rengi, alt tipi (şort, pantolon, elbise) ve rengi, ayakkabı, sakal; canlı önizleme ve "Rastgele" butonu. Oyuncu kendi evinde başlar.
 1. **Misafirlik:** Gün içinde rastgele biri (bazen sen) 90 saniyeliğine karşı eve misafir olur ve oradakilerle konuşabilir. Sayaç ekranda görünür.
 1. **Bordo Oda:**
    - Günde bir kez karşı cinsten birini 45 saniyelik baş başa konuşmaya çağırabilirsin. Etkisi normal sohbetten güçlü: beğenilen cevap +3/+2, beğenilmeyen -2.
@@ -54,11 +56,12 @@ tüm görseller kodla çizilmiş geçici şekiller.
 - Gala salonu: yıldızlı gece, altın süslemeli duvarlar, kırmızı halı, bordo koltuklar, ışıklı cam sandık.
 
 ## Diğer
+- Konuşma balonları sınırlı: tam metin yalnızca senin, konuştuğun kişinin ve sana en yakın iki konuşmacının balonunda görünür; diğerlerinde küçük "•••" göstergesi çıkar.
 - Havuz Başı, Kızlar Evi, Erkekler Evi; kapı paspası ya da Harita ile geçiş.
 - Sohbet kutusu: telefon numarası, @kullanıcı adı ve Instagram gibi ifadeler `***` ile maskelenir.
 - "Evdekiler": gruplar, uyum/güven değerleri, match ve dokunulmazlık durumu.
 
 ## Bilinçli olarak yapılmayanlar
 - Gerçek çok oyunculu bağlantı (Supabase Realtime) yok; diğer karakterler basit kurallarla hareket ediyor.
-- Avatar giydirme, kalıcı kayıt ve izleyici oyu yok.
+- Kalıcı kayıt ve izleyici oyu yok. Kostümler oyun içinde sonradan değiştirilemiyor.
 - Gerçek oyunda motor olarak Phaser + Tiled düşünülüyor; bu demo bağımlılıksız olsun diye düz Canvas ile yazıldı.
