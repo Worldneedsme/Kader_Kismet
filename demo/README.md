@@ -48,6 +48,7 @@ tüm görseller kodla çizilmiş geçici şekiller.
    - Sonra herkes evine döner. Konuşmalar, oyun, Bordo hakkı ve dokunulmazlık sıfırlanır.
 
 ## Görsel
+- Arayüz realite şovu yayın grafiği dilinde: Anton başlıklar, Barlow Condensed etiketler, siyah-beyaz zemin ve tek vurgu rengi fuşya; keskin köşeli alt bantlar, "CANLI" rozeti, sahnenin altında kayan villa haberleri bandı.
 - Gökyüzü gün içinde konuşmalar ilerledikçe sabahtan gün batımına döner; evlerdeki ışık zincirleri akşama doğru parlar.
 - Karakterlerde çizgi, göz kırpma, nefes alma, kaş, ayakkabı ve saç parlaması var. Havuzda simitler yüzüyor.
 - Gala salonu: yıldızlı gece, altın süslemeli duvarlar, kırmızı halı, bordo koltuklar, ışıklı cam sandık.
