@@ -9,7 +9,9 @@ tüm görseller kodla çizilmiş geçici şekiller.
 - `index.html` geliştirme kaynağıdır. Değiştirdikten sonra paylaşılabilir dosyayı yeniden üret:
   `python3 demo/build_standalone.py`
 
-## Mekân
+## Kadro ve mekân
+- **3'e 3:** Oyuncu dahil 3 kız, 3 erkek. Galaya kadar 9 kız-erkek konuşması gerekir. Elenenin yerine aynı cinsten yeni biri gelir.
+- **1. gün herkes Havuz Başı'nda tanışır;** evler kapalıdır ve misafirlik yoktur. İlk galadan sonra herkes kendi evine yerleşir.
 - **Kızlar Evi** ve **Erkekler Evi** ayrı. **Havuz Başı** ortak alan; karşı cinsle orada buluşulur.
 - Karşı eve sadece misafirlikte girilir; kapı ve harita kilitli görünür.
 - **Bordo Oda:** Baş başa konuşma odası (mumlu sehpa, bordo koltuklar). Sadece çağrıyla girilir.

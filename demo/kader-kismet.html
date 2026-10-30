@@ -706,12 +706,16 @@ const PLAYER_LOOK = {
   F: { skin: "#CFA07E", hair: "#3A2418", hs: "long", top: "#FF2E7E", bottom: "#1E1E22", legs: "shorts", shoe: "#F3E9DC", blush: true },
   M: { skin: "#C7976F", hair: "#4A2F1F", hs: "short", top: "#FF2E7E", bottom: "#1E1E22", legs: "pants", shoe: "#F3E9DC" },
 };
+/* 1. gün herkes Havuz Başı'nda tanışır */
 const START_POS = {
-  nehir: ["havuz", 7, 6, true, [0, 1]], selin: ["havuz", 10, 2, false, [1, 1]],
-  defne: ["kizlar", 4, 6, false, [1, 0]], ece: ["kizlar", 2, 2, true, [1, 0]],
-  bora: ["havuz", 9, 8, false, [-1, 0]], arda: ["havuz", 3, 11, false, [1, 0]],
-  kaan: ["erkekler", 4, 6, false, [1, 1]], tolga: ["erkekler", 8, 2, true, [-1, 0]],
+  nehir: ["havuz", 7, 6, true, [0, 1]], selin: ["havuz", 10, 3, false, [-1, 0]],
+  defne: ["havuz", 3, 10, false, [1, 0]], ece: ["havuz", 1, 7, true, [0, 1]],
+  bora: ["havuz", 9, 8, false, [-1, 0]], kaan: ["havuz", 4, 3, false, [1, 1]],
+  tolga: ["havuz", 8, 11, false, [-1, 0]], arda: ["havuz", 3, 12, false, [1, 0]],
 };
+/* 3'e 3: oyuncu dahil her takımda 3 kişi; sırayla ilk uygun karakterler alınır */
+const TEAM_SIZE = 3;
+const CAST_ORDER = { F: ["nehir", "selin", "defne", "ece"], M: ["bora", "kaan", "tolga", "arda"] };
 const GROUP_NAMES = { F: ["Havuz Kızları", "Gün Batımı", "Kum Saati"], M: ["Teras Ekibi", "İskele Çetesi", "Rüzgâr Ekibi"] };
 const GROUP_COLORS = { F: ["#FF6B8B", "#B48CFF", "#F2C14E"], M: ["#4FA3FF", "#E9C46A", "#7AD3A0"] };
 
@@ -1187,7 +1191,7 @@ function handleTap(px, py) {
   if (!k) return;
   if (WALK.has(k)) {
     const door = k === "D" ? r.doors[tx + "," + ty] : null;
-    if (door && !canEnter(player, door.to)) { toast(ROOMS[door.to] ? ROOMS[door.to].name + " sadece misafirlikte açılır." : "Bu kapı kapalı."); return; }
+    if (door && !canEnter(player, door.to)) { toast(!ROOMS[door.to] ? "Bu kapı kapalı." : state.day === 1 ? "Evlere ilk galadan sonra yerleşilecek. Bugün herkes Havuz Başı'nda." : ROOMS[door.to].name + " sadece misafirlikte açılır."); return; }
     goTo((x, y) => x === tx && y === ty, door ? { type: "door", door } : null);
   } else if (SIT.has(k) && !seatTaken(r.id, tx, ty, player)) {
     goTo((x, y) => x === tx && y === ty, { type: "sit", x: tx, y: ty });
@@ -1203,10 +1207,12 @@ function doorTo(from, to) {
 function canEnter(c, roomId) {
   const r = ROOMS[roomId];
   if (!r) return false;
+  if (r.home && state.day === 1) return false; // ilk gün evlere henüz yerleşilmedi
   if (r.home && r.home !== c.def.g) return !!(state.visit && state.visit.c === c && state.visit.room === roomId);
   return true;
 }
 function allowedRooms(c) {
+  if (state.day === 1) return ["havuz"];
   const out = [homeOf(c), "havuz"];
   if (state.visit && state.visit.c === c) out.push(state.visit.room);
   return out;
@@ -2010,7 +2016,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && canDismiss
 
 const RULES = `
   <ul>
-    <li>Kızlar Evi ve Erkekler Evi ayrı. Karşı cinsle Havuz Başı'nda buluşursun. Gün içinde rastgele biri 90 saniyeliğine karşı eve misafir olur.</li>
+    <li>Villada 3 kız, 3 erkek var. 1. gün herkes Havuz Başı'nda tanışır; ilk galadan sonra Kızlar Evi ve Erkekler Evi'ne yerleşilir.</li>
+    <li>2. günden itibaren karşı cinsle Havuz Başı'nda buluşursun. Gün içinde rastgele biri 90 saniyeliğine karşı eve misafir olur.</li>
     <li>Birine dokun, konuşma başlar. Karşı cinsle konuşma <b>uyumu</b>, kendi cinsinle konuşma <b>güveni</b> belirler.</li>
     <li><b>Bordo Oda:</b> Günde bir kez birini 45 saniyelik baş başa konuşmaya çağırabilirsin; seni de çağırabilirler. Etkisi güçlü ama herkes duyar.</li>
     <li>Yeni yarışmacı karşı cinsin evine girer, herkesle tanışır, birini dansa kaldırır ve Bordo Oda'ya iki kişi çağırır.</li>
@@ -2144,7 +2151,7 @@ function openHouse() {
 function openMap() {
   const rows = Object.values(ROOMS).filter(r => r.public).map(r => {
     const here = r.id === state.room, open = canEnter(player, r.id);
-    const note = here ? " · buradasın" : open ? "" : " · misafirlikte açılır";
+    const note = here ? " · buradasın" : open ? "" : state.day === 1 ? " · ilk galadan sonra" : " · misafirlikte açılır";
     return `<button class="btn ${here ? "" : "ghost"}" type="button" data-room="${r.id}" ${open ? "" : "disabled"}>${esc(r.name)}${note}</button>`;
   }).join("");
   openModal(`
@@ -2809,7 +2816,7 @@ function frame(ts) {
       if (state.visit && NOW > state.visit.until) endVisit();
       if (!dlg && $("modal").hidden) {
         const { done, total } = talkProgress(), k = total ? done / total : 0;
-        if (!state.visit && NOW > state.nextVisit) startVisit();
+        if (!state.visit && NOW > state.nextVisit && state.day > 1) startVisit();
         else if (!state.eventDone && k >= 0.25) dayEvent();
         else if (!state.gameDone && k >= 0.5 && !player.path.length) startGame();
         else if (!state.bordoInviteDone && k >= 0.4) npcInvitesPlayer();
@@ -2828,7 +2835,8 @@ function frame(ts) {
 /* ---------- Oyun kurulumu ---------- */
 function buildCast(gender, name, look) {
   npcs = []; byId = {};
-  for (const id in BASE) {
+  const ids = ["F", "M"].flatMap(g => CAST_ORDER[g].slice(0, TEAM_SIZE - (g === gender ? 1 : 0)));
+  for (const id of ids) {
     const [rm, x, y, sit, face] = START_POS[id];
     const c = mkChar(id, withDefaults(BASE[id]), rm, x, y, { sit, face });
     npcs.push(c); byId[id] = c;
@@ -2836,12 +2844,14 @@ function buildCast(gender, name, look) {
   player = mkChar("sen", withDefaults(Object.assign({ name, g: gender, likes: [], dislikes: [] }, look || PLAYER_LOOK[gender])), "havuz", 5, 11, { face: [1, 1], speed: 3.1 });
   byId.sen = player;
   // başlangıç ilişkileri: karakter dokümanındaki haritaya göre
-  setChem(byId.bora, byId.nehir, 6); setChem(byId.tolga, byId.defne, 6);
-  setChem(byId.arda, byId.ece, 5); setChem(byId.kaan, byId.selin, 4);
+  const seed = (a, b, v) => { if (byId[a] && byId[b]) setChem(byId[a], byId[b], v); };
+  seed("bora", "nehir", 6); seed("tolga", "defne", 6); seed("arda", "ece", 5); seed("kaan", "selin", 4);
   state.groups = [];
-  newGroup("F", ["nehir", "defne", "ece"]);
-  newGroup("M", ["kaan", "tolga"]);
-  for (const [a, b] of [["nehir", "defne"], ["nehir", "ece"], ["defne", "ece"], ["kaan", "tolga"]]) setChem(byId[a], byId[b], 7);
+  for (const [g, members] of [["F", ["nehir", "defne", "ece"]], ["M", ["kaan", "tolga"]]]) {
+    const present = members.filter(id => byId[id]);
+    if (present.length >= 2) newGroup(g, present);
+    for (const a of present) for (const b of present) if (a < b) seed(a, b, 7);
+  }
 }
 function beginGame(gender, name, look) {
   state.room = "havuz"; state.day = 1; state.phase = "day";
@@ -2852,20 +2862,21 @@ function beginGame(gender, name, look) {
   state.visit = null; state.timer = null; state.bordoUsed = false; state.bordoInviteDone = false; state.bordoNpcDone = false; state.dancers = [];
   state.nextVisit = NOW + 35000;
   buildCast(gender, name, look);
-  sendHome(player); player.x = 5; player.y = 6;
-  state.room = player.room;
+  player.room = "havuz"; player.x = 5; player.y = 11;
+  state.room = "havuz";
   $("room-name").textContent = ROOMS[state.room].name; $("room-chip").hidden = false;
   updateHud(true);
   snapCamera();
   const opp = npcs.filter(n => n.def.g !== gender).map(n => n.def.name);
-  later(500, () => toast(ROOMS[state.room].name + "'ndesin. Karşı cinsle Havuz Başı'nda buluşabilirsin. Galadan önce konuşman gerekenler: " + opp.join(", "), "", 6000));
+  later(500, () => toast("1. gün: Herkes Havuz Başı'nda tanışıyor. Galadan önce konuşman gerekenler: " + opp.join(", "), "", 6000));
 }
 function newGame() {
   closeDialog(); endGalaUI(); closeModal();
   state.phase = "start"; state.room = "havuz"; state.immune = new Set(); state.talked = new Set(); state.matchOf = {}; state.revealed = new Set();
   state.visit = null; state.timer = null; state.dancers = [];
+  state.day = 1;
   buildCast("F", "Deniz");
-  sendHome(player); player.x = 5; player.y = 6; state.room = player.room;
+  player.room = "havuz"; player.x = 5; player.y = 11; state.room = "havuz";
   $("room-chip").hidden = false; $("room-name").textContent = ROOMS[state.room].name;
   snapCamera();
   openStart();
